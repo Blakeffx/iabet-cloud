@@ -6,15 +6,15 @@ from numba import njit, prange
 from parlay_api import ParlayAPI
 
 # ==============================================================
-# ⚙️ 1. TUS CREDENCIALES (REEMPLAZA ESTOS 3 VALORES)
+# ⚙️ 1. TUS CREDENCIALES
 # ==============================================================
 API_KEY = "105d8edef7a4869116a817c106dc86a8"
 TELEGRAM_TOKEN = "8902181028:AAE1ywEiCc6do90ZPclI8GnUdmVqKBc7iOU"
 TELEGRAM_CHAT_ID = "5203732922"
 
 DEPORTE = "soccer_spain_la_liga"
-BANKROLL = 100.0   # Presupuesto de 100 soles
-KELLY_FRAC = 0.25  # Quarter Kelly (25%)
+BANKROLL = 100.0   
+KELLY_FRAC = 0.25  
 N_SIMS = 1_000_000
 
 # ==============================================================
@@ -28,19 +28,15 @@ def enviar_telegram(mensaje):
         "parse_mode": "Markdown"
     }
     try:
-        r = requests.post(url, json=payload, timeout=10)
-        if r.status_code == 200:
-            print("✅ Mensaje enviado a Telegram correctamente.")
-        else:
-            print(f"⚠️ Error de Telegram ({r.status_code}): {r.text}")
+        requests.post(url, json=payload, timeout=10)
     except Exception as e:
-        print(f"❌ Fallo de red con Telegram: {e}")
+        print(f"Error de red: {e}")
 
 # ==============================================================
-# 🧠 3. MOTOR DE MONTE CARLO (1,000,000 SIMULACIONES)
+# 🧠 3. MOTOR DE MONTE CARLO (GOLES Y TIROS A PUERTA)
 # ==============================================================
 @njit(parallel=True)
-def motor_montecarlo(lambda_loc, lambda_vis, n_sims):
+def motor_montecarlo_goles(lambda_loc, lambda_vis, n_sims):
     vic_loc = 0
     empate = 0
     vic_vis = 0
@@ -61,14 +57,16 @@ def motor_montecarlo(lambda_loc, lambda_vis, n_sims):
         if tot > 1.5: over_15 += 1
         if tot > 2.5: over_25 += 1
 
-    return (
-        vic_loc / n_sims,
-        empate / n_sims,
-        vic_vis / n_sims,
-        (vic_loc + empate) / n_sims,
-        over_15 / n_sims,
-        over_25 / n_sims
-    )
+    return vic_loc / n_sims, empate / n_sims, vic_vis / n_sims, (vic_loc + empate) / n_sims
+
+@njit(parallel=True)
+def motor_montecarlo_tiros(lambda_tiros, n_sims):
+    """Simula las probabilidades de que un jugador cumpla +0.5 tiros al arco"""
+    aciertos = 0
+    for i in prange(n_sims):
+        if np.random.poisson(lambda_tiros) >= 1:
+            aciertos += 1
+    return aciertos / n_sims
 
 def dec(c):
     if c is None: return 2.00
@@ -78,20 +76,17 @@ def dec(c):
     return c
 
 # ==============================================================
-# 📡 4. EJECUCIÓN EN LA NUBE Y VERIFICACIÓN DE PARLAY-API
+# 📡 4. EJECUCIÓN EN LA NUBE (GOLES + PROPS DE JUGADORES)
 # ==============================================================
 def ejecutar_escaner_nube():
     t0 = time.time()
-    print("📡 Conectando con ParlayAPI desde la nube...")
     
     try:
         cliente = ParlayAPI(api_key=API_KEY)
-        eventos = cliente.odds(DEPORTE, regions="eu", markets="h2h")
-        quota_info = getattr(cliente, "last_quota", {}) or {}
+        # Pedimos tanto el mercado de resultado (h2h) como el de tiros a puerta de jugadores
+        eventos = cliente.odds(DEPORTE, regions="eu", markets="h2h,player_shots_on_target")
     except Exception as e:
-        error_msg = f"❌ *Error en IABET Cloud:* No se pudo conectar a ParlayAPI.\nDetalle: `{e}`"
-        print(error_msg)
-        enviar_telegram(error_msg)
+        enviar_telegram(f"❌ *Error IABET Cloud:* No se pudo conectar a ParlayAPI.\n`{e}`")
         return
 
     picks_alta_confianza = []
@@ -109,12 +104,11 @@ def ejecutar_escaner_nube():
             continue
 
         partidos_validos += 1
+        casa_principal = bookmakers[0]
+        mercados = casa_principal.get("markets", [])
 
-        # --- A) DETECTOR DE SUREBETS ENTRE TODAS LAS CASAS ---
-        mejor_1 = {"cuota": 0.0, "casa": ""}
-        mejor_X = {"cuota": 0.0, "casa": ""}
-        mejor_2 = {"cuota": 0.0, "casa": ""}
-
+        # --- A) DETECTOR DE SUREBETS ---
+        mejor_1, mejor_X, mejor_2 = {"cuota": 0.0, "casa": ""}, {"cuota": 0.0, "casa": ""}, {"cuota": 0.0, "casa": ""}
         for casa in bookmakers:
             nom_casa = casa.get("title", "Casa")
             for m in casa.get("markets", []):
@@ -122,12 +116,9 @@ def ejecutar_escaner_nube():
                     for out in m.get("outcomes", []):
                         nom_op = out.get("name")
                         precio = dec(out.get("price"))
-                        if nom_op == loc and precio > mejor_1["cuota"]:
-                            mejor_1 = {"cuota": precio, "casa": nom_casa}
-                        elif nom_op == vis and precio > mejor_2["cuota"]:
-                            mejor_2 = {"cuota": precio, "casa": nom_casa}
-                        elif nom_op == "Draw" and precio > mejor_X["cuota"]:
-                            mejor_X = {"cuota": precio, "casa": nom_casa}
+                        if nom_op == loc and precio > mejor_1["cuota"]: mejor_1 = {"cuota": precio, "casa": nom_casa}
+                        elif nom_op == vis and precio > mejor_2["cuota"]: mejor_2 = {"cuota": precio, "casa": nom_casa}
+                        elif nom_op == "Draw" and precio > mejor_X["cuota"]: mejor_X = {"cuota": precio, "casa": nom_casa}
 
         if mejor_1["cuota"] > 0 and mejor_X["cuota"] > 0 and mejor_2["cuota"] > 0:
             margen = (1/mejor_1["cuota"]) + (1/mejor_X["cuota"]) + (1/mejor_2["cuota"])
@@ -137,72 +128,92 @@ def ejecutar_escaner_nube():
                 sX = BANKROLL / (mejor_X["cuota"] * margen)
                 s2 = BANKROLL / (mejor_2["cuota"] * margen)
                 surebets_encontradas.append(
-                    f"🚨 *SUREBET ({rent:.2f}% Ganancia)*\n"
-                    f"⚽ {loc} vs {vis}\n"
+                    f"🚨 *SUREBET ({rent:.2f}% Ganancia)*\n⚽ {loc} vs {vis}\n"
                     f"• 1 ({mejor_1['casa']} @{mejor_1['cuota']:.2f}): *S/ {s1:.2f}*\n"
                     f"• X ({mejor_X['casa']} @{mejor_X['cuota']:.2f}): *S/ {sX:.2f}*\n"
                     f"• 2 ({mejor_2['casa']} @{mejor_2['cuota']:.2f}): *S/ {s2:.2f}*\n"
                 )
 
-        # --- B) MONTE CARLO + EV + KELLY (>= 70% CONFIANZA) ---
-        mercados = bookmakers[0].get("markets", [])
+        # --- B) EVALUACIÓN DE GOLES Y RESULTADOS ---
         cuotas_1x2 = {}
+        player_props = []
+        
         for m in mercados:
             if m.get("key") == "h2h":
                 for out in m.get("outcomes", []):
                     cuotas_1x2[out.get("name")] = out.get("price")
+            elif m.get("key") == "player_shots_on_target":
+                # Capturamos las líneas de tiros a puerta de los jugadores
+                for out in m.get("outcomes", []):
+                    if out.get("description") and "+0.5" in str(out.get("point", "")):
+                        player_props.append({
+                            "jugador": out.get("description"),
+                            "cuota": dec(out.get("price"))
+                        })
 
-        if not cuotas_1x2:
-            continue
+        if cuotas_1x2:
+            c_1 = dec(cuotas_1x2.get(loc, 2.00))
+            c_2 = dec(cuotas_1x2.get(vis, 3.50))
+            c_x = dec(cuotas_1x2.get("Draw", 3.20))
+            c_1x = round(1 / ((1/c_1) + (1/c_x)), 2)
 
-        c_1 = dec(cuotas_1x2.get(loc, 2.00))
-        c_2 = dec(cuotas_1x2.get(vis, 3.50))
-        c_x = dec(cuotas_1x2.get("Draw", 3.20))
-        c_1x = round(1 / ((1/c_1) + (1/c_x)), 2)
+            lambda_l = max(0.8, min(3.0, (1.0 / c_1) * 2.6))
+            lambda_v = max(0.5, min(2.5, (1.0 / c_2) * 2.2))
 
-        lambda_l = max(0.8, min(3.0, (1.0 / c_1) * 2.6))
-        lambda_v = max(0.5, min(2.5, (1.0 / c_2) * 2.2))
+            res_goles = motor_montecarlo_goles(lambda_l, lambda_v, N_SIMS)
 
-        res = motor_montecarlo(lambda_l, lambda_v, N_SIMS)
+            mercados_evaluar = {
+                f"Victoria {loc} (1)": (res_goles[0], c_1),
+                f"{loc} o Empate (1X)": (res_goles[3], c_1x)
+            }
 
-        mercados_evaluar = {
-            f"Victoria {loc} (1)": (res[0], c_1),
-            f"{loc} o Empate (1X)": (res[3], c_1x)
-        }
+            for nom, (prob_real, cuota) in mercados_evaluar.items():
+                ev = (prob_real * cuota) - 1.0
+                b = cuota - 1.0
+                q = 1.0 - prob_real
+                kelly_puro = ((b * prob_real) - q) / b if b > 0 else 0
+                dinero = BANKROLL * max(0.0, kelly_puro * KELLY_FRAC)
 
-        for nom, (prob_real, cuota) in mercados_evaluar.items():
-            ev = (prob_real * cuota) - 1.0
-            b = cuota - 1.0
-            q = 1.0 - prob_real
-            kelly_puro = ((b * prob_real) - q) / b if b > 0 else 0
-            dinero = BANKROLL * max(0.0, kelly_puro * KELLY_FRAC)
+                if ev > 0.0 and prob_real >= 0.70 and dinero >= 1.0:
+                    picks_alta_confianza.append(
+                        f"⚽ *{loc} vs {vis}*\n👉 `{nom}`\n"
+                        f"📊 Confianza: *{prob_real*100:.1f}%* | Cuota: *{cuota:.2f}*\n"
+                        f"💰 Apostar: *S/ {dinero:.2f}* (EV: +{ev*100:.1f}%)\n"
+                    )
 
-            if ev > 0.0 and prob_real >= 0.70 and dinero >= 1.0:
+        # --- C) EVALUACIÓN DE PLAYER PROPS (TIROS AL ARCO) ---
+        for prop in player_props:
+            # Estimamos un lambda conservador de tiros basado en la cuota ofrecida por la casa
+            lambda_estimada_tiros = 1.35 if prop["cuota"] < 1.40 else 1.15
+            prob_real_tiros = motor_montecarlo_tiros(lambda_estimada_tiros, N_SIMS)
+            
+            cuota_prop = prop["cuota"]
+            ev_prop = (prob_real_tiros * cuota_prop) - 1.0
+            b_prop = cuota_prop - 1.0
+            q_prop = 1.0 - prob_real_tiros
+            kelly_prop = ((b_prop * prob_real_tiros) - q_prop) / b_prop if b_prop > 0 else 0
+            dinero_prop = BANKROLL * max(0.0, kelly_prop * KELLY_FRAC)
+
+            if ev_prop > 0.0 and prob_real_tiros >= 0.70 and dinero_prop >= 1.0:
                 picks_alta_confianza.append(
-                    f"⚽ *{loc} vs {vis}*\n"
-                    f"👉 `{nom}`\n"
-                    f"📊 Confianza: *{prob_real*100:.1f}%* | Cuota: *{cuota:.2f}*\n"
-                    f"💰 Apostar: *S/ {dinero:.2f}* (EV: +{ev*100:.1f}%)\n"
+                    f"🎯 *PROP TIROS: {loc} vs {vis}*\n"
+                    f"👉 Jugador: `{prop['jugador']}` (+0.5 Remates al Arco)\n"
+                    f"📊 Confianza: *{prob_real_tiros*100:.1f}%* | Cuota: *{cuota_prop:.2f}*\n"
+                    f"💰 Apostar: *S/ {dinero_prop:.2f}* (EV: +{ev_prop*100:.1f}%)\n"
                 )
 
     duracion = time.time() - t0
-    sim_totales = partidos_validos * N_SIMS
-
-    # Armar el reporte para tu celular
     bloques = [
-        f"☁️ *REPORTE IABET CLOUD (VERIFICADO)*",
-        f"✅ ParlayAPI: *{partidos_validos} partidos* | *{sim_totales:,} simulaciones* en {duracion:.2f}s.\n"
+        f"☁️ *REPORTE IABET CLOUD (CON TIROS AL ARCO)*",
+        f"✅ ParlayAPI: *{partidos_validos} partidos* procesados en {duracion:.2f}s.\n"
     ]
 
-    if surebets_encontradas:
-        bloques.append("\n".join(surebets_encontradas))
-
-    if picks_alta_confianza:
-        bloques.append("🎯 *PICKS ALTA CONFIANZA (70%-100%):*\n" + "\n".join(picks_alta_confianza))
-    else:
-        bloques.append("ℹ️ Sin picks >=70% con +EV en este barrido.")
+    if surebets_encontradas: bloques.append("\n".join(surebets_encontradas))
+    if picks_alta_confianza: bloques.append("🎯 *PICKS ALTA CONFIANZA (70%-100%):*\n" + "\n".join(picks_alta_confianza))
+    else: bloques.append("ℹ️ Sin picks >=70% con +EV en este barrido.")
 
     enviar_telegram("\n".join(bloques))
 
 if __name__ == "__main__":
     ejecutar_escaner_nube()
+        
