@@ -1,0 +1,29 @@
+name: IABET Cloud Scanner
+
+on:
+  # Botón manual para probar ahora mismo que todo funciona:
+  workflow_dispatch:
+
+  # Reloj automático: Se ejecuta cada 2 horas entre las 8:00 AM y las 10:00 PM (Hora Perú)
+  # Así ahorras tus 1,000 créditos mensuales de ParlayAPI mientras duermes
+  schedule:
+    - cron: '0 13,15,17,19,21,23,1,3 * * *'
+
+jobs:
+  escanear-partidos:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 1. Descargar tu codigo IABET
+        uses: actions/checkout@v4
+
+      - name: 2. Instalar Python 3.11 en la nube
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: 3. Instalar ParlayAPI y Motor Matematico (Numba)
+        run: pip install parlay-api numba numpy pandas requests
+
+      - name: 4. Ejecutar Simulaciones y Enviar a Telegram
+        run: python iabet_cloud.py
