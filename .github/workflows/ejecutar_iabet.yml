@@ -3,7 +3,7 @@ name: IABET Cloud Scanner
 on:
   workflow_dispatch:
   schedule:
-    - cron: '30 10,11,12,13,14,17,18,19 * * *'
+    - cron: '0 */2 * * *'
 
 jobs:
   escanear-partidos:
@@ -18,7 +18,7 @@ jobs:
           python-version: '3.11'
 
       - name: 3. Instalar ParlayAPI y Motor Matematico (Numba)
-        run: pip install  parlay-api numba numpy pandas requests httpx
+        run: pip install parlay-api numba numpy pandas requests
 
       - name: 4. Ejecutar Simulaciones y Enviar a Telegram
         run: python iabet_cloud.py
