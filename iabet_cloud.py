@@ -28,19 +28,20 @@ N_SIMS = 1_000_000      # 1,000,000 de simulaciones de Monte Carlo
 TOP_PICKS_MAX = 5       # 5 Picks Destacados (Plan Serious)
 
 # Catálogo Global: Sudamérica + Perú + Europa (Picks / Deporte: ∞)
+# Catálogo Global: Sudamérica + Perú + Europa (Picks / Deporte: ∞)
 LIGAS_PARLAY = {
-    "soccer_conmebol_copa_sudamericana": ("🏆 Copa Sudamericana", None),
-    "soccer_conmebol_copa_libertadores": ("🏆 Copa Libertadores", None),
-    "soccer_brazil_campeonato": ("🇧🇷 Brasileirão", "https://www.football-data.co.uk/new/BRA.csv"),
-    "soccer_argentina_primera_division": ("🇦🇷 Liga Argentina", "https://www.football-data.co.uk/new/ARG.csv"),
-    "soccer_mexico_ligamx": ("🇲🇽 Liga MX", "https://www.football-data.co.uk/new/MEX.csv"),
-    "soccer_epl": ("🏴󠁧󠁢󠁥󠁮󠁧󠁿 Premier League", "https://www.football-data.co.uk/mmz4281/2526/E0.csv"),
-    "soccer_spain_la_liga": ("🇪🇸 LaLiga", "https://www.football-data.co.uk/mmz4281/2526/SP1.csv"),
-    "soccer_italy_serie_a": ("🇮🇹 Serie A", "https://www.football-data.co.uk/mmz4281/2526/I1.csv"),
-    "soccer_germany_bundesliga": ("🇩🇪 Bundesliga", "https://www.football-data.co.uk/mmz4281/2526/D1.csv"),
-    "soccer_france_ligue_one": ("🇫🇷 Ligue 1", "https://www.football-data.co.uk/mmz4281/2526/F1.csv"),
-    "soccer_netherlands_eredivisie": ("🇳🇱 Eredivisie", "https://www.football-data.co.uk/mmz4281/2526/N1.csv"),
-    "soccer_uefa_champs_league": ("⭐ Champions League", None)
+    "soccer_conmebol_copa_sudamericana": ("Copa Sudamericana", None),
+    "soccer_conmebol_copa_libertadores": ("Copa Libertadores", None),
+    "soccer_brazil_campeonato": ("Brasileirao", "https://www.football-data.co.uk/new/BRA.csv"),
+    "soccer_argentina_primera_division": ("Liga Argentina", "https://www.football-data.co.uk/new/ARG.csv"),
+    "soccer_mexico_ligamx": ("Liga MX", "https://www.football-data.co.uk/new/MEX.csv"),
+    "soccer_epl": ("Premier League", "https://www.football-data.co.uk/mmz4281/2526/E0.csv"),
+    "soccer_spain_la_liga": ("LaLiga", "https://www.football-data.co.uk/mmz4281/2526/SP1.csv"),
+    "soccer_italy_serie_a": ("Serie A", "https://www.football-data.co.uk/mmz4281/2526/I1.csv"),
+    "soccer_germany_bundesliga": ("Bundesliga", "https://www.football-data.co.uk/mmz4281/2526/D1.csv"),
+    "soccer_france_ligue_one": ("Ligue 1", "https://www.football-data.co.uk/mmz4281/2526/F1.csv"),
+    "soccer_netherlands_eredivisie": ("Eredivisie", "https://www.football-data.co.uk/mmz4281/2526/N1.csv"),
+    "soccer_uefa_champs_league": ("Champions League", None)
 }
 
 # Endpoints Kambi Directos (Betsson/Inkabet) para Liga 1 Perú y Sudamericana (Costo: S/ 0)
