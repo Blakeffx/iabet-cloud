@@ -5,9 +5,10 @@ import numpy as np
 import pandas as pd
 from numba import njit, prange
 from concurrent.futures import ThreadPoolExecutor
+from parlay_api import ParlayAPI
 
 # ==============================================================================
-# 1. CREDENCIALES Y CONFIGURACION (IABET v11.0 APP-CLONE)
+# 1. CREDENCIALES Y CONFIGURACION (IABET v11.0 APP-CLONE DEFINITIVA)
 # ==============================================================================
 API_KEY = "105d8edef7a4869116a817c106dc86a8"
 TELEGRAM_TOKEN = "8902181028:AAE1ywEiCc6do90ZPclI8GnUdmVqKBc7iOU"
@@ -36,7 +37,9 @@ LIGAS_FUTBOL = {
     "soccer_netherlands_eredivisie": ("Eredivisie", "N1", 3.4, 20.5, 9.6),
     "soccer_brazil_campeonato": ("Brasileirao", "BRA", 5.0, 27.2, 8.9),
     "soccer_argentina_primera_division": ("Liga Argentina", "ARG", 5.2, 27.8, 8.3),
-    "soccer_conmebol_copa_libertadores": ("Copa Libertadores", None, 5.3, 27.5, 8.6)
+    "soccer_conmebol_copa_libertadores": ("Copa Libertadores", None, 5.3, 27.5, 8.6),
+    "soccer_conmebol_copa_sudamericana": ("Copa Sudamericana", None, 5.0, 26.8, 8.4),
+    "soccer_mexico_ligamx": ("Liga MX", "MEX", 4.5, 24.4, 8.8)
 }
 
 ESPN_SCOREBOARDS = {
@@ -234,12 +237,11 @@ def obtener_stats_equipo(df, equipo, base_faltas, es_local=True):
     }
 
 # ==============================================================================
-# 4. ORQUESTADOR CUANTITATIVO CONSOLIDADO (PARLAY API DE-VIGGING)
+# 4. ORQUESTADOR CUANTITATIVO CONSOLIDADO
 # ==============================================================================
 def ejecutar_iabet_cloud():
     t0 = time.time()
     
-    # 1. Petición unificada a ParlayAPI vía REST
     try:
         url_parlay = "https://parlay-api.com/api/v1/odds"
         params = {"api_key": API_KEY, "regions": "eu", "markets": "h2h,totals"}
@@ -430,7 +432,7 @@ def ejecutar_iabet_cloud():
     cuota_prom = np.mean([p["cuota"] for p in top_destacados]) if top_destacados else 1.62
 
     reporte = [
-        "👑 *IABET PRO v10.0 — MOTOR APP-CLONE 2024*",
+        "👑 *IABET PRO v11.0 — MOTOR APP-CLONE 2024*",
         f"🟢 *{partidos_totales} partidos analizados* | *{partidos_totales * N_SIMS:,} sims* ({t_total:.1f}s)",
         f"📊 *Bases Históricas Activas:* `{len(caches_csv)} ligas` | *Cuota Prom.:* `@{cuota_prom:.2f}`\n"
     ]
@@ -455,8 +457,7 @@ def ejecutar_iabet_cloud():
     else:
         reporte.append("ℹ️ Las líneas actuales se encuentran ajustadas por las casas de apuestas. Sin desajustes de valor (+EV) en este ciclo.")
 
-    enviar_telegram_seguro("\n".join(reporte))
+    enviar_telegram("\n".join(reporte))
 
 if __name__ == "__main__":
     ejecutar_iabet_cloud()
-                
