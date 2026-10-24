@@ -18,7 +18,7 @@ except ImportError:
 # ==============================================================================
 # 1. CREDENCIALES Y CONFIGURACION (INGENIERIA INVERSA IABET.CO APK v1.1.4)
 # ==============================================================================
-API_KEY = "TU_API_KEY_DE_PARLAY"
+API_KEY = "105d8edef7a4869116a817c106dc86a8"
 TELEGRAM_TOKEN = "8902181028:AAE1ywEiCc6do90ZPclI8GnUdmVqKBc7iOU"
 TELEGRAM_CHAT_ID = "5203732922"
 GEMINI_API_KEY = "TU_GEMINI_API_KEY_OPCIONAL"
