@@ -18,7 +18,7 @@ jobs:
           python-version: '3.11'
 
       - name: 3. Instalar ParlayAPI y Motor Matematico (Numba)
-        run: pip install parlay-api numba numpy pandas requests
+        run: pip install  parlay-api numba numpy pandas requests httpx
 
       - name: 4. Ejecutar Simulaciones y Enviar a Telegram
         run: python iabet_cloud.py
