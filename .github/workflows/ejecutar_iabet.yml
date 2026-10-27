@@ -12,21 +12,21 @@ jobs:
   escanear-partidos:
     runs-on: ubuntu-latest
     steps:
-      - name: 1. Descargar tu codigo IABET
+      - name: 1. Descargar codigo IABET
         uses: actions/checkout@v4
 
-      - name: 2. Instalar Python 3.11 en la nube
+      - name: 2. Instalar Python 3.11
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
-      - name: 3. Instalar ParlayAPI y Motor Matematico (Numba)
-        run: pip install parlay-api numba numpy pandas requests
+      - name: 3. Instalar Dependencias de Alto Rendimiento
+        run: pip install numba numpy pandas requests
 
-      - name: 4. Ejecutar Motor, Auditar con ESPN y Generar Web
+      - name: 4. Ejecutar Pipeline Nivel 2+ (Kambi + ESPN + Monte Carlo 1M)
         run: python iabet_cloud.py
 
-      - name: 5. Guardar Auditoria y Actualizar Pagina Web en Vivo
+      - name: 5. Auto-Guardar Auditoria y Publicar Web Dashboard
         run: |
           git config --global user.name "IABET Quant Bot"
           git config --global user.email "bot@iabet.cloud"
