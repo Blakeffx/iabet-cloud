@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IABET Quant | Predicciones Deportivas Auditadas con IA</title>
+    <title>IABET Quant Pro | Predicciones Deportivas Auditadas en Tiempo Real</title>
     <style>
         :root {
             --bg: #0b0f19;
@@ -20,55 +20,56 @@
         .logo { font-size: 1.35rem; font-weight: 800; letter-spacing: -0.5px; color: #fff; display: flex; align-items: center; gap: 8px; }
         .logo span { background: linear-gradient(90deg, #10b981, #3b82f6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         .status-pill { font-size: 0.8rem; background: #10b98120; color: #10b981; border: 1px solid #10b98150; padding: 6px 12px; border-radius: 999px; font-weight: 600; }
-        .container { max-width: 1180px; margin: 0 auto; padding: 24px 16px; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 24px 16px; }
         .hero { text-align: center; padding: 28px 16px; background: radial-gradient(circle at top, #1e293b60, transparent 70%); border-radius: 16px; margin-bottom: 28px; border: 1px solid var(--border); }
         .hero h1 { font-size: 2rem; font-weight: 800; margin-bottom: 8px; }
-        .hero p { color: var(--muted); max-width: 680px; margin: 0 auto; font-size: 0.95rem; }
+        .hero p { color: var(--muted); max-width: 760px; margin: 0 auto; font-size: 0.95rem; }
         .stats-bar { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; margin-bottom: 32px; }
         .stat-box { background: var(--card); border: 1px solid var(--border); padding: 18px; border-radius: 12px; text-align: center; }
-        .stat-box .s-label { font-size: 0.78rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
-        .stat-box .s-val { font-size: 1.65rem; font-weight: 800; margin-top: 4px; color: #fff; }
-        .section-title { font-size: 1.25rem; font-weight: 700; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; }
-        .picks-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); gap: 18px; margin-bottom: 42px; }
+        .stat-box .s-label { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
+        .stat-box .s-val { font-size: 1.6rem; font-weight: 800; margin-top: 4px; color: #fff; }
+        .section-title { font-size: 1.2rem; font-weight: 700; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+        .picks-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 18px; margin-bottom: 42px; }
         .pick-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 18px; position: relative; overflow: hidden; transition: transform 0.2s; }
         .pick-card:hover { transform: translateY(-3px); border-color: #334155; }
         .pick-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-        .league-tag { font-size: 0.75rem; color: var(--muted); font-weight: 600; text-transform: uppercase; }
+        .league-tag { font-size: 0.72rem; color: var(--muted); font-weight: 700; text-transform: uppercase; }
         .tier-badge { font-size: 0.72rem; font-weight: 700; padding: 3px 9px; border-radius: 99px; }
         .match-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 12px; color: #fff; }
         .market-box { background: #0f172a; border: 1px solid #1e293b; border-radius: 10px; padding: 12px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
-        .market-label { font-size: 0.68rem; color: var(--muted); font-weight: 700; }
-        .market-name { font-size: 1rem; font-weight: 800; color: #38bdf8; }
+        .market-label { font-size: 0.65rem; color: var(--muted); font-weight: 700; }
+        .market-name { font-size: 0.98rem; font-weight: 800; color: #38bdf8; }
         .odd-pill { background: #10b98120; color: #10b981; font-weight: 800; font-size: 1.1rem; padding: 6px 12px; border-radius: 8px; border: 1px solid #10b98140; }
         .metrics-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 12px; text-align: center; background: #0b0f19; padding: 10px; border-radius: 8px; }
-        .m-label { display: block; font-size: 0.68rem; color: var(--muted); }
+        .m-label { display: block; font-size: 0.66rem; color: var(--muted); }
         .m-val { font-size: 0.88rem; font-weight: 700; }
-        .l-bars { font-size: 0.78rem; color: #cbd5e1; background: #1e293b60; padding: 7px 10px; border-radius: 6px; margin-bottom: 10px; }
-        .ai-note { font-size: 0.8rem; color: var(--muted); border-top: 1px solid var(--border); padding-top: 8px; }
+        .l-bars { font-size: 0.76rem; color: #cbd5e1; background: #1e293b60; padding: 7px 10px; border-radius: 6px; margin-bottom: 10px; }
+        .ai-note { font-size: 0.78rem; color: var(--muted); border-top: 1px solid var(--border); padding-top: 8px; }
         .blur-lock { filter: blur(6px); user-select: none; pointer-events: none; }
-        .vip-overlay { position: absolute; inset: 0; background: rgba(11, 15, 25, 0.72); display: flex; align-items: center; justify-content: center; padding: 20px; text-align: center; }
+        .vip-overlay { position: absolute; inset: 0; background: rgba(11, 15, 25, 0.75); display: flex; align-items: center; justify-content: center; padding: 20px; text-align: center; }
         .vip-box { background: #111827; border: 1px solid #10b981; padding: 16px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.6); }
         .vip-box span { display: block; font-weight: 700; font-size: 0.9rem; margin-bottom: 10px; color: #fff; }
         .btn-vip { display: inline-block; background: #10b981; color: #052e16; font-weight: 800; text-decoration: none; padding: 8px 16px; border-radius: 8px; font-size: 0.85rem; }
         .table-wrap { background: var(--card); border: 1px solid var(--border); border-radius: 14px; overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; font-size: 0.85rem; text-align: left; }
-        th { background: #0f172a; color: var(--muted); padding: 12px 14px; font-size: 0.75rem; text-transform: uppercase; border-bottom: 1px solid var(--border); }
+        table { width: 100%; border-collapse: collapse; font-size: 0.84rem; text-align: left; }
+        th { background: #0f172a; color: var(--muted); padding: 12px 14px; font-size: 0.74rem; text-transform: uppercase; border-bottom: 1px solid var(--border); }
         td { padding: 12px 14px; border-bottom: 1px solid var(--border); }
-        .st-won { background: #10b98120; color: #10b981; padding: 4px 8px; border-radius: 6px; font-weight: 700; font-size: 0.75rem; }
-        .st-lost { background: #ef444420; color: #ef4444; padding: 4px 8px; border-radius: 6px; font-weight: 700; font-size: 0.75rem; }
-        .st-pend { background: #f59e0b20; color: #f59e0b; padding: 4px 8px; border-radius: 6px; font-weight: 700; font-size: 0.75rem; }
+        .st-won { background: #10b98120; color: #10b981; padding: 4px 8px; border-radius: 6px; font-weight: 700; font-size: 0.74rem; }
+        .st-lost { background: #ef444420; color: #ef4444; padding: 4px 8px; border-radius: 6px; font-weight: 700; font-size: 0.74rem; }
+        .st-live { background: #ef444430; color: #f87171; padding: 4px 8px; border-radius: 6px; font-weight: 700; font-size: 0.74rem; border: 1px solid #ef4444; }
+        .st-pend { background: #f59e0b20; color: #f59e0b; padding: 4px 8px; border-radius: 6px; font-weight: 700; font-size: 0.74rem; }
         .empty-state { grid-column: 1 / -1; background: var(--card); border: 1px dashed #334155; padding: 36px; border-radius: 14px; text-align: center; color: var(--muted); }
     </style>
 </head>
 <body>
     <nav class="navbar">
-        <div class="logo">⚡ IABET <span>QUANT PRO</span></div>
-        <div class="status-pill">🟢 Motor Activo | Modo: PRUEBA</div>
+        <div class="logo">⚡ IABET <span>QUANT PRO (Nivel 2+ B2B)</span></div>
+        <div class="status-pill">🟢 Kambi Direct + ESPN Live | Modo: PRUEBA</div>
     </nav>
     <div class="container">
         <div class="hero">
-            <h1>Inteligencia Artificial Cuantitativa & Auditoría en Vivo</h1>
-            <p>1,000,000 de simulaciones de Monte Carlo por partido, De-Vigging institucional contra consenso de mercado y validación histórica L5 · L10 · L20 verificada automáticamente con ESPN API.</p>
+            <h1>Motor Multimercado & Diagnóstico Deportivo en Tiempo Real</h1>
+            <p>Ingesta B2B directa de Kambi (Betsson/Inkabet), ESPN Live Scoreboards y series históricas L5 · L10 · L20 procesadas con 1,000,000 de simulaciones de Monte Carlo.</p>
         </div>
 
         <div class="stats-bar">
@@ -89,39 +90,39 @@
                 <div class="s-val">S/ 100.00</div>
             </div>
             <div class="stat-box">
-                <div class="s-label">Racha Actual</div>
-                <div class="s-val">🔥 En espera</div>
+                <div class="s-label">Estado / En Vivo</div>
+                <div class="s-val">🔥 0 Activos</div>
             </div>
         </div>
 
         <div class="section-title">
-            <span>🎯 Picks Destacados de la Jornada (0 seleccionados de 72 partidos)</span>
-            <small style="color:var(--muted); font-size:0.8rem;">Actualizado: 2026-10-27 22:28 UTC</small>
+            <span>🎯 Pronósticos de Valor Detectados (0 seleccionados de 0 partidos | 7 bases históricas activas)</span>
+            <small style="color:var(--muted); font-size:0.8rem;">Último escaneo: 2026-10-27 22:46 UTC</small>
         </div>
         <div class="picks-grid">
             
         <div class="empty-state">
             <h3>🛡️ Mercado Eficiente en este Ciclo</h3>
-            <p>El motor analizó las líneas actuales y descartó cuotas sin ventaja matemática suficiente (+EV). El próximo escaneo automático actualizará nuevas oportunidades.</p>
+            <p>El motor analizó los endpoints B2B y descartó cuotas sin ventaja matemática. El próximo escaneo actualizará nuevas oportunidades.</p>
         </div>
         
         </div>
 
         <div class="section-title">
-            <span>📋 Historial de Auditoría Transparente (Verificación Automática ESPN)</span>
+            <span>📋 Auditoría en Tiempo Real (Verificación Automática ESPN Scoreboard)</span>
         </div>
         <div class="table-wrap">
             <table>
                 <thead>
                     <tr>
                         <th>Fecha</th>
-                        <th>Partido / Torneo</th>
+                        <th>Partido / Mercado</th>
                         <th>Pronóstico IA</th>
-                        <th>Cuota</th>
-                        <th>Confianza</th>
-                        <th>Resultado</th>
-                        <th>Estado</th>
-                        <th>Beneficio</th>
+                        <th>Cuota / Casa</th>
+                        <th>Prob. Real</th>
+                        <th>Marcador / Estado</th>
+                        <th>Verificación</th>
+                        <th>Retorno</th>
                     </tr>
                 </thead>
                 <tbody>

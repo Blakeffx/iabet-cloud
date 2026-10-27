@@ -7,8 +7,9 @@
     "win_rate_pct": 0.0,
     "ganados": 0,
     "perdidos": 0,
+    "en_vivo": 0,
     "pendientes": 0,
-    "racha_actual": "En espera"
+    "racha_actual": "0 Activos"
   },
   "historial": []
 }
