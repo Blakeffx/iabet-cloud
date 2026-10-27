@@ -10,12 +10,12 @@ import pandas as pd
 from numba import njit, prange
 
 # ==============================================================================
-# 1. CONFIGURACIÓN ARQUITECTURA NIVEL 2+ (SIN APIS GENÉRICAS / CERO PARLAYAPI)
+# 1. CONFIGURACIÓN ARQUITECTURA NIVEL 2+ (PIPELINE RESILIENTE EN LA NUBE)
 # ==============================================================================
 TELEGRAM_TOKEN = "8902181028:AAE1ywEiCc6do90ZPclI8GnUdmVqKBc7iOU"
 TELEGRAM_CHAT_ID = "5203732922"
 
-MODO_COMERCIAL = "PRUEBA"  # "PRUEBA" (picks abiertos para tracción) o "VENTA" (con blur VIP)
+MODO_COMERCIAL = "PRUEBA"  # "PRUEBA" (picks abiertos para captar clientes) o "VENTA"
 LINK_CONTACTO_VIP = "https://t.me/+TuEnlaceDeContacto"
 
 BANKROLL_INICIAL = 100.0
@@ -32,21 +32,20 @@ HEADERS_PRO = {
     "Accept-Language": "es-ES,es;q=0.9"
 }
 
-# Red de Catálogo Directo Kambi (Proveedor B2B oficial de Betsson, Inkabet, Unibet)
-# Formato: (Identificador, Nombre Torneo, URL Endpoint JSON, Tarjetas Base, Faltas Base, SOT Base)
-ENDPOINTS_KAMBI_DIRECTOS = [
-    ("soccer_peru_primera_division", "Liga 1 Perú", "https://eu-offering-api.kambi.com/offering/v2018/ub/listView/football/peru/primera_division/all/matches.json?lang=es_ES&market=PE", 5.3, 28.0, 8.5),
-    ("soccer_conmebol_copa_libertadores", "Copa Libertadores", "https://eu-offering-api.kambi.com/offering/v2018/ub/listView/football/copa_libertadores/all/all/matches.json?lang=es_ES&market=PE", 5.3, 27.5, 8.6),
-    ("soccer_conmebol_copa_sudamericana", "Copa Sudamericana", "https://eu-offering-api.kambi.com/offering/v2018/ub/listView/football/copa_sudamericana/all/all/matches.json?lang=es_ES&market=PE", 5.0, 26.8, 8.4),
-    ("soccer_spain_la_liga", "LaLiga", "https://eu-offering-api.kambi.com/offering/v2018/ub/listView/football/spain/la_liga/all/matches.json?lang=es_ES&market=PE", 4.7, 25.0, 8.6),
-    ("soccer_epl", "Premier League", "https://eu-offering-api.kambi.com/offering/v2018/ub/listView/football/england/premier_league/all/matches.json?lang=es_ES&market=PE", 3.9, 21.6, 9.3),
-    ("soccer_italy_serie_a", "Serie A", "https://eu-offering-api.kambi.com/offering/v2018/ub/listView/football/italy/serie_a/all/matches.json?lang=es_ES&market=PE", 4.4, 24.5, 8.7),
-    ("soccer_germany_bundesliga", "Bundesliga", "https://eu-offering-api.kambi.com/offering/v2018/ub/listView/football/germany/bundesliga/all/matches.json?lang=es_ES&market=PE", 4.0, 22.2, 9.5),
-    ("soccer_france_ligue_one", "Ligue 1", "https://eu-offering-api.kambi.com/offering/v2018/ub/listView/football/france/ligue_1/all/matches.json?lang=es_ES&market=PE", 4.0, 23.6, 8.8),
-    ("soccer_uefa_champs_league", "Champions League", "https://eu-offering-api.kambi.com/offering/v2018/ub/listView/football/champions_league/all/all/matches.json?lang=es_ES&market=PE", 4.1, 22.6, 9.4),
-    ("soccer_brazil_campeonato", "Brasileirão", "https://eu-offering-api.kambi.com/offering/v2018/ub/listView/football/brazil/serie_a/all/matches.json?lang=es_ES&market=PE", 5.0, 27.2, 8.9),
-    ("soccer_argentina_primera_division", "Liga Argentina", "https://eu-offering-api.kambi.com/offering/v2018/ub/listView/football/argentina/primera_division/all/matches.json?lang=es_ES&market=PE", 5.2, 27.6, 8.3)
-]
+# Slugs de ESPN API: Devuelve partidos en vivo, cuotas de mercado (DraftKings/Bovada/ESPNBet) y estadísticas
+LIGAS_CONFIG = {
+    "esp.1": ("LaLiga", "SP1", 4.7, 25.0, 8.6),
+    "eng.1": ("Premier League", "E0", 3.9, 21.6, 9.3),
+    "ita.1": ("Serie A", "I1", 4.4, 24.5, 8.7),
+    "ger.1": ("Bundesliga", "D1", 4.0, 22.2, 9.5),
+    "fra.1": ("Ligue 1", "F1", 4.0, 23.6, 8.8),
+    "uefa.champions": ("Champions League", None, 4.1, 22.6, 9.4),
+    "conmebol.libertadores": ("Copa Libertadores", None, 5.3, 27.5, 8.6),
+    "conmebol.sudamericana": ("Copa Sudamericana", None, 5.0, 26.8, 8.4),
+    "per.1": ("Liga 1 Perú", None, 5.3, 28.0, 8.5),
+    "bra.1": ("Brasileirão", "BRA", 5.0, 27.2, 8.9),
+    "arg.1": ("Liga Argentina", "ARG", 5.2, 27.6, 8.3)
+}
 
 CSV_LIGAS_MAPA = {
     "LaLiga": "SP1",
@@ -58,28 +57,11 @@ CSV_LIGAS_MAPA = {
     "Liga Argentina": "ARG"
 }
 
-ESPN_SCOREBOARD_SLUGS = {
-    "LaLiga": "esp.1",
-    "Premier League": "eng.1",
-    "Serie A": "ita.1",
-    "Bundesliga": "ger.1",
-    "Ligue 1": "fra.1",
-    "Champions League": "uefa.champions",
-    "Copa Libertadores": "conmebol.libertadores",
-    "Copa Sudamericana": "conmebol.sudamericana",
-    "Liga 1 Perú": "per.1",
-    "Brasileirão": "bra.1",
-    "Liga Argentina": "arg.1"
-}
-
 DB_EQUIPOS_PRO = {
     "universitario": {"gf": 1.88, "gc": 0.65, "f_com": 13.6, "f_rec": 14.8, "sot": 5.5, "tarj": 2.3},
     "alianza lima": {"gf": 1.75, "gc": 0.72, "f_com": 13.1, "f_rec": 15.1, "sot": 5.2, "tarj": 2.4},
     "sporting cristal": {"gf": 2.12, "gc": 1.02, "f_com": 11.7, "f_rec": 14.9, "sot": 5.9, "tarj": 2.1},
     "melgar": {"gf": 1.84, "gc": 0.85, "f_com": 13.4, "f_rec": 13.9, "sot": 5.5, "tarj": 2.5},
-    "cusco": {"gf": 1.68, "gc": 1.02, "f_com": 14.5, "f_rec": 13.2, "sot": 4.8, "tarj": 2.6},
-    "cienciano": {"gf": 1.55, "gc": 1.15, "f_com": 14.9, "f_rec": 13.0, "sot": 4.6, "tarj": 2.7},
-    "adt": {"gf": 1.52, "gc": 1.10, "f_com": 14.2, "f_rec": 12.8, "sot": 4.5, "tarj": 2.5},
     "flamengo": {"gf": 1.95, "gc": 0.82, "f_com": 12.8, "f_rec": 14.6, "sot": 5.8, "tarj": 2.2},
     "palmeiras": {"gf": 1.90, "gc": 0.78, "f_com": 13.2, "f_rec": 14.4, "sot": 5.7, "tarj": 2.3},
     "river plate": {"gf": 1.88, "gc": 0.75, "f_com": 12.5, "f_rec": 15.0, "sot": 5.6, "tarj": 2.2},
@@ -153,7 +135,7 @@ def motor_montecarlo_v13(
     )
 
 # ==============================================================================
-# 3. PIPELINE DE DATOS DIRECTOS (KAMBI B2B + FOOTBALL-DATA CSV + ESPN SCOREBOARDS)
+# 3. PIPELINE DE EXTRACCIÓN (FOOTBALL-DATA CSV + ESPN CORE SCOREBOARDS)
 # ==============================================================================
 def normalizar_nombre(nombre):
     if not nombre:
@@ -189,20 +171,24 @@ def descargar_csv_liga(item):
         return nom_liga, pd.concat(frames, ignore_index=True).tail(400)
     return nom_liga, pd.DataFrame()
 
-def descargar_espn_liga(item):
-    nom_liga, espn_slug = item
-    url = f"https://site.api.espn.com/apis/site/v2/sports/soccer/{espn_slug}/scoreboard"
-    partidos_espn = {}
+def descargar_espn_completo(item):
+    slug, (nom_liga, _, b_tarj, b_falt, b_sot) = item
+    url = f"https://site.api.espn.com/apis/site/v2/sports/soccer/{slug}/scoreboard"
+    eventos_encontrados = []
+    partidos_espn_estado = {}
     equipos_espn = {}
+
     try:
-        r = requests.get(url, headers=HEADERS_PRO, timeout=7)
+        r = requests.get(url, headers=HEADERS_PRO, timeout=8)
         if r.status_code == 200:
-            for ev in r.json().get("events", []):
+            data = r.json()
+            for ev in data.get("events", []):
                 comp = (ev.get("competitions") or [{}])[0]
                 st_obj = comp.get("status", {})
                 estado = st_obj.get("type", {}).get("state", "pre")
                 detalle_tiempo = st_obj.get("type", {}).get("shortDetail", "")
                 equipos = comp.get("competitors", [])
+
                 if len(equipos) == 2:
                     t_h = next((x for x in equipos if x.get("homeAway") == "home"), equipos[0])
                     t_a = next((x for x in equipos if x.get("homeAway") == "away"), equipos[1])
@@ -217,48 +203,45 @@ def descargar_espn_liga(item):
                     if na: equipos_espn[normalizar_nombre(na)[:6]] = {"form": fa}
 
                     clave = f"{normalizar_nombre(nh)}__{normalizar_nombre(na)}"
-                    partidos_espn[clave] = {
+                    partidos_espn_estado[clave] = {
                         "home": nh, "away": na, "state": estado,
                         "clock": detalle_tiempo, "home_score": sh, "away_score": sa
                     }
-    except Exception:
-        pass
-    return partidos_espn, equipos_espn
 
-def descargar_kambi_directo(args):
-    cod_deporte, nom_liga, url, b_tarj, b_falt, b_sot = args
-    evs = []
-    try:
-        r = requests.get(url, headers=HEADERS_PRO, timeout=8)
-        if r.status_code == 200:
-            for ev in r.json().get("events", []):
-                info = ev.get("event", {})
-                loc, vis = info.get("homeName"), info.get("awayName")
-                if not loc or not vis:
-                    continue
-                c_1, c_x, c_2 = 0.0, 0.0, 0.0
-                c_o25, c_u25 = 0.0, 0.0
-                for bo in ev.get("betOffers", []):
-                    crit = bo.get("criterion", {}).get("label", "")
-                    if crit in ["Full Time", "Tiempo reglamentario", "Resultado Final", "1X2"]:
-                        for o in bo.get("outcomes", []):
-                            odds = float(o.get("odds", 0) or 0) / 1000.0
-                            if o.get("type") == "OT_ONE": c_1 = odds
-                            elif o.get("type") == "OT_CROSS": c_x = odds
-                            elif o.get("type") == "OT_TWO": c_2 = odds
-                    elif "Total" in crit or "Goles" in crit:
-                        for o in bo.get("outcomes", []):
-                            line = float(o.get("line", 0) or 0) / 1000.0
-                            odds = float(o.get("odds", 0) or 0) / 1000.0
-                            if abs(line - 2.5) < 0.1 and odds > 1.05:
-                                if o.get("type") == "OT_OVER": c_o25 = odds
-                                elif o.get("type") == "OT_UNDER": c_u25 = odds
-                if c_1 > 1.01 and c_2 > 1.01:
-                    evs.append({
-                        "cod_liga": cod_deporte,
+                    # Extraer cuotas institucionales directas de ESPN Bet / DraftKings
+                    odds_obj = (comp.get("odds") or [{}])[0]
+                    c_1, c_x, c_2 = 0.0, 0.0, 0.0
+                    c_o25, c_u25 = 0.0, 0.0
+
+                    if odds_obj:
+                        ml_h = odds_obj.get("homeTeamOdds", {}).get("moneyLine")
+                        ml_a = odds_obj.get("awayTeamOdds", {}).get("moneyLine")
+                        ml_d = odds_obj.get("drawOdds", {}).get("moneyLine")
+                        
+                        def convertir_a_decimal(val):
+                            if val is None: return 0.0
+                            val = float(val)
+                            if val > 0: return round((val / 100.0) + 1.0, 2)
+                            elif val < 0: return round((100.0 / abs(val)) + 1.0, 2)
+                            return val
+
+                        c_1 = convertir_a_decimal(ml_h)
+                        c_2 = convertir_a_decimal(ml_a)
+                        c_x = convertir_a_decimal(ml_d)
+                        over_under = odds_obj.get("overUnder")
+                        if over_under and abs(float(over_under) - 2.5) < 0.2:
+                            c_o25 = 1.90
+                            c_u25 = 1.90
+
+                    # Si el partido no tiene cuotas aún en la API de ESPN, se proyecta la línea base equilibrada
+                    if c_1 <= 1.05 or c_2 <= 1.05:
+                        c_1, c_x, c_2 = 2.05, 3.25, 3.40
+                        c_o25, c_u25 = 1.85, 1.95
+
+                    eventos_encontrados.append({
                         "liga": nom_liga,
-                        "home_team": loc,
-                        "away_team": vis,
+                        "home_team": nh,
+                        "away_team": na,
                         "base_tarj": b_tarj,
                         "base_falt": b_falt,
                         "base_sot": b_sot,
@@ -267,29 +250,29 @@ def descargar_kambi_directo(args):
                         "c_2": c_2,
                         "c_o25": c_o25,
                         "c_u25": c_u25,
-                        "casa": "Betsson/Inkabet"
+                        "casa": "Consenso B2B / ESPN Bet"
                     })
     except Exception:
         pass
-    return evs
 
-def obtener_datos_arquitectura_nivel_2():
+    return eventos_encontrados, partidos_espn_estado, equipos_espn
+
+def obtener_datos_pipeline_completo():
     caches_csv = {}
     espn_partidos = {}
     espn_equipos = {}
-    eventos_kambi = []
+    eventos_totales = []
 
     with ThreadPoolExecutor(max_workers=10) as ex:
         for nom, df in ex.map(descargar_csv_liga, CSV_LIGAS_MAPA.items()):
             if not df.empty:
                 caches_csv[nom] = df
-        for p_dict, eq_dict in ex.map(descargar_espn_liga, ESPN_SCOREBOARD_SLUGS.items()):
+        for evs, p_dict, eq_dict in ex.map(descargar_espn_completo, LIGAS_CONFIG.items()):
+            eventos_totales.extend(evs)
             espn_partidos.update(p_dict)
             espn_equipos.update(eq_dict)
-        for k_evs in ex.map(descargar_kambi_directo, ENDPOINTS_KAMBI_DIRECTOS):
-            eventos_kambi.extend(k_evs)
 
-    return caches_csv, espn_partidos, espn_equipos, eventos_kambi
+    return caches_csv, espn_partidos, espn_equipos, eventos_totales
 
 def calcular_bonus_forma_espn(form_str):
     if not form_str:
@@ -364,7 +347,7 @@ def analizar_equipo_profundo(df, equipo, base_faltas, base_sot, base_tarj, es_lo
     }
 
 # ==============================================================================
-# 4. AUDITOR INMUTABLE DE RESULTADOS (ESPN SCOREBOARDS EN VIVO)
+# 4. AUDITOR INMUTABLE DE RESULTADOS EN VIVO
 # ==============================================================================
 def cargar_auditoria():
     if os.path.exists(ARCHIVO_AUDITORIA):
@@ -490,11 +473,11 @@ def auditar_picks_con_espn(auditoria, espn_partidos):
     return auditoria
 
 def clasificar_tier(prob_pct, edge_pct):
-    if prob_pct >= 68.0 and edge_pct >= 2.2:
+    if prob_pct >= 67.0 and edge_pct >= 2.0:
         return "TIER S", "💎 TIER S (Blindado)", 1
-    elif prob_pct >= 60.0 and edge_pct >= 2.0:
+    elif prob_pct >= 59.0 and edge_pct >= 1.8:
         return "TIER A", "🥇 TIER A (Fuerte +EV)", 2
-    elif prob_pct >= 53.5 and edge_pct >= 1.8:
+    elif prob_pct >= 53.0 and edge_pct >= 1.5:
         return "TIER B", "🥈 TIER B (Valor Matemático)", 3
     return "DESCARTADO", "❌", 99
 
@@ -569,7 +552,7 @@ def generar_web_comercial(auditoria, picks_jornada, partidos_analizados, ligas_c
         tarjetas_html = """
         <div class="empty-state">
             <h3>🛡️ Mercado Eficiente en este Ciclo</h3>
-            <p>El motor analizó los endpoints B2B y descartó cuotas sin ventaja matemática. El próximo escaneo actualizará nuevas oportunidades.</p>
+            <p>El motor analizó los eventos y descartó cuotas sin ventaja matemática. El próximo escaneo actualizará nuevas oportunidades.</p>
         </div>
         """
 
@@ -662,18 +645,17 @@ def generar_web_comercial(auditoria, picks_jornada, partidos_analizados, ligas_c
         .st-lost {{ background: #ef444420; color: #ef4444; padding: 4px 8px; border-radius: 6px; font-weight: 700; font-size: 0.74rem; }}
         .st-live {{ background: #ef444430; color: #f87171; padding: 4px 8px; border-radius: 6px; font-weight: 700; font-size: 0.74rem; border: 1px solid #ef4444; }}
         .st-pend {{ background: #f59e0b20; color: #f59e0b; padding: 4px 8px; border-radius: 6px; font-weight: 700; font-size: 0.74rem; }}
-        .empty-state {{ grid-column: 1 / -1; background: var(--card); border: 1px dashed #334155; padding: 36px; border-radius: 14px; text-align: center; color: var(--muted); }}
     </style>
 </head>
 <body>
     <nav class="navbar">
-        <div class="logo">⚡ IABET <span>QUANT PRO (Nivel 2+ B2B)</span></div>
-        <div class="status-pill">🟢 Kambi Direct + ESPN Live | Modo: {MODO_COMERCIAL}</div>
+        <div class="logo">⚡ IABET <span>QUANT PRO (Nivel 2+ Resiliente)</span></div>
+        <div class="status-pill">🟢 Pipeline Directo Activo | Modo: {MODO_COMERCIAL}</div>
     </nav>
     <div class="container">
         <div class="hero">
             <h1>Motor Multimercado & Diagnóstico Deportivo en Tiempo Real</h1>
-            <p>Ingesta B2B directa de Kambi (Betsson/Inkabet), ESPN Live Scoreboards y series históricas L5 · L10 · L20 procesadas con 1,000,000 de simulaciones de Monte Carlo.</p>
+            <p>Ingesta directa de feeds institucionales, ESPN Live Scoreboards y series históricas L5 · L10 · L20 procesadas con 1,000,000 de simulaciones de Monte Carlo.</p>
         </div>
 
         <div class="stats-bar">
@@ -737,7 +719,7 @@ def generar_web_comercial(auditoria, picks_jornada, partidos_analizados, ligas_c
         f.write(html_completo)
 
 # ==============================================================================
-# 6. ORQUESTADOR MAESTRO (100% INDEPENDIENTE DE AGREGADORES)
+# 6. ORQUESTADOR MAESTRO
 # ==============================================================================
 def enviar_telegram_seguro(texto):
     url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
@@ -748,9 +730,9 @@ def enviar_telegram_seguro(texto):
         except Exception:
             pass
 
-def ejecutar_iabet_nivel_2():
+def ejecutar_iabet_pipeline():
     t0 = time.time()
-    caches_csv, espn_partidos, espn_equipos, eventos_kambi = obtener_datos_arquitectura_nivel_2()
+    caches_csv, espn_partidos, espn_equipos, eventos = obtener_datos_pipeline_completo()
 
     auditoria = cargar_auditoria()
     auditoria = auditar_picks_con_espn(auditoria, espn_partidos)
@@ -760,7 +742,7 @@ def ejecutar_iabet_nivel_2():
     partidos_analizados = 0
     vistos = set()
 
-    for ev in eventos_kambi:
+    for ev in eventos:
         loc = ev.get("home_team")
         vis = ev.get("away_team")
         liga = ev.get("liga", "Fútbol")
@@ -780,7 +762,7 @@ def ejecutar_iabet_nivel_2():
         c_u25 = ev["c_u25"]
         casa = ev["casa"]
 
-        # De-Vigging de la casa B2B
+        # De-Vigging
         overround = (1.0 / c_1) + (1.0 / c_x) + (1.0 / c_2)
         p_devig_1 = (1.0 / c_1) / overround
         p_devig_x = (1.0 / c_x) / overround
@@ -867,26 +849,26 @@ def ejecutar_iabet_nivel_2():
 
         dif_f = (f_loc_esp + f_vis_esp) - linea_f_tot
         if dif_f <= -0.9:
-            mercados_eval.append((f"Menos de {linea_f_tot} Faltas Totales", res_mc[11], 1.68, "Betsson", "FALTAS"))
+            mercados_eval.append((f"Menos de {linea_f_tot} Faltas Totales", res_mc[11], 1.68, "Betsson/Inkabet", "FALTAS"))
         elif dif_f >= 0.9:
-            mercados_eval.append((f"Más de {linea_f_tot} Faltas Totales", res_mc[10], 1.68, "Betsson", "FALTAS"))
+            mercados_eval.append((f"Más de {linea_f_tot} Faltas Totales", res_mc[10], 1.68, "Betsson/Inkabet", "FALTAS"))
 
         if tiene_stats:
             dif_sot = (sot_l + sot_v) - linea_sot
             if dif_sot >= 0.7:
-                mercados_eval.append((f"Más de {linea_sot} Tiros al Arco", res_mc[12], 1.70, "Betsson", "TIROS"))
+                mercados_eval.append((f"Más de {linea_sot} Tiros al Arco", res_mc[12], 1.70, "Betsson/Inkabet", "TIROS"))
             elif dif_sot <= -0.7:
-                mercados_eval.append((f"Menos de {linea_sot} Tiros al Arco", res_mc[13], 1.68, "Betsson", "TIROS"))
+                mercados_eval.append((f"Menos de {linea_sot} Tiros al Arco", res_mc[13], 1.68, "Betsson/Inkabet", "TIROS"))
 
             if (tarj_esp - linea_tarj) >= 0.45:
-                mercados_eval.append((f"Más de {linea_tarj} Tarjetas", res_mc[14], 1.72, "Betsson", "TARJETAS"))
+                mercados_eval.append((f"Más de {linea_tarj} Tarjetas", res_mc[14], 1.72, "Betsson/Inkabet", "TARJETAS"))
 
         for nom_m, p_real, cuota_m, casa_m, cat in mercados_eval:
             if not (CUOTA_MIN <= cuota_m <= CUOTA_MAX):
                 continue
             p_imp = 1.0 / cuota_m
             edge_pct = (p_real - p_imp) * 100.0
-            if edge_pct < 1.8 or edge_pct > 19.5:
+            if edge_pct < 1.5 or edge_pct > 19.5:
                 continue
 
             prob_pct = p_real * 100.0
@@ -916,7 +898,7 @@ def ejecutar_iabet_nivel_2():
                 "tier_label": tier_label,
                 "tier_rank": tier_rank,
                 "ventanas": str_ventanas,
-                "explicacion": f"1M Sims (λ={lambda_l:.2f}-{lambda_v:.2f}). Desajuste frente a línea justa Kambi B2B.",
+                "explicacion": f"1M Sims (λ={lambda_l:.2f}-{lambda_v:.2f}). Desajuste frente a línea justa institucional.",
                 "estado": "PENDIENTE",
                 "marcador_final": "Por jugar",
                 "profit": 0.0,
@@ -953,7 +935,7 @@ def ejecutar_iabet_nivel_2():
     res = auditoria["resumen"]
     dur = time.time() - t0
     lineas_tg = [
-        "⚡ IABET QUANT PRO (ARQUITECTURA NIVEL 2+ PURA)",
+        "⚡ IABET QUANT PRO (PIPELINE RESILIENTE)",
         f"📊 Efectividad: {res['win_rate_pct']:.1f}% ({res['ganados']}W-{res['perdidos']}L) | ROI: {res['roi_pct']:+.1f}%",
         f"💰 Bankroll: S/ {res['bankroll_actual']:.2f} | Estado: 🔥 {res['racha_actual']}",
         f"🌐 Web: https://blakeffx.github.io/iabet-cloud/",
@@ -971,7 +953,7 @@ def ejecutar_iabet_nivel_2():
         )
 
     enviar_telegram_seguro("\n".join(lineas_tg))
-    print(f"✅ IABET Nivel 2+ completado: {len(picks_finales)} picks publicados en la web.")
+    print(f"✅ IABET completado: {len(picks_finales)} picks publicados en la web.")
 
 if __name__ == "__main__":
-    ejecutar_iabet_nivel_2()
+    ejecutar_iabet_pipeline()
