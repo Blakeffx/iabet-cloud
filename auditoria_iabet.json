@@ -1,0 +1,14 @@
+{
+  "resumen": {
+    "bankroll_inicial": 100.0,
+    "bankroll_actual": 100.0,
+    "ganancia_neta": 0,
+    "roi_pct": 0.0,
+    "win_rate_pct": 0.0,
+    "ganados": 0,
+    "perdidos": 0,
+    "pendientes": 0,
+    "racha_actual": "En espera"
+  },
+  "historial": []
+}
