@@ -5,6 +5,9 @@ on:
   schedule:
     - cron: '0 */2 * * *'
 
+permissions:
+  contents: write
+
 jobs:
   escanear-partidos:
     runs-on: ubuntu-latest
@@ -20,6 +23,13 @@ jobs:
       - name: 3. Instalar ParlayAPI y Motor Matematico (Numba)
         run: pip install parlay-api numba numpy pandas requests
 
-      - name: 4. Ejecutar Simulaciones y Enviar a Telegram
+      - name: 4. Ejecutar Motor, Auditar con ESPN y Generar Web
         run: python iabet_cloud.py
-        
+
+      - name: 5. Guardar Auditoria y Actualizar Pagina Web en Vivo
+        run: |
+          git config --global user.name "IABET Quant Bot"
+          git config --global user.email "bot@iabet.cloud"
+          git add auditoria_iabet.json index.html
+          git diff --staged --quiet || git commit -m "Auto-update: Auditoria ESPN + Web Dashboard"
+          git push
