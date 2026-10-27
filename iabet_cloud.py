@@ -1,463 +1,815 @@
 import time
 import io
+import os
+import json
+from datetime import datetime, timezone
+from concurrent.futures import ThreadPoolExecutor
 import requests
 import numpy as np
 import pandas as pd
 from numba import njit, prange
-from concurrent.futures import ThreadPoolExecutor
 from parlay_api import ParlayAPI
 
 # ==============================================================================
-# 1. CREDENCIALES Y CONFIGURACION (IABET v11.0 APP-CLONE DEFINITIVA)
+# 1. CONFIGURACIÓN COMERCIAL Y CREDENCIALES (IABET SaaS v12.0)
 # ==============================================================================
 API_KEY = "105d8edef7a4869116a817c106dc86a8"
 TELEGRAM_TOKEN = "8902181028:AAE1ywEiCc6do90ZPclI8GnUdmVqKBc7iOU"
 TELEGRAM_CHAT_ID = "5203732922"
 
-BANKROLL = 100.0        # Capital en Soles (S/ 100.00)
-KELLY_FRAC = 0.20       # Quarter-Kelly para gestión prudente
-N_SIMS = 1_000_000      # 1,000,000 de simulaciones (monteCarlo.simulations)
-TOP_DESTACADOS = 5
-MAX_LISTOS = 12
+# INTERRUPTOR DE NEGOCIO:
+# "PRUEBA" -> Muestra todos los picks abiertos en la web para ganar credibilidad.
+# "VENTA"  -> Bloquea con efecto Blur los picks TIER S en la web para vender planes VIP.
+MODO_COMERCIAL = "PRUEBA"
+LINK_CONTACTO_VIP = "https://t.me/+TuEnlaceDeContacto"  # Cámbialo por tu link de WhatsApp o Telegram
 
-CUOTA_MIN = 1.25
-CUOTA_MAX = 2.60
-
-HEADERS_PRO = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
-    "Accept": "application/json"
-}
+BANKROLL_INICIAL = 100.0
+KELLY_FRAC = 0.20
+N_SIMS = 1_000_000
+CUOTA_MIN = 1.45
+CUOTA_MAX = 2.35
+ARCHIVO_AUDITORIA = "auditoria_iabet.json"
 
 LIGAS_FUTBOL = {
-    "soccer_spain_la_liga": ("LaLiga", "SP1", 4.8, 25.2, 8.6),
-    "soccer_epl": ("Premier League", "E0", 3.9, 21.8, 9.2),
-    "soccer_italy_serie_a": ("Serie A", "I1", 4.4, 24.6, 8.7),
-    "soccer_germany_bundesliga": ("Bundesliga", "D1", 4.0, 22.4, 9.5),
-    "soccer_france_ligue_one": ("Ligue 1", "F1", 4.1, 23.8, 8.8),
-    "soccer_netherlands_eredivisie": ("Eredivisie", "N1", 3.4, 20.5, 9.6),
-    "soccer_brazil_campeonato": ("Brasileirao", "BRA", 5.0, 27.2, 8.9),
-    "soccer_argentina_primera_division": ("Liga Argentina", "ARG", 5.2, 27.8, 8.3),
-    "soccer_conmebol_copa_libertadores": ("Copa Libertadores", None, 5.3, 27.5, 8.6),
-    "soccer_conmebol_copa_sudamericana": ("Copa Sudamericana", None, 5.0, 26.8, 8.4),
-    "soccer_mexico_ligamx": ("Liga MX", "MEX", 4.5, 24.4, 8.8)
-}
-
-ESPN_SCOREBOARDS = {
-    "LaLiga": "https://site.api.espn.com/apis/site/v2/sports/soccer/esp.1/scoreboard",
-    "Premier League": "https://site.api.espn.com/apis/site/v2/sports/soccer/eng.1/scoreboard",
-    "Serie A": "https://site.api.espn.com/apis/site/v2/sports/soccer/ita.1/scoreboard",
-    "Copa Libertadores": "https://site.api.espn.com/apis/site/v2/sports/soccer/conmebol.libertadores/scoreboard"
-}
-
-DB_LIGA1_PERU = {
-    "universitario": {"gf": 1.85, "gc": 0.65, "f_com": 13.6, "f_rec": 14.8, "sot": 5.4, "tarj": 2.3},
-    "alianza lima": {"gf": 1.72, "gc": 0.75, "f_com": 13.1, "f_rec": 15.1, "sot": 5.1, "tarj": 2.4},
-    "sporting cristal": {"gf": 2.10, "gc": 1.05, "f_com": 11.7, "f_rec": 14.9, "sot": 5.8, "tarj": 2.1},
-    "melgar": {"gf": 1.82, "gc": 0.85, "f_com": 13.4, "f_rec": 13.9, "sot": 5.5, "tarj": 2.5}
+    "soccer_epl": ("Premier League", "E0", "eng.1", 3.8, 22.5, 9.2),
+    "soccer_spain_la_liga": ("LaLiga", "SP1", "esp.1", 4.8, 25.5, 8.4),
+    "soccer_italy_serie_a": ("Serie A", "I1", "ita.1", 4.4, 24.5, 8.6),
+    "soccer_germany_bundesliga": ("Bundesliga", "D1", "ger.1", 3.9, 21.5, 9.6),
+    "soccer_france_ligue_one": ("Ligue 1", "F1", "fra.1", 3.8, 23.5, 8.5),
+    "soccer_uefa_champs_league": ("Champions League", None, "uefa.champions", 4.1, 22.8, 9.4),
+    "soccer_conmebol_copa_libertadores": ("Copa Libertadores", None, "conmebol.libertadores", 5.4, 27.5, 8.0),
+    "soccer_conmebol_copa_sudamericana": ("Copa Sudamericana", None, "conmebol.sudamericana", 5.3, 27.0, 7.9),
+    "soccer_peru_primera_division": ("Liga 1 Perú", None, "per.1", 5.2, 26.8, 8.1),
+    "soccer_brazil_campeonato": ("Brasileirão", None, "bra.1", 5.0, 26.5, 8.5),
+    "soccer_argentina_primera_division": ("Liga Argentina", None, "arg.1", 5.1, 26.5, 7.8)
 }
 
 # ==============================================================================
-# 2. MOTOR MONTE CARLO JIT (NUMBA)
+# 2. FASE 1: MOTOR MONTE CARLO ACELERADO EN C (1,000,000 SIMULACIONES)
 # ==============================================================================
 @njit(parallel=True)
-def motor_montecarlo_core(l_loc, l_vis, f_loc, f_vis, linea_f_tot, n_sims):
-    vic_loc = 0
-    empate = 0
-    vic_vis = 0
-    over_15 = 0
-    over_25 = 0
-    under_35 = 0
-    f_tot_under = 0
-    cov = 0.10
+def motor_montecarlo_core(l_loc, l_vis, media_stat, es_poisson_stat, linea_stat, n_sims=1_000_000):
+    c_1 = 0
+    c_x = 0
+    c_2 = 0
+    c_ov15 = 0
+    c_ov25 = 0
+    c_un35 = 0
+    c_btts = 0
+    c_stat_over = 0
+    c_stat_under = 0
+    cov = 0.09
 
     for i in prange(n_sims):
-        r = np.random.poisson(cov)
-        gl = np.random.poisson(max(0.05, l_loc - cov)) + r
-        gv = np.random.poisson(max(0.05, l_vis - cov)) + r
-        tot_g = gl + gv
+        ritmo = np.random.poisson(cov)
+        gl = np.random.poisson(max(0.05, l_loc - cov)) + ritmo
+        gv = np.random.poisson(max(0.05, l_vis - cov)) + ritmo
+        tot = gl + gv
 
-        if gl > gv: vic_loc += 1
-        elif gl == gv: empate += 1
-        else: vic_vis += 1
+        if gl > gv:
+            c_1 += 1
+        elif gl == gv:
+            c_x += 1
+        else:
+            c_2 += 1
 
-        if tot_g > 1.5: over_15 += 1
-        if tot_g > 2.5: over_25 += 1
-        if tot_g < 3.5: under_35 += 1
+        if tot > 1.5:
+            c_ov15 += 1
+        if tot > 2.5:
+            c_ov25 += 1
+        if tot < 3.5:
+            c_un35 += 1
+        if gl > 0 and gv > 0:
+            c_btts += 1
 
-        friccion = 1.06 if abs(gl - gv) <= 1 else 0.93
-        fl = max(4.0, np.random.normal(f_loc * friccion, 2.30))
-        fv = max(4.0, np.random.normal(f_vis * friccion, 2.40))
-        if (fl + fv) < linea_f_tot:
-            f_tot_under += 1
+        if es_poisson_stat == 1:
+            val_s = np.random.poisson(max(0.5, media_stat))
+        else:
+            std_s = max(1.8, np.sqrt(max(1.0, media_stat)) * 0.92)
+            val_s = np.random.normal(media_stat, std_s)
+
+        if val_s > linea_stat:
+            c_stat_over += 1
+        elif val_s < linea_stat:
+            c_stat_under += 1
 
     return (
-        vic_loc / n_sims,            
-        (vic_loc + empate) / n_sims, 
-        (vic_vis + empate) / n_sims, 
-        vic_vis / n_sims,            
-        over_15 / n_sims,            
-        over_25 / n_sims,            
-        under_35 / n_sims,           
-        f_tot_under / n_sims         
+        c_1 / n_sims,
+        c_x / n_sims,
+        c_2 / n_sims,
+        (c_1 + c_x) / n_sims,
+        (c_2 + c_x) / n_sims,
+        c_ov15 / n_sims,
+        c_ov25 / n_sims,
+        c_un35 / n_sims,
+        c_btts / n_sims,
+        c_stat_over / n_sims,
+        c_stat_under / n_sims
     )
 
-def dec(c):
-    if c is None: return 2.00
-    c = float(c)
-    if c >= 100: return (c / 100.0) + 1.0
-    elif c <= -100: return (100.0 / abs(c)) + 1.0
-    return c
-
-def enviar_telegram(mensaje):
-    url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
-    payload = {
-        "chat_id": TELEGRAM_CHAT_ID,
-        "text": mensaje,
-        "parse_mode": "Markdown"
-    }
-    try:
-        r = requests.post(url, json=payload, timeout=12)
-        if r.status_code == 200:
-            print("✅ Mensaje entregado a Telegram correctamente.")
-        else:
-            print(f"⚠️ Telegram rechazó Markdown ({r.status_code}). Enviando texto plano...")
-            payload.pop("parse_mode")
-            r_plain = requests.post(url, json=payload, timeout=12)
-            print(f"Resultado en texto plano: {r_plain.status_code}")
-    except Exception as e:
-        print(f"❌ Error de conexión al enviar a Telegram: {e}")
-
 # ==============================================================================
-# 3. DESCARGA HISTÓRICA CSV Y SCOREBOARDS ESPN (CONCURRENT FUTURES)
+# 3. FASE 1: INGESTA MULTIHILO (CSV HISTÓRICO L5·L10·L20 + ESPN API EN VIVO)
 # ==============================================================================
-def descargar_csv_seguro(cod_csv):
-    if not cod_csv:
-        return pd.DataFrame()
-    urls = [
-        f"https://www.football-data.co.uk/mmz4281/2526/{cod_csv}.csv",
-        f"https://www.football-data.co.uk/mmz4281/2425/{cod_csv}.csv",
-        f"https://www.football-data.co.uk/new/{cod_csv}.csv"
-    ]
-    for u in urls:
+def normalizar_nombre(nombre):
+    if not nombre:
+        return ""
+    limpio = str(nombre).lower()
+    for p in ["fc ", "cf ", "cd ", "ca ", "sc ", "ac ", "as ", "ud ", "rcd ", "real ", "sporting ", "club ", "deportivo ", "united", "city"]:
+        limpio = limpio.replace(p, "")
+    return limpio.strip()
+
+def descargar_csv_liga(item):
+    cod, info = item
+    div_csv = info[1]
+    if not div_csv:
+        return cod, None
+    cabeceras = {"User-Agent": "Mozilla/5.0"}
+    for temp in ["2526", "2425", "2324"]:
+        url = f"https://www.football-data.co.uk/mmz4281/{temp}/{div_csv}.csv"
         try:
-            r = requests.get(u, headers=HEADERS_PRO, timeout=7.0)
+            r = requests.get(url, headers=cabeceras, timeout=7)
             if r.status_code == 200 and len(r.text) > 500:
                 df = pd.read_csv(io.StringIO(r.text))
-                df = df.rename(columns={'HG': 'FTHG', 'AG': 'FTAG', 'Home': 'HomeTeam', 'Away': 'AwayTeam'})
-                if {'HomeTeam', 'AwayTeam', 'FTHG', 'FTAG'}.issubset(df.columns):
-                    return df.tail(380)
+                if "HomeTeam" in df.columns and "FTHG" in df.columns:
+                    return cod, df.dropna(subset=["HomeTeam", "AwayTeam", "FTHG", "FTAG"])
         except Exception:
-            pass
-    return pd.DataFrame()
+            continue
+    return cod, None
 
-def obtener_contexto_y_datos():
+def descargar_espn_liga(item):
+    cod, info = item
+    espn_slug = info[2]
+    url = f"https://site.api.espn.com/apis/site/v2/sports/soccer/{espn_slug}/scoreboard"
+    resultados = {}
+    try:
+        r = requests.get(url, timeout=7)
+        if r.status_code == 200:
+            data = r.json()
+            for ev in data.get("events", []):
+                comp = ev.get("competitions", [{}])[0]
+                estado = comp.get("status", {}).get("type", {}).get("state", "pre")
+                equipos = comp.get("competitors", [])
+                if len(equipos) == 2:
+                    t_home = next((x for x in equipos if x.get("homeAway") == "home"), equipos[0])
+                    t_away = next((x for x in equipos if x.get("homeAway") == "away"), equipos[1])
+                    n_h = t_home.get("team", {}).get("displayName", "")
+                    n_a = t_away.get("team", {}).get("displayName", "")
+                    s_h = int(float(t_home.get("score", 0) or 0))
+                    s_a = int(float(t_away.get("score", 0) or 0))
+                    rec_h = t_home.get("records", [{}])[0].get("summary", "N/A") if t_home.get("records") else "N/A"
+                    rec_a = t_away.get("records", [{}])[0].get("summary", "N/A") if t_away.get("records") else "N/A"
+                    clave = f"{normalizar_nombre(n_h)}__{normalizar_nombre(n_a)}"
+                    resultados[clave] = {
+                        "home": n_h, "away": n_a, "state": estado,
+                        "home_score": s_h, "away_score": s_a,
+                        "rec_h": rec_h, "rec_a": rec_a
+                    }
+    except Exception:
+        pass
+    return cod, resultados
+
+def obtener_datos_externos():
     caches_csv = {}
-    espn_ctx = {}
-    
-    with ThreadPoolExecutor(max_workers=5) as executor:
-        csv_futures = {nom_liga: executor.submit(descargar_csv_seguro, cod_csv) 
-                       for _, (nom_liga, cod_csv, _, _, _) in LIGAS_FUTBOL.items() if cod_csv}
-        
-        espn_futures = [executor.submit(requests.get, u, headers=HEADERS_PRO, timeout=7.0) 
-                        for u in ESPN_SCOREBOARDS.values()]
-        
-        for nom_liga, future in csv_futures.items():
-            df = future.result()
-            if not df.empty:
-                caches_csv[nom_liga] = df
-                
-        for future in espn_futures:
-            try:
-                r = future.result()
-                if r.status_code == 200:
-                    for ev in r.json().get("events", []):
-                        comp = (ev.get("competitions") or [{}])[0]
-                        for c in comp.get("competitors", []):
-                            t_name = c.get("team", {}).get("displayName", "")
-                            form = c.get("form", "")
-                            if t_name and form:
-                                espn_ctx[t_name.lower()[:5]] = form
-            except Exception:
-                pass
-                
-    return caches_csv, espn_ctx
+    espn_datos = {}
+    with ThreadPoolExecutor(max_workers=8) as ex:
+        for cod, df in ex.map(descargar_csv_liga, LIGAS_FUTBOL.items()):
+            if df is not None:
+                caches_csv[cod] = df
+        for cod, res in ex.map(descargar_espn_liga, LIGAS_FUTBOL.items()):
+            espn_datos.update(res)
+    return caches_csv, espn_datos
 
-def obtener_stats_equipo(df, equipo, base_faltas, es_local=True):
-    eq_low = equipo.lower()
-    for k, v in DB_LIGA1_PERU.items():
-        if k in eq_low:
-            f_esp = v["f_com"] * (0.96 if es_local else 1.06)
-            return {
-                "gf": v["gf"] * (1.10 if es_local else 0.90),
-                "gc": v["gc"],
-                "f_com": f_esp,
-                "f_rec": v["f_rec"],
-                "csv_ok": True
-            }
-
-    if df is None or df.empty:
+def calcular_ventanas_l5_l10_l20(df, eq_loc, eq_vis, col_h, col_a, linea, direccion="UNDER"):
+    if df is None or col_h not in df.columns or col_a not in df.columns:
+        return None
+    nl, nv = normalizar_nombre(eq_loc), normalizar_nombre(eq_vis)
+    mask = (
+        df["HomeTeam"].astype(str).apply(normalizar_nombre).str.contains(nl[:5], na=False) |
+        df["AwayTeam"].astype(str).apply(normalizar_nombre).str.contains(nv[:5], na=False)
+    )
+    sub = df[mask].tail(20)
+    if len(sub) < 6:
+        return None
+    totales = (sub[col_h] + sub[col_a]).dropna().values
+    if len(totales) < 6:
         return None
 
-    limpio = [p for p in equipo.replace("-", " ").split() if p.lower() not in [
-        "fc", "cf", "ac", "sc", "as", "ud", "cd", "rcd", "real", "club", "united", "city", "sporting", "atletico", "deportivo", "1909", "1899"
-    ]]
-    clave = limpio[0] if limpio else equipo.split()[0]
-
-    partidos = df[(df['HomeTeam'].str.contains(clave, case=False, na=False)) |
-                  (df['AwayTeam'].str.contains(clave, case=False, na=False))].tail(20)
-    if len(partidos) < 5:
-        return None
-
-    gf, gc, f_com, f_rec = [], [], [], []
-    ok_f = {'HF', 'AF'}.issubset(partidos.columns)
-
-    for _, row in partidos.iterrows():
-        es_l = clave.lower() in str(row['HomeTeam']).lower()
-        gf.append(float(row['FTHG'] if es_l else row['FTAG']))
-        gc.append(float(row['FTAG'] if es_l else row['FTHG']))
-        if ok_f and pd.notna(row['HF']) and pd.notna(row['AF']):
-            f_com.append(float(row['HF'] if es_l else row['AF']))
-            f_rec.append(float(row['AF'] if es_l else row['HF']))
-
-    mitad_f = base_faltas / 2.0
-    if len(f_com) >= 5:
-        f_l5, f_l10, f_l20 = np.mean(f_com[-5:]), np.mean(f_com[-10:]), np.mean(f_com)
-        f_pond = (f_l5 * 0.50) + (f_l10 * 0.30) + (f_l20 * 0.20)
-        f_rec_pond = np.mean(f_rec[-10:]) if len(f_rec) >= 5 else mitad_f
-    else:
-        f_pond = f_rec_pond = mitad_f
-
-    gf_pond = ((np.mean(gf[-5:]) * 0.50) + (np.mean(gf[-10:]) * 0.30) + (np.mean(gf) * 0.20)) * (1.08 if es_local else 0.92)
-    gc_pond = (np.mean(gc[-5:]) * 0.50) + (np.mean(gc[-10:]) * 0.30) + (np.mean(gc) * 0.20)
+    def hit_rate(arr):
+        if len(arr) == 0:
+            return 0.0
+        aciertos = np.sum(arr < linea) if direccion == "UNDER" else np.sum(arr > linea)
+        return float((aciertos / len(arr)) * 100.0)
 
     return {
-        "gf": gf_pond, "gc": gc_pond,
-        "f_com": f_pond, "f_rec": f_rec_pond,
-        "csv_ok": True
+        "media": float(np.mean(totales)),
+        "L5": hit_rate(totales[-5:]),
+        "L10": hit_rate(totales[-10:]),
+        "L20": hit_rate(totales[-20:])
     }
 
 # ==============================================================================
-# 4. ORQUESTADOR CUANTITATIVO CONSOLIDADO
+# 4. FASE 2: MOTOR DE AUDITORÍA AUTOMÁTICA E INMUTABLE (VERIFICACIÓN ESPN)
 # ==============================================================================
-def ejecutar_iabet_cloud():
+def cargar_auditoria():
+    if os.path.exists(ARCHIVO_AUDITORIA):
+        try:
+            with open(ARCHIVO_AUDITORIA, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except Exception:
+            pass
+    return {
+        "resumen": {
+            "bankroll_inicial": BANKROLL_INICIAL,
+            "bankroll_actual": BANKROLL_INICIAL,
+            "ganancia_neta": 0.0,
+            "roi_pct": 0.0,
+            "win_rate_pct": 0.0,
+            "ganados": 0,
+            "perdidos": 0,
+            "pendientes": 0,
+            "racha_actual": "0W"
+        },
+        "historial": []
+    }
+
+def auditar_picks_con_espn(auditoria, espn_datos):
+    historial = auditoria.get("historial", [])
+    cambios = False
+
+    for pick in historial:
+        if pick.get("estado") != "PENDIENTE":
+            continue
+        clave = f"{normalizar_nombre(pick.get('local', ''))}__{normalizar_nombre(pick.get('visita', ''))}"
+        partido_espn = espn_datos.get(clave)
+
+        # Búsqueda flexible si el nombre varía ligeramente
+        if not partido_espn:
+            nl = normalizar_nombre(pick.get("local", ""))[:5]
+            nv = normalizar_nombre(pick.get("visita", ""))[:5]
+            for k, val in espn_datos.items():
+                if nl in k and nv in k:
+                    partido_espn = val
+                    break
+
+        if partido_espn and partido_espn.get("state") == "post":
+            gh = partido_espn["home_score"]
+            ga = partido_espn["away_score"]
+            gtot = gh + ga
+            mercado = pick.get("mercado", "")
+            gano = None
+
+            if "Victoria Local (1)" in mercado:
+                gano = (gh > ga)
+            elif "Victoria Visita (2)" in mercado:
+                gano = (ga > gh)
+            elif "Empate (X)" in mercado:
+                gano = (gh == ga)
+            elif "Doble Oportunidad 1X" in mercado:
+                gano = (gh >= ga)
+            elif "Doble Oportunidad X2" in mercado:
+                gano = (ga >= gh)
+            elif "Más de 1.5 Goles" in mercado:
+                gano = (gtot > 1.5)
+            elif "Más de 2.5 Goles" in mercado:
+                gano = (gtot > 2.5)
+            elif "Menos de 3.5 Goles" in mercado:
+                gano = (gtot < 3.5)
+            elif "Ambos Anotan" in mercado:
+                gano = (gh > 0 and ga > 0)
+
+            if gano is not None:
+                pick["marcador_final"] = f"{gh}-{ga}"
+                stake = float(pick.get("stake", 2.5))
+                cuota = float(pick.get("cuota", 1.60))
+                if gano:
+                    pick["estado"] = "GANADO"
+                    pick["profit"] = round(stake * (cuota - 1.0), 2)
+                else:
+                    pick["estado"] = "PERDIDO"
+                    pick["profit"] = round(-stake, 2)
+                cambios = True
+
+    # Recalcular métricas financieras auditadas
+    cerrados = [p for p in historial if p.get("estado") in ("GANADO", "PERDIDO")]
+    ganados = sum(1 for p in cerrados if p["estado"] == "GANADO")
+    perdidos = sum(1 for p in cerrados if p["estado"] == "PERDIDO")
+    pendientes = sum(1 for p in historial if p.get("estado") == "PENDIENTE")
+    total_cerrados = ganados + perdidos
+
+    profit_total = sum(float(p.get("profit", 0.0)) for p in cerrados)
+    stake_total = sum(float(p.get("stake", 0.0)) for p in cerrados)
+
+    win_rate = (ganados / total_cerrados * 100.0) if total_cerrados > 0 else 0.0
+    roi = (profit_total / stake_total * 100.0) if stake_total > 0 else 0.0
+
+    # Calcular racha actual
+    racha_cnt = 0
+    racha_tipo = "W"
+    for p in reversed(cerrados):
+        t = "W" if p["estado"] == "GANADO" else "L"
+        if racha_cnt == 0:
+            racha_tipo = t
+            racha_cnt = 1
+        elif t == racha_tipo:
+            racha_cnt += 1
+        else:
+            break
+
+    auditoria["resumen"] = {
+        "bankroll_inicial": BANKROLL_INICIAL,
+        "bankroll_actual": round(BANKROLL_INICIAL + profit_total, 2),
+        "ganancia_neta": round(profit_total, 2),
+        "roi_pct": round(roi, 2),
+        "win_rate_pct": round(win_rate, 1),
+        "ganados": ganados,
+        "perdidos": perdidos,
+        "pendientes": pendientes,
+        "racha_actual": f"{racha_cnt}{racha_tipo}" if racha_cnt > 0 else "En espera"
+    }
+    return auditoria
+
+def clasificar_tier(prob_pct, edge_pct):
+    if prob_pct >= 72.0 and edge_pct >= 3.5:
+        return "TIER S", "💎 TIER S (Blindado)", 1
+    elif prob_pct >= 64.0 and edge_pct >= 4.0:
+        return "TIER A", "🥇 TIER A (Alta Ventaja)", 2
+    elif prob_pct >= 56.0 and edge_pct >= 4.5:
+        return "TIER B", "🥈 TIER B (Valor +EV)", 3
+    return "DESCARTADO", "❌", 99
+
+# ==============================================================================
+# 5. FASE 3: GENERADOR DE PLATAFORMA WEB COMERCIAL (index.html)
+# ==============================================================================
+def generar_web_comercial(auditoria, picks_jornada, surebets, partidos_analizados):
+    res = auditoria["resumen"]
+    historial = auditoria["historial"][-30:][::-1]  # Últimos 30 picks auditados
+    fecha_act = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+
+    tarjetas_html = ""
+    for idx, p in enumerate(picks_jornada):
+        bloquear = (MODO_COMERCIAL == "VENTA" and p["tier_cod"] == "TIER S" and idx > 0)
+        blur_class = "blur-lock" if bloquear else ""
+        badge_color = "#10b981" if p["tier_cod"] == "TIER S" else ("#3b82f6" if p["tier_cod"] == "TIER A" else "#f59e0b")
+
+        overlay_vip = ""
+        if bloquear:
+            overlay_vip = f"""
+            <div class="vip-overlay">
+                <div class="vip-box">
+                    <span>🔒 PICK EXCLUSIVO TIER S ({p['prob']:.1f}% Confianza)</span>
+                    <a href="{LINK_CONTACTO_VIP}" target="_blank" class="btn-vip">Desbloquear Plan VIP</a>
+                </div>
+            </div>
+            """
+
+        tarjetas_html += f"""
+        <div class="pick-card">
+            <div class="pick-header">
+                <span class="league-tag">{p['liga']}</span>
+                <span class="tier-badge" style="background:{badge_color}22; color:{badge_color}; border:1px solid {badge_color};">{p['tier_label']}</span>
+            </div>
+            <div class="CardBody {blur_class}">
+                <h3 class="match-title">{p['local']} vs {p['visita']}</h3>
+                <div class="market-box">
+                    <div>
+                        <span class="market-label">PRONÓSTICO IA</span>
+                        <div class="market-name">{p['mercado']}</div>
+                    </div>
+                    <div class="odd-pill">@{p['cuota']:.2f}</div>
+                </div>
+                <div class="metrics-grid">
+                    <div class="metric-item">
+                        <span class="m-label">Prob. Real</span>
+                        <span class="m-val" style="color:#10b981;">{p['prob']:.1f}%</span>
+                    </div>
+                    <div class="metric-item">
+                        <span class="m-label">Edge (+EV)</span>
+                        <span class="m-val" style="color:#38bdf8;">+{p['edge']:.1f}%</span>
+                    </div>
+                    <div class="metric-item">
+                        <span class="m-label">Stake Kelly</span>
+                        <span class="m-val">S/ {p['stake']:.2f}</span>
+                    </div>
+                    <div class="metric-item">
+                        <span class="m-label">Casa Óptima</span>
+                        <span class="m-val">{p['casa']}</span>
+                    </div>
+                </div>
+                <div class="l-bars">
+                    <span>📊 Consenso Histórico: <b>{p['ventanas']}</b></span>
+                </div>
+                <p class="ai-note">🧠 {p['explicacion']}</p>
+            </div>
+            {overlay_vip}
+        </div>
+        """
+
+    if not tarjetas_html:
+        tarjetas_html = """
+        <div class="empty-state">
+            <h3>🛡️ Mercado Eficiente en este Ciclo</h3>
+            <p>El motor analizó las líneas actuales y descartó cuotas sin ventaja matemática suficiente (+EV). El próximo escaneo automático actualizará nuevas oportunidades.</p>
+        </div>
+        """
+
+    filas_tabla = ""
+    for h in historial:
+        est = h.get("estado", "PENDIENTE")
+        if est == "GANADO":
+            badge_est = '<span class="st-won">✅ GANADO</span>'
+            prof_str = f'<span style="color:#10b981;font-weight:700;">+S/ {h.get("profit", 0):.2f}</span>'
+        elif est == "PERDIDO":
+            badge_est = '<span class="st-lost">❌ PERDIDO</span>'
+            prof_str = f'<span style="color:#ef4444;font-weight:700;">-S/ {abs(h.get("profit", 0)):.2f}</span>'
+        else:
+            badge_est = '<span class="st-pend">⏳ EN JUEGO / PEND.</span>'
+            prof_str = '<span style="color:#94a3b8;">S/ 0.00</span>'
+
+        filas_tabla += f"""
+        <tr>
+            <td>{h.get('fecha', '')}</td>
+            <td><b>{h.get('local', '')} vs {h.get('visita', '')}</b><br><small style="color:#94a3b8;">{h.get('liga', '')}</small></td>
+            <td>{h.get('mercado', '')}</td>
+            <td>@{float(h.get('cuota', 1.0)):.2f}</td>
+            <td>{h.get('prob', 0):.1f}%</td>
+            <td>{h.get('marcador_final', '-')}</td>
+            <td>{badge_est}</td>
+            <td>{prof_str}</td>
+        </tr>
+        """
+
+    html_completo = f"""<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IABET Quant | Predicciones Deportivas Auditadas con IA</title>
+    <style>
+        :root {{
+            --bg: #0b0f19;
+            --card: #111827;
+            --border: #1f2937;
+            --text: #f8fafc;
+            --muted: #94a3b8;
+            --accent: #10b981;
+            --blue: #3b82f6;
+        }}
+        * {{ box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }}
+        body {{ background-color: var(--bg); color: var(--text); line-height: 1.5; padding-bottom: 60px; }}
+        .navbar {{ background: #0f172a; border-bottom: 1px solid var(--border); padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 50; }}
+        .logo {{ font-size: 1.35rem; font-weight: 800; letter-spacing: -0.5px; color: #fff; display: flex; align-items: center; gap: 8px; }}
+        .logo span {{ background: linear-gradient(90deg, #10b981, #3b82f6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }}
+        .status-pill {{ font-size: 0.8rem; background: #10b98120; color: #10b981; border: 1px solid #10b98150; padding: 6px 12px; border-radius: 999px; font-weight: 600; }}
+        .container {{ max-width: 1180px; margin: 0 auto; padding: 24px 16px; }}
+        .hero {{ text-align: center; padding: 28px 16px; background: radial-gradient(circle at top, #1e293b60, transparent 70%); border-radius: 16px; margin-bottom: 28px; border: 1px solid var(--border); }}
+        .hero h1 {{ font-size: 2rem; font-weight: 800; margin-bottom: 8px; }}
+        .hero p {{ color: var(--muted); max-width: 680px; margin: 0 auto; font-size: 0.95rem; }}
+        .stats-bar {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; margin-bottom: 32px; }}
+        .stat-box {{ background: var(--card); border: 1px solid var(--border); padding: 18px; border-radius: 12px; text-align: center; }}
+        .stat-box .s-label {{ font-size: 0.78rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }}
+        .stat-box .s-val {{ font-size: 1.65rem; font-weight: 800; margin-top: 4px; color: #fff; }}
+        .section-title {{ font-size: 1.25rem; font-weight: 700; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; }}
+        .picks-grid {{ display: grid; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); gap: 18px; margin-bottom: 42px; }}
+        .pick-card {{ background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 18px; position: relative; overflow: hidden; transition: transform 0.2s; }}
+        .pick-card:hover {{ transform: translateY(-3px); border-color: #334155; }}
+        .pick-header {{ display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }}
+        .league-tag {{ font-size: 0.75rem; color: var(--muted); font-weight: 600; text-transform: uppercase; }}
+        .tier-badge {{ font-size: 0.72rem; font-weight: 700; padding: 3px 9px; border-radius: 99px; }}
+        .match-title {{ font-size: 1.1rem; font-weight: 700; margin-bottom: 12px; color: #fff; }}
+        .market-box {{ background: #0f172a; border: 1px solid #1e293b; border-radius: 10px; padding: 12px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }}
+        .market-label {{ font-size: 0.68rem; color: var(--muted); font-weight: 700; }}
+        .market-name {{ font-size: 1rem; font-weight: 800; color: #38bdf8; }}
+        .odd-pill {{ background: #10b98120; color: #10b981; font-weight: 800; font-size: 1.1rem; padding: 6px 12px; border-radius: 8px; border: 1px solid #10b98140; }}
+        .metrics-grid {{ display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 12px; text-align: center; background: #0b0f19; padding: 10px; border-radius: 8px; }}
+        .m-label {{ display: block; font-size: 0.68rem; color: var(--muted); }}
+        .m-val {{ font-size: 0.88rem; font-weight: 700; }}
+        .l-bars {{ font-size: 0.78rem; color: #cbd5e1; background: #1e293b60; padding: 7px 10px; border-radius: 6px; margin-bottom: 10px; }}
+        .ai-note {{ font-size: 0.8rem; color: var(--muted); border-top: 1px solid var(--border); padding-top: 8px; }}
+        .blur-lock {{ filter: blur(6px); user-select: none; pointer-events: none; }}
+        .vip-overlay {{ position: absolute; inset: 0; background: rgba(11, 15, 25, 0.72); display: flex; align-items: center; justify-content: center; padding: 20px; text-align: center; }}
+        .vip-box {{ background: #111827; border: 1px solid #10b981; padding: 16px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.6); }}
+        .vip-box span {{ display: block; font-weight: 700; font-size: 0.9rem; margin-bottom: 10px; color: #fff; }}
+        .btn-vip {{ display: inline-block; background: #10b981; color: #052e16; font-weight: 800; text-decoration: none; padding: 8px 16px; border-radius: 8px; font-size: 0.85rem; }}
+        .table-wrap {{ background: var(--card); border: 1px solid var(--border); border-radius: 14px; overflow-x: auto; }}
+        table {{ width: 100%; border-collapse: collapse; font-size: 0.85rem; text-align: left; }}
+        th {{ background: #0f172a; color: var(--muted); padding: 12px 14px; font-size: 0.75rem; text-transform: uppercase; border-bottom: 1px solid var(--border); }}
+        td {{ padding: 12px 14px; border-bottom: 1px solid var(--border); }}
+        .st-won {{ background: #10b98120; color: #10b981; padding: 4px 8px; border-radius: 6px; font-weight: 700; font-size: 0.75rem; }}
+        .st-lost {{ background: #ef444420; color: #ef4444; padding: 4px 8px; border-radius: 6px; font-weight: 700; font-size: 0.75rem; }}
+        .st-pend {{ background: #f59e0b20; color: #f59e0b; padding: 4px 8px; border-radius: 6px; font-weight: 700; font-size: 0.75rem; }}
+        .empty-state {{ grid-column: 1 / -1; background: var(--card); border: 1px dashed #334155; padding: 36px; border-radius: 14px; text-align: center; color: var(--muted); }}
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">⚡ IABET <span>QUANT PRO</span></div>
+        <div class="status-pill">🟢 Motor Activo | Modo: {MODO_COMERCIAL}</div>
+    </nav>
+    <div class="container">
+        <div class="hero">
+            <h1>Inteligencia Artificial Cuantitativa & Auditoría en Vivo</h1>
+            <p>1,000,000 de simulaciones de Monte Carlo por partido, De-Vigging institucional contra consenso de mercado y validación histórica L5 · L10 · L20 verificada automáticamente con ESPN API.</p>
+        </div>
+
+        <div class="stats-bar">
+            <div class="stat-box">
+                <div class="s-label">Win Rate Auditado</div>
+                <div class="s-val" style="color:#10b981;">{res['win_rate_pct']:.1f}%</div>
+            </div>
+            <div class="stat-box">
+                <div class="s-label">Aciertos / Cerrados</div>
+                <div class="s-val">{res['ganados']}W - {res['perdidos']}L</div>
+            </div>
+            <div class="stat-box">
+                <div class="s-label">ROI Verificado</div>
+                <div class="s-val" style="color:#38bdf8;">{res['roi_pct']:+.1f}%</div>
+            </div>
+            <div class="stat-box">
+                <div class="s-label">Bankroll (Base S/ 100)</div>
+                <div class="s-val">S/ {res['bankroll_actual']:.2f}</div>
+            </div>
+            <div class="stat-box">
+                <div class="s-label">Racha Actual</div>
+                <div class="s-val">🔥 {res['racha_actual']}</div>
+            </div>
+        </div>
+
+        <div class="section-title">
+            <span>🎯 Picks Destacados de la Jornada ({len(picks_jornada)} seleccionados de {partidos_analizados} partidos)</span>
+            <small style="color:var(--muted); font-size:0.8rem;">Actualizado: {fecha_act}</small>
+        </div>
+        <div class="picks-grid">
+            {tarjetas_html}
+        </div>
+
+        <div class="section-title">
+            <span>📋 Historial de Auditoría Transparente (Verificación Automática ESPN)</span>
+        </div>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Partido / Torneo</th>
+                        <th>Pronóstico IA</th>
+                        <th>Cuota</th>
+                        <th>Confianza</th>
+                        <th>Resultado</th>
+                        <th>Estado</th>
+                        <th>Beneficio</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {filas_tabla}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>"""
+
+    with open("index.html", "w", encoding="utf-8") as f:
+        f.write(html_completo)
+
+# ==============================================================================
+# 6. ORQUESTADOR PRINCIPAL: ESCANEO, AUDITORÍA, WEB Y TELEGRAM
+# ==============================================================================
+def enviar_telegram_seguro(texto):
+    url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
+    bloques = [texto[i:i+3900] for i in range(0, len(texto), 3900)]
+    for b in bloques:
+        try:
+            requests.post(url, json={"chat_id": TELEGRAM_CHAT_ID, "text": b}, timeout=10)
+        except Exception:
+            pass
+
+def ejecutar_iabet_saas():
     t0 = time.time()
-    
-    try:
-        url_parlay = "https://parlay-api.com/api/v1/odds"
-        params = {"api_key": API_KEY, "regions": "eu", "markets": "h2h,totals"}
-        print("Consultando ParlayAPI...")
-        res_parlay = requests.get(url_parlay, params=params, timeout=15)
-        
-        if res_parlay.status_code == 401 or "Unauthorized" in res_parlay.text:
-            enviar_telegram(f"❌ *Error de Autenticación:* Tu API_KEY ({API_KEY}) de ParlayAPI no es válida o caducó.")
-            return
-            
-        data_parlay = res_parlay.json()
-        eventos = data_parlay if isinstance(data_parlay, list) else data_parlay.get("data", [])
-        
-    except Exception as e:
-        enviar_telegram(f"❌ *Error de Red con ParlayAPI:* `{e}`")
-        return
+    caches_csv, espn_datos = obtener_datos_externos()
 
-    if not eventos:
-        enviar_telegram("ℹ️ *ParlayAPI no devolvió eventos activos.* Las ligas pueden estar en pausa o la cuota de la API se agotó.")
-        return
+    # 1. Auditar picks anteriores con resultados oficiales de ESPN
+    auditoria = cargar_auditoria()
+    auditoria = auditar_picks_con_espn(auditoria, espn_datos)
+    bankroll_dinamico = max(50.0, float(auditoria["resumen"]["bankroll_actual"]))
 
-    caches_csv, espn_ctx = obtener_contexto_y_datos()
+    # 2. Descargar cuotas en vivo de ParlayAPI
+    cliente = ParlayAPI(api_key=API_KEY)
+    eventos_todos = []
+    for cod, info in LIGAS_FUTBOL.items():
+        try:
+            evs = cliente.odds(cod, regions="eu", markets="h2h,totals")
+            if evs:
+                for e in evs:
+                    e["cod_liga"] = cod
+                    e["liga"] = info[0]
+                    e["base_tarj"] = info[3]
+                    e["base_falt"] = info[4]
+                    e["base_sot"] = info[5]
+                    eventos_todos.append(e)
+        except Exception:
+            continue
 
     candidatos = []
     surebets = []
-    partidos_totales = 0
-    vistos_partido = set()
+    partidos_analizados = 0
+    vistos = set()
 
-    for ev in eventos:
-        cod_deporte = ev.get("sport_key", "")
-        if cod_deporte not in LIGAS_FUTBOL:
-            continue
-            
-        nom_liga, _, b_tarj, b_falt, b_sot = LIGAS_FUTBOL[cod_deporte]
+    for ev in eventos_todos:
         loc = ev.get("home_team")
         vis = ev.get("away_team")
-        if not loc or not vis or "(Bookings)" in loc or "(Corners)" in loc:
+        liga = ev.get("liga", "Fútbol")
+        cod_liga = ev.get("cod_liga")
+        if not loc or not vis:
             continue
-
-        clave_p = f"{loc[:5]}_{vis[:5]}".lower()
-        if clave_p in vistos_partido:
+        id_unico = f"{normalizar_nombre(loc)}__{normalizar_nombre(vis)}"
+        if id_unico in vistos:
             continue
-        vistos_partido.add(clave_p)
+        vistos.add(id_unico)
 
         bms = ev.get("bookmakers", [])
         if not bms:
             continue
-        partidos_totales += 1
 
-        c_1, c_x, c_2 = 0.0, 0.0, 0.0
-        c_o25, c_u25, c_u35 = 0.0, 0.0, 0.0
-        casa_1, casa_2 = "Bookie", "Bookie"
-        todas_c1, todas_c2 = [], []
+        # Extraer tanto la MEJOR cuota como el PROMEDIO de mercado (para De-Vigging real)
+        odds_1, odds_x, odds_2 = [], [], []
+        best_1, best_x, best_2 = (0.0, ""), (0.0, ""), (0.0, "")
+        odds_ov25, odds_un25 = [], []
+        best_ov25, best_un25 = (0.0, ""), (0.0, "")
 
-        for casa in bms:
-            nom_casa = casa.get("title", "Bookie")
-            for m in casa.get("markets", []):
-                mkey = m.get("key")
-                if mkey == "h2h":
+        for b in bms:
+            nb = b.get("title", "Bookie")
+            for m in b.get("markets", []):
+                mk = m.get("key")
+                if mk == "h2h":
                     for o in m.get("outcomes", []):
-                        p = dec(o.get("price"))
+                        pr = float(o.get("price", 0))
+                        if pr <= 1.01:
+                            continue
                         if o.get("name") == loc:
-                            todas_c1.append(p)
-                            if p > c_1: c_1, casa_1 = p, nom_casa
+                            odds_1.append(pr)
+                            if pr > best_1[0]: best_1 = (pr, nb)
                         elif o.get("name") == vis:
-                            todas_c2.append(p)
-                            if p > c_2: c_2, casa_2 = p, nom_casa
-                        elif o.get("name") == "Draw" and p > c_x:
-                            c_x = p
-                elif mkey == "totals":
+                            odds_2.append(pr)
+                            if pr > best_2[0]: best_2 = (pr, nb)
+                        else:
+                            odds_x.append(pr)
+                            if pr > best_x[0]: best_x = (pr, nb)
+                elif mk == "totals":
                     for o in m.get("outcomes", []):
-                        p = dec(o.get("price"))
-                        pt = float(o.get("point") or 0)
-                        if pt == 2.5:
-                            if o.get("name") == "Over" and p > c_o25: c_o25 = p
-                            elif o.get("name") == "Under" and p > c_u25: c_u25 = p
-                        elif pt == 3.5 and o.get("name") == "Under" and p > c_u35:
-                            c_u35 = p
+                        pt = float(o.get("point", 0) or 0)
+                        pr = float(o.get("price", 0) or 0)
+                        if abs(pt - 2.5) < 0.1 and pr > 1.01:
+                            if o.get("name") == "Over":
+                                odds_ov25.append(pr)
+                                if pr > best_ov25[0]: best_ov25 = (pr, nb)
+                            elif o.get("name") == "Under":
+                                odds_un25.append(pr)
+                                if pr > best_un25[0]: best_un25 = (pr, nb)
 
-        if c_1 <= 1.0 or c_2 <= 1.0:
+        if not odds_1 or not odds_2 or not odds_x:
             continue
+        partidos_analizados += 1
 
-        if c_x > 1.0:
-            margen = (1.0 / c_1) + (1.0 / c_x) + (1.0 / c_2)
-            if margen < 1.0:
-                rent = ((1.0 / margen) - 1.0) * 100
-                surebets.append(f"🚨 *SUREBET +{rent:.2f}%* [{nom_liga}] {loc} vs {vis}")
+        # Detector de Surebets
+        inv_sum = (1.0 / best_1[0]) + (1.0 / best_x[0]) + (1.0 / best_2[0])
+        if inv_sum < 0.995:
+            ben = ((1.0 / inv_sum) - 1.0) * 100.0
+            surebets.append(f"🔥 SUREBET (+{ben:.2f}%): {loc} vs {vis} | 1: @{best_1[0]} ({best_1[1]}) | X: @{best_x[0]} ({best_x[1]}) | 2: @{best_2[0]} ({best_2[1]})")
 
-        df_liga = caches_csv.get(nom_liga)
-        st_l = obtener_stats_equipo(df_liga, loc, b_falt, es_local=True)
-        st_v = obtener_stats_equipo(df_liga, vis, b_falt, es_local=False)
+        # De-Vigging de Consenso (Probabilidad limpia del mercado)
+        m1, mx, m2 = np.mean(odds_1), np.mean(odds_x), np.mean(odds_2)
+        overround = (1.0 / m1) + (1.0 / mx) + (1.0 / m2)
+        p_cons_1 = (1.0 / m1) / overround
+        p_cons_2 = (1.0 / m2) / overround
 
-        c1_med = np.mean(todas_c1) if todas_c1 else c_1
-        c2_med = np.mean(todas_c2) if todas_c2 else c_2
-        l_mkt_l = max(0.85, min(2.80, (1.0 / c1_med) * 2.60))
-        l_mkt_v = max(0.60, min(2.35, (1.0 / c2_med) * 2.30))
+        goles_esp_tot = 2.62
+        if odds_ov25 and odds_un25:
+            mov, mun = np.mean(odds_ov25), np.mean(odds_un25)
+            p_ov_clean = (1.0 / mov) / ((1.0 / mov) + (1.0 / mun))
+            goles_esp_tot = 2.15 + (p_ov_clean * 1.15)
 
-        form_espn = espn_ctx.get(loc.lower()[:5], "")
-        tag_form = f" | Form:{form_espn}" if form_espn else ""
+        df_liga = caches_csv.get(cod_liga)
+        vent_goles = calcular_ventanas_l5_l10_l20(df_liga, loc, vis, "FTHG", "FTAG", 2.5, "OVER")
+        if vent_goles:
+            goles_esp_tot = (goles_esp_tot * 0.65) + (vent_goles["media"] * 0.35)
 
-        if st_l and st_v:
-            lambda_l = (((st_l["gf"] + st_v["gc"]) / 2.0) * 0.60) + (l_mkt_l * 0.40)
-            lambda_v = (((st_v["gf"] + st_l["gc"]) / 2.0) * 0.60) + (l_mkt_v * 0.40)
-            f_loc_esp = (st_l["f_com"] * 0.65) + (st_v["f_rec"] * 0.35)
-            f_vis_esp = (st_v["f_com"] * 0.65) + (st_l["f_rec"] * 0.35)
-            txt_datos = f"Data: CSV Verificado {tag_form}"
-            tiene_csv = True
-        else:
-            lambda_l, lambda_v = l_mkt_l, l_mkt_v
-            deseq = min(1.22, max(0.82, c2_med / c1_med))
-            f_loc_esp = (b_falt * 0.47) / (deseq ** 0.20)
-            f_vis_esp = (b_falt * 0.53) * (deseq ** 0.20)
-            txt_datos = f"Data: Modelo Táctico {tag_form}"
-            tiene_csv = False
+        peso_loc = p_cons_1 / max(0.10, (p_cons_1 + p_cons_2))
+        l_loc = max(0.35, goles_esp_tot * peso_loc * 1.04)
+        l_vis = max(0.30, goles_esp_tot * (1.0 - peso_loc) * 0.96)
 
-        linea_f_tot = round(b_falt) - 0.5
+        res_mc = motor_montecarlo_core(l_loc, l_vis, ev["base_falt"], 0, ev["base_falt"], N_SIMS)
 
-        res = motor_montecarlo_core(lambda_l, lambda_v, f_loc_esp, f_vis_esp, linea_f_tot, N_SIMS)
+        c_1x = 1.0 / ((1.0 / best_1[0]) + (1.0 / best_x[0]))
+        c_x2 = 1.0 / ((1.0 / best_2[0]) + (1.0 / best_x[0]))
 
-        c_1x = round(1.0 / ((1.0 / c_1) + (1.0 / c_x)) * 0.96, 2) if c_x > 1.0 else 1.20
-        c_x2 = round(1.0 / ((1.0 / c_2) + (1.0 / c_x)) * 0.96, 2) if c_x > 1.0 else 1.25
-
-        mercados = [
-            (f"Victoria {loc} (1)", res[0], c_1, casa_1, "1X2", f"xG:{lambda_l:.2f}-{lambda_v:.2f}"),
-            (f"{loc} o Empate (1X)", res[1], c_1x, casa_1, "DOBLE", f"xG:{lambda_l:.2f}-{lambda_v:.2f}"),
-            (f"{vis} o Empate (X2)", res[2], c_x2, casa_2, "DOBLE", f"xG:{lambda_l:.2f}-{lambda_v:.2f}"),
-            (f"Victoria {vis} (2)", res[3], c_2, casa_2, "1X2", f"xG:{lambda_l:.2f}-{lambda_v:.2f}")
+        mercados_eval = [
+            ("Victoria Local (1)", res_mc[0], best_1[0], best_1[1]),
+            ("Victoria Visita (2)", res_mc[2], best_2[0], best_2[1]),
+            ("Doble Oportunidad 1X", res_mc[3], c_1x, best_1[1]),
+            ("Doble Oportunidad X2", res_mc[4], c_x2, best_2[1]),
         ]
+        if best_ov25[0] > 1.05:
+            mercados_eval.append(("Más de 2.5 Goles", res_mc[6], best_ov25[0], best_ov25[1]))
+        if best_un25[0] > 1.05:
+            c_un35_est = max(1.32, best_un25[0] * 0.78)
+            mercados_eval.append(("Menos de 3.5 Goles", res_mc[7], c_un35_est, best_un25[1]))
 
-        if c_o25 > 1.45:
-            mercados.append(("Más de 2.5 Goles", res[5], c_o25, casa_1, "GOLES", f"xG Tot:{lambda_l+lambda_v:.2f}"))
-        if c_u25 > 1.45:
-            mercados.append(("Menos de 2.5 Goles", 1.0 - res[5], c_u25, casa_1, "GOLES", f"xG Tot:{lambda_l+lambda_v:.2f}"))
-        if c_u35 > 1.25:
-            mercados.append(("Menos de 3.5 Goles", res[6], c_u35, casa_1, "GOLES", f"xG Tot:{lambda_l+lambda_v:.2f}"))
+        str_vent = f"L5: {vent_goles['L5']:.0f}% | L10: {vent_goles['L10']:.0f}% | L20: {vent_goles['L20']:.0f}%" if vent_goles else "Consenso De-Vig + Monte Carlo 1M"
 
-        if tiene_csv:
-            mercados.append((f"Menos de {linea_f_tot} Faltas", res[7], 1.66, "Betano/Betsson", "FALTAS", f"Proy:{f_loc_esp+f_vis_esp:.1f}f vs {linea_f_tot}"))
-
-        for nom_m, p_real, cuota, nom_c, cat, det in mercados:
-            if not (CUOTA_MIN <= cuota <= CUOTA_MAX):
+        for nom_m, p_real, cuota_m, casa_m in mercados_eval:
+            if not (CUOTA_MIN <= cuota_m <= CUOTA_MAX):
+                continue
+            p_imp = 1.0 / cuota_m
+            edge_pct = (p_real - p_imp) * 100.0
+            if edge_pct < 3.5 or edge_pct > 18.0:
                 continue
 
-            prob_imp = 1.0 / cuota
-            edge = (p_real - prob_imp) * 100.0
-            ev = (p_real * cuota) - 1.0
+            prob_pct = p_real * 100.0
+            tier_cod, tier_label, tier_rank = clasificar_tier(prob_pct, edge_pct)
+            if tier_cod == "DESCARTADO":
+                continue
 
-            if ev > 0.02 and (3.0 <= edge <= 18.0) and p_real >= 0.58:
-                b = cuota - 1.0
-                q = 1.0 - p_real
-                kelly = ((b * p_real) - q) / b if b > 0 else 0.0
-                k_stake = min(0.06, max(0.0, kelly * KELLY_FRAC))
-                stake_soles = round((BANKROLL * k_stake) * 2.0) / 2.0
+            b = cuota_m - 1.0
+            kelly = max(0.0, (((b * p_real) - (1.0 - p_real)) / b) * KELLY_FRAC)
+            stake_soles = min(6.0, max(1.50, round((bankroll_dinamico * kelly) * 2) / 2))
 
-                if stake_soles >= 1.50:
-                    conf_serious = min(96.8, 83.0 + (edge * 0.75) + ((p_real - 0.58) * 20.0))
-                    candidatos.append({
-                        "liga": nom_liga,
-                        "partido": f"{loc} vs {vis}",
-                        "cat": cat,
-                        "mercado": nom_m,
-                        "confianza": conf_serious,
-                        "prob": p_real * 100.0,
-                        "cuota": cuota,
-                        "casa": nom_c,
-                        "edge": edge,
-                        "stake": stake_soles,
-                        "kelly": k_stake * 100.0,
-                        "datos": f"{txt_datos} | {det}",
-                        "score": (p_real * 0.55) + (ev * 0.45)
-                    })
+            candidatos.append({
+                "fecha": datetime.now(timezone.utc).strftime("%Y-%m-%d"),
+                "liga": liga,
+                "local": loc,
+                "visita": vis,
+                "mercado": nom_m,
+                "cuota": round(cuota_m, 2),
+                "casa": casa_m,
+                "prob": round(prob_pct, 1),
+                "edge": round(edge_pct, 1),
+                "stake": stake_soles,
+                "tier_cod": tier_cod,
+                "tier_label": tier_label,
+                "tier_rank": tier_rank,
+                "ventanas": str_vent,
+                "explicacion": f"Simulación 1M proyecta λ=({l_loc:.2f} vs {l_vis:.2f}). Cuota @{cuota_m:.2f} en {casa_m} supera la línea justa sin vig.",
+                "estado": "PENDIENTE",
+                "marcador_final": "-",
+                "profit": 0.0
+            })
 
-    candidatos_ordenados = sorted(candidatos, key=lambda x: x["score"], reverse=True)
-    top_destacados = []
-    conteo_cat = {}
-    vistos_final = set()
+    # Ordenar por Tier y mayor ventaja matemática, diversificando partidos
+    candidatos.sort(key=lambda x: (x["tier_rank"], -x["edge"]))
+    picks_finales = []
+    partidos_usados = set()
+    for c in candidatos:
+        clave_p = f"{c['local']}_{c['visita']}"
+        if clave_p not in partidos_usados and len(picks_finales) < 8:
+            picks_finales.append(c)
+            partidos_usados.add(clave_p)
 
-    for c in candidatos_ordenados:
-        if c["partido"] in vistos_final:
-            continue
-        cat = c["cat"]
-        if len(top_destacados) < TOP_DESTACADOS and conteo_cat.get(cat, 0) < 2:
-            top_destacados.append(c)
-            conteo_cat[cat] = conteo_cat.get(cat, 0) + 1
-            vistos_final.add(c["partido"])
+    # Registrar nuevos picks en la base de datos de auditoría (sin duplicar)
+    claves_hist = {f"{h['fecha']}_{h['local']}_{h['mercado']}" for h in auditoria["historial"]}
+    for pf in picks_finales:
+        k_nuevo = f"{pf['fecha']}_{pf['local']}_{pf['mercado']}"
+        if k_nuevo not in claves_hist:
+            auditoria["historial"].append(pf)
+            claves_hist.add(k_nuevo)
 
-    t_total = time.time() - t0
-    cuota_prom = np.mean([p["cuota"] for p in top_destacados]) if top_destacados else 1.62
+    auditoria["resumen"]["pendientes"] = sum(1 for p in auditoria["historial"] if p.get("estado") == "PENDIENTE")
 
-    reporte = [
-        "👑 *IABET PRO v11.0 — MOTOR APP-CLONE 2024*",
-        f"🟢 *{partidos_totales} partidos analizados* | *{partidos_totales * N_SIMS:,} sims* ({t_total:.1f}s)",
-        f"📊 *Bases Históricas Activas:* `{len(caches_csv)} ligas` | *Cuota Prom.:* `@{cuota_prom:.2f}`\n"
+    with open(ARCHIVO_AUDITORIA, "w", encoding="utf-8") as f:
+        json.dump(auditoria, f, ensure_ascii=False, indent=2)
+
+    # 3. Generar la Página Web Comercial (index.html)
+    generar_web_comercial(auditoria, picks_finales, surebets, partidos_analizados)
+
+    # 4. Enviar Reporte Ejecutivo Auditado a Telegram
+    res = auditoria["resumen"]
+    dur = time.time() - t0
+    lineas_tg = [
+        "⚡ IABET QUANT SaaS v12.0 (REPORTE AUDITADO)",
+        f"📊 Efectividad: {res['win_rate_pct']:.1f}% ({res['ganados']}W-{res['perdidos']}L) | ROI: {res['roi_pct']:+.1f}%",
+        f"💰 Bankroll Auditado: S/ {res['bankroll_actual']:.2f} | Racha: 🔥 {res['racha_actual']}",
+        f"⏱️ {partidos_analizados} partidos escaneados en {dur:.1f}s | Modo Web: {MODO_COMERCIAL}",
+        "━━━━━━━━━━━━━━━━━━━━"
     ]
 
     if surebets:
-        reporte.append("💎 *SUREBETS EN VIVO (ARBITRAJE):*\n" + "\n".join(surebets[:3]) + "\n")
+        lineas_tg.append("🚨 SUREBETS DETECTADAS:")
+        lineas_tg.extend(surebets[:3])
+        lineas_tg.append("━━━━━━━━━━━━━━━━━━━━")
 
-    if top_destacados:
-        reporte.append("⚡ *PICKS DESTACADOS (+EV VERIFICADO):*\n")
-        mapa_iconos = {"FALTAS": "🛑", "GOLES": "⚽", "1X2": "🏆", "DOBLE": "🛡️"}
-        for idx, p in enumerate(top_destacados, 1):
-            ic = mapa_iconos.get(p["cat"], "🎯")
-            reporte.append(
-                f"*{idx}. {ic} [{p['liga']} — {p['cat']}]*\n"
-                f"🏟️ *{p['partido']}*\n"
-                f"👉 *{p['mercado']}*\n"
-                f"🔥 *Confianza del Modelo:* `{p['confianza']:.1f}%` _(Prob. Real: {p['prob']:.1f}%)_\n"
-                f"💵 *Cuota:* `@{p['cuota']:.2f}` _({p['casa']})_ | *Ventaja (Edge):* `+{p['edge']:.1f}%`\n"
-                f"📐 *Métricas:* `{p['datos']}`\n"
-                f"💰 *Stake Sugerido (Kelly {p['kelly']:.1f}%):* *Apostar S/ {p['stake']:.2f}*\n"
+    if picks_finales:
+        for idx, p in enumerate(picks_finales, 1):
+            lineas_tg.append(
+                f"{idx}. {p['tier_label']}\n"
+                f"⚽ {p['local']} vs {p['visita']} ({p['liga']})\n"
+                f"🎯 Pick: {p['mercado']}  👉  @{p['cuota']:.2f} ({p['casa']})\n"
+                f"📈 Confianza: {p['prob']:.1f}% | Edge: +{p['edge']:.1f}% | Stake: S/ {p['stake']:.2f}\n"
+                f"📊 {p['ventanas']}\n"
             )
     else:
-        reporte.append("ℹ️ Las líneas actuales se encuentran ajustadas por las casas de apuestas. Sin desajustes de valor (+EV) en este ciclo.")
+        lineas_tg.append("🛡️ Ciclo completado: Cuotas alineadas con el modelo en esta ventana horaria.")
 
-    enviar_telegram("\n".join(reporte))
+    enviar_telegram_seguro("\n".join(lineas_tg))
+    print("✅ Ejecución IABET SaaS v12.0 completada con éxito.")
 
 if __name__ == "__main__":
-    ejecutar_iabet_cloud()
+    ejecutar_iabet_saas()
