@@ -10,22 +10,24 @@ import pandas as pd
 from numba import njit, prange
 
 # ==============================================================================
-# 1. CREDENCIALES Y CONFIGURACIÓN ESTABLE (IABET QUANT PRO v15.1)
+# 1. CONFIGURACIÓN INSTITUCIONAL ANTI-FANTASÍA (IABET QUANT PRO v16.0)
 # ==============================================================================
 THE_ODDS_API_KEY = "a13d27d9c5cc3ea988f72ba4ff74c56f"
 TELEGRAM_TOKEN = "8902181028:AAE1ywEiCc6do90ZPclI8GnUdmVqKBc7iOU"
 TELEGRAM_CHAT_ID = "5203732922"
-GEMINI_API_KEY = "AQ.Ab8RN6K_ioE07WY_aAnQZo4crVxo7UJiYziFAF6qasQL2xt5vA"
+GEMINI_API_KEY = ""
 
-MODO_COMERCIAL = "PRUEBA"
+MODO_COMERCIAL = "PRUEBA"  # "PRUEBA" (Picks abiertos) o "VENTA" (Bloquea Tier S con Blur VIP)
 LINK_CONTACTO_VIP = "https://t.me/+TuEnlaceDeContacto"
 
 BANKROLL_INICIAL = 100.0
-KELLY_FRAC = 0.25
+KELLY_FRAC = 0.22          # Fracción conservadora para proteger el bankroll
 N_SIMS = 1_000_000
-CUOTA_MIN = 1.35
-CUOTA_MAX = 2.45
-MAX_PICKS_WEB = 15
+CUOTA_MIN = 1.36
+CUOTA_MAX = 2.20           # Tope reducido: evita cuotas especulativas de alto riesgo
+EDGE_MIN_REALISTA = 2.0    # Mínimo +2.0% de ventaja real
+EDGE_MAX_REALISTA = 11.5   # Candado Anti-Fantasía: descarta desajustes irreales > 11.5%
+MAX_PICKS_WEB = 14
 ARCHIVO_AUDITORIA = "auditoria_iabet.json"
 
 HORAS_CACHE_ODDS_API = 4.0
@@ -40,24 +42,24 @@ HEADERS_PRO = {
 }
 
 LIGAS_CONFIG = {
-    "esp.1": ("LaLiga", "SP1", "soccer_spain_la_liga", 4.7, 25.0, 8.6),
-    "eng.1": ("Premier League", "E0", "soccer_epl", 3.9, 21.6, 9.3),
-    "ita.1": ("Serie A", "I1", "soccer_italy_serie_a", 4.4, 24.5, 8.7),
-    "ger.1": ("Bundesliga", "D1", "soccer_germany_bundesliga", 4.0, 22.2, 9.5),
-    "fra.1": ("Ligue 1", "F1", "soccer_france_ligue_one", 4.0, 23.6, 8.8),
-    "ned.1": ("Eredivisie", "N1", "soccer_netherlands_eredivisie", 3.3, 20.4, 9.6),
-    "por.1": ("Primeira Liga", "P1", "soccer_portugal_primeira_liga", 5.1, 26.5, 8.5),
-    "uefa.champions": ("Champions League", None, "soccer_uefa_champs_league", 4.1, 22.6, 9.4),
-    "uefa.europa": ("Europa League", None, "soccer_uefa_europa_league", 4.3, 23.8, 9.0),
-    "conmebol.libertadores": ("Copa Libertadores", None, "soccer_conmebol_copa_libertadores", 5.3, 27.5, 8.6),
-    "conmebol.sudamericana": ("Copa Sudamericana", None, "soccer_conmebol_copa_sudamericana", 5.0, 26.8, 8.4),
-    "per.1": ("Liga 1 Perú", None, None, 5.3, 28.0, 8.5),
-    "bra.1": ("Brasileirão", "BRA", "soccer_brazil_campeonato", 5.0, 27.2, 8.9),
-    "arg.1": ("Liga Argentina", "ARG", "soccer_argentina_primera_division", 5.2, 27.6, 8.3),
-    "mex.1": ("Liga MX", "MEX", "soccer_mexico_ligamx", 4.5, 24.4, 8.8),
-    "eng.league_cup": ("EFL Cup", None, "soccer_england_efl_cup", 3.8, 21.5, 9.1),
-    "esp.copa_del_rey": ("Copa del Rey", None, None, 4.6, 25.5, 8.5),
-    "ita.coppa_italia": ("Coppa Italia", None, None, 4.4, 24.8, 8.6)
+    "esp.1": ("LaLiga", "SP1", "soccer_spain_la_liga", 4.6, 24.8, 8.5),
+    "eng.1": ("Premier League", "E0", "soccer_epl", 3.8, 21.5, 9.2),
+    "ita.1": ("Serie A", "I1", "soccer_italy_serie_a", 4.2, 24.2, 8.6),
+    "ger.1": ("Bundesliga", "D1", "soccer_germany_bundesliga", 3.9, 22.0, 9.4),
+    "fra.1": ("Ligue 1", "F1", "soccer_france_ligue_one", 3.9, 23.4, 8.7),
+    "ned.1": ("Eredivisie", "N1", "soccer_netherlands_eredivisie", 3.2, 20.2, 9.5),
+    "por.1": ("Primeira Liga", "P1", "soccer_portugal_primeira_liga", 5.0, 26.2, 8.4),
+    "uefa.champions": ("Champions League", None, "soccer_uefa_champs_league", 4.0, 22.4, 9.3),
+    "uefa.europa": ("Europa League", None, "soccer_uefa_europa_league", 4.2, 23.6, 8.9),
+    "conmebol.libertadores": ("Copa Libertadores", None, "soccer_conmebol_copa_libertadores", 5.2, 27.2, 8.5),
+    "conmebol.sudamericana": ("Copa Sudamericana", None, "soccer_conmebol_copa_sudamericana", 4.9, 26.5, 8.3),
+    "per.1": ("Liga 1 Perú", None, None, 5.1, 27.5, 8.4),
+    "bra.1": ("Brasileirão", "BRA", "soccer_brazil_campeonato", 4.9, 27.0, 8.8),
+    "arg.1": ("Liga Argentina", "ARG", "soccer_argentina_primera_division", 5.1, 27.4, 8.2),
+    "mex.1": ("Liga MX", "MEX", "soccer_mexico_ligamx", 4.4, 24.2, 8.7),
+    "eng.league_cup": ("EFL Cup", None, "soccer_england_efl_cup", 3.7, 21.4, 9.0),
+    "esp.copa_del_rey": ("Copa del Rey", None, None, 4.5, 25.0, 8.4),
+    "ita.coppa_italia": ("Coppa Italia", None, None, 4.2, 24.4, 8.5)
 }
 
 CSV_LIGAS_MAPA = {
@@ -74,25 +76,25 @@ CSV_LIGAS_MAPA = {
 }
 
 DB_EQUIPOS_PRO = {
-    "universitario": {"gf": 1.88, "gc": 0.65, "f_com": 13.6, "f_rec": 14.8, "sot": 5.5, "tarj": 2.3},
-    "alianza lima": {"gf": 1.75, "gc": 0.72, "f_com": 13.1, "f_rec": 15.1, "sot": 5.2, "tarj": 2.4},
-    "sporting cristal": {"gf": 2.12, "gc": 1.02, "f_com": 11.7, "f_rec": 14.9, "sot": 5.9, "tarj": 2.1},
-    "melgar": {"gf": 1.84, "gc": 0.85, "f_com": 13.4, "f_rec": 13.9, "sot": 5.5, "tarj": 2.5},
-    "cusco": {"gf": 1.68, "gc": 1.02, "f_com": 14.5, "f_rec": 13.2, "sot": 4.8, "tarj": 2.6},
-    "cienciano": {"gf": 1.55, "gc": 1.15, "f_com": 14.9, "f_rec": 13.0, "sot": 4.6, "tarj": 2.7},
-    "flamengo": {"gf": 1.95, "gc": 0.82, "f_com": 12.8, "f_rec": 14.6, "sot": 5.8, "tarj": 2.2},
-    "palmeiras": {"gf": 1.90, "gc": 0.78, "f_com": 13.2, "f_rec": 14.4, "sot": 5.7, "tarj": 2.3},
-    "botafogo": {"gf": 1.85, "gc": 0.80, "f_com": 13.0, "f_rec": 14.2, "sot": 5.5, "tarj": 2.3},
-    "river plate": {"gf": 1.88, "gc": 0.75, "f_com": 12.5, "f_rec": 15.0, "sot": 5.6, "tarj": 2.2},
-    "boca juniors": {"gf": 1.62, "gc": 0.88, "f_com": 13.8, "f_rec": 14.5, "sot": 4.9, "tarj": 2.6},
-    "racing": {"gf": 1.78, "gc": 0.92, "f_com": 13.1, "f_rec": 14.1, "sot": 5.3, "tarj": 2.5}
+    "universitario": {"gf": 1.85, "gc": 0.68, "f_com": 13.5, "f_rec": 14.5, "sot": 5.4, "tarj": 2.2},
+    "alianza lima": {"gf": 1.72, "gc": 0.74, "f_com": 13.0, "f_rec": 14.8, "sot": 5.1, "tarj": 2.3},
+    "sporting cristal": {"gf": 2.05, "gc": 1.04, "f_com": 11.8, "f_rec": 14.6, "sot": 5.8, "tarj": 2.0},
+    "melgar": {"gf": 1.80, "gc": 0.86, "f_com": 13.2, "f_rec": 13.8, "sot": 5.4, "tarj": 2.4},
+    "cusco": {"gf": 1.65, "gc": 1.04, "f_com": 14.2, "f_rec": 13.1, "sot": 4.7, "tarj": 2.5},
+    "cienciano": {"gf": 1.52, "gc": 1.15, "f_com": 14.6, "f_rec": 12.9, "sot": 4.5, "tarj": 2.6},
+    "flamengo": {"gf": 1.90, "gc": 0.84, "f_com": 12.6, "f_rec": 14.4, "sot": 5.6, "tarj": 2.2},
+    "palmeiras": {"gf": 1.86, "gc": 0.80, "f_com": 13.0, "f_rec": 14.2, "sot": 5.5, "tarj": 2.3},
+    "botafogo": {"gf": 1.82, "gc": 0.82, "f_com": 12.8, "f_rec": 14.0, "sot": 5.4, "tarj": 2.3},
+    "river plate": {"gf": 1.84, "gc": 0.78, "f_com": 12.4, "f_rec": 14.8, "sot": 5.5, "tarj": 2.2},
+    "boca juniors": {"gf": 1.58, "gc": 0.90, "f_com": 13.6, "f_rec": 14.4, "sot": 4.8, "tarj": 2.6},
+    "racing": {"gf": 1.74, "gc": 0.94, "f_com": 13.0, "f_rec": 14.0, "sot": 5.2, "tarj": 2.4}
 }
 
 # ==============================================================================
-# 2. MOTOR MONTE CARLO JIT EN C (1,000,000 SIMULACIONES)
+# 2. MOTOR MONTE CARLO CALIBRADO EN C (AMORTIGUACIÓN DE VARIANZA EN TARJETAS)
 # ==============================================================================
 @njit(parallel=True)
-def motor_montecarlo_v15(
+def motor_montecarlo_v16(
     l_loc, l_vis, f_loc, f_vis, linea_f_tot,
     sot_loc, sot_vis, linea_sot, tarj_esp, linea_tarj, n_sims
 ):
@@ -119,19 +121,22 @@ def motor_montecarlo_v15(
         if tot_g < 3.5: under_35 += 1
         if gl > 0 and gv > 0: btts_si += 1
 
-        friccion = 1.05 if abs(gl - gv) <= 1 else 0.94
-        fl = max(4.0, np.random.normal(f_loc * friccion, 2.35))
-        fv = max(4.0, np.random.normal(f_vis * friccion, 2.45))
+        # Fricción moderada y realista en faltas
+        friccion = 1.03 if abs(gl - gv) <= 1 else 0.96
+        fl = max(4.0, np.random.normal(f_loc * friccion, 2.50))
+        fv = max(4.0, np.random.normal(f_vis * friccion, 2.60))
         ftot = fl + fv
         if ftot > linea_f_tot: f_over += 1
         else: f_under += 1
 
-        sot_tot = max(1.0, np.random.normal(sot_loc + sot_vis, 2.40))
+        sot_tot = max(1.0, np.random.normal(sot_loc + sot_vis, 2.55))
         if sot_tot > linea_sot: sot_over += 1
         else: sot_under += 1
 
+        # CORRECCIÓN PARMA-UDINESE: Desacople parcial entre faltas y tarjetas (solo 30% de peso)
         ratio_f = ftot / max(18.0, (f_loc + f_vis))
-        t_sim = max(0.0, np.random.normal(tarj_esp * ratio_f, 1.30))
+        factor_tarj_suavizado = 1.0 + ((ratio_f - 1.0) * 0.30)
+        t_sim = max(0.0, np.random.normal(tarj_esp * factor_tarj_suavizado, 1.38))
         if t_sim > linea_tarj: tarj_over += 1
         else: tarj_under += 1
 
@@ -155,19 +160,19 @@ def motor_montecarlo_v15(
     )
 
 # ==============================================================================
-# 3. EXTRACCIÓN DE DATOS ESTABLE MULTI-DÍA
+# 3. EXTRACCIÓN DE DATOS Y CÁLCULO DE HIT-RATE HISTÓRICO REAL (L5·L10·L20)
 # ==============================================================================
 def normalizar_nombre(nombre):
     if not nombre:
         return ""
     limpio = str(nombre).lower().replace("-", " ")
-    for p in ["fc ", "cf ", "cd ", "ca ", "sc ", "ac ", "as ", "ud ", "rcd ", "real ", "sporting ", "club ", "deportivo ", "atletico ", "united", "city"]:
+    for p in ["fc ", "cf ", "cd ", "ca ", "sc ", "ac ", "as ", "ud ", "rcd ", "real ", "sporting ", "club ", "deportivo ", "atletico ", "united", "city", "calcio", "1913"]:
         limpio = limpio.replace(p, "")
     return limpio.strip()
 
 def consultar_the_odds_api_smart(ligas_con_partidos_hoy, auditoria):
     cache_global = auditoria.get("cache_odds_api", {})
-    creditos_restantes = auditoria.get("resumen", {}).get("creditos_odds_api", "500")
+    creditos_restantes = auditoria.get("resumen", {}).get("creditos_odds_api", "492")
     ahora_ts = time.time()
     hora_peru_actual = datetime.now(TZ_PERU).hour
 
@@ -276,7 +281,7 @@ def descargar_csv_liga(item):
         except Exception:
             pass
     if frames:
-        return nom_liga, pd.concat(frames, ignore_index=True).tail(420)
+        return nom_liga, pd.concat(frames, ignore_index=True).tail(450)
     return nom_liga, pd.DataFrame()
 
 def extraer_estadisticas_summary_espn(event_id):
@@ -335,7 +340,6 @@ def descargar_espn_liga_estable(item):
     dia_manana = (ahora_peru + timedelta(days=1)).strftime("%Y%m%d")
     dia_pasado = (ahora_peru + timedelta(days=2)).strftime("%Y%m%d")
 
-    # Consulta segura multi-fecha a ESPN (sin rangos con guión)
     urls_a_probar = [
         f"https://site.api.espn.com/apis/site/v2/sports/soccer/{slug}/scoreboard",
         f"https://site.api.espn.com/apis/site/v2/sports/soccer/{slug}/scoreboard?dates={dia_hoy}",
@@ -404,7 +408,6 @@ def descargar_espn_liga_estable(item):
                         "clock": detalle_tiempo, "home_score": sh, "away_score": sa
                     }
 
-                    # Para picks nuevos en tarjetas: solo futuros (pre)
                     if estado != "pre":
                         continue
 
@@ -462,7 +465,7 @@ def descargar_espn_liga_estable(item):
 
     return eventos_encontrados, partidos_espn_estado
 
-def obtener_datos_pipeline_v15_1():
+def obtener_datos_pipeline_v16():
     caches_csv = {}
     espn_partidos = {}
     eventos_futuros = []
@@ -482,20 +485,26 @@ def calcular_bonus_forma(form_str):
         return 1.0
     pesos = 0.0
     for ch in str(form_str)[-5:]:
-        if ch.upper() == "W": pesos += 0.025
-        elif ch.upper() == "L": pesos -= 0.025
-    return max(0.88, min(1.14, 1.0 + pesos))
+        if ch.upper() == "W": pesos += 0.02
+        elif ch.upper() == "L": pesos -= 0.02
+    return max(0.90, min(1.10, 1.0 + pesos))
 
-def analizar_equipo_profundo(df, equipo, base_faltas, base_sot, base_tarj, es_local=True):
+def analizar_equipo_profundo_v16(df, equipo, base_faltas, base_sot, base_tarj, es_local=True):
+    """
+    Extrae no solo el promedio del equipo, sino también los arreglos crudos de sus
+    últimos 20 partidos para verificar que el equipo NO tenga un promedio bajo de tarjetas
+    (como el caso de Parma con 1.5 amarillas).
+    """
     eq_low = normalizar_nombre(equipo)
     for k, v in DB_EQUIPOS_PRO.items():
         if k in eq_low:
-            f_esp = v["f_com"] * (0.96 if es_local else 1.05)
+            f_esp = v["f_com"] * (0.96 if es_local else 1.04)
             return {
-                "gf": v["gf"] * (1.08 if es_local else 0.92), "gc": v["gc"],
+                "gf": v["gf"] * (1.06 if es_local else 0.94), "gc": v["gc"],
                 "f_com": f_esp, "f_rec": v["f_rec"],
-                "sot": v["sot"], "tarj": v["tarj"],
+                "sot": v["sot"], "tarj": v["tarj"], "tarj_rec": v["tarj"],
                 "f_l5": f_esp, "f_l10": f_esp * 0.98, "f_l20": f_esp * 0.96,
+                "t_l10": v["tarj"],
                 "verificado": True
             }
 
@@ -512,7 +521,7 @@ def analizar_equipo_profundo(df, equipo, base_faltas, base_sot, base_tarj, es_lo
     if len(partidos) < 5:
         return None
 
-    gf, gc, f_com, f_rec, sot, tarj = [], [], [], [], [], []
+    gf, gc, f_com, f_rec, sot, tarj_own, tarj_opp = [], [], [], [], [], [], []
     ok_f = {'HF', 'AF'}.issubset(partidos.columns)
     ok_s = {'HST', 'AST'}.issubset(partidos.columns)
     ok_t = {'HY', 'AY'}.issubset(partidos.columns)
@@ -527,30 +536,43 @@ def analizar_equipo_profundo(df, equipo, base_faltas, base_sot, base_tarj, es_lo
         if ok_s and pd.notna(row['HST']) and pd.notna(row['AST']):
             sot.append(float(row['HST'] if es_l else row['AST']))
         if ok_t and pd.notna(row['HY']) and pd.notna(row['AY']):
-            tarj.append(float(row['HY'] if es_l else row['AY']))
+            tarj_own.append(float(row['HY'] if es_l else row['AY']))
+            tarj_opp.append(float(row['AY'] if es_l else row['HY']))
 
-    gf_pond = ((np.mean(gf[-5:]) * 0.50) + (np.mean(gf[-10:]) * 0.30) + (np.mean(gf) * 0.20)) * (1.08 if es_local else 0.92)
+    gf_pond = ((np.mean(gf[-5:]) * 0.50) + (np.mean(gf[-10:]) * 0.30) + (np.mean(gf) * 0.20)) * (1.06 if es_local else 0.94)
     gc_pond = (np.mean(gc[-5:]) * 0.50) + (np.mean(gc[-10:]) * 0.30) + (np.mean(gc) * 0.20)
 
     tiene_f = len(f_com) >= 5
     f_l5 = np.mean(f_com[-5:]) if tiene_f else base_faltas / 2.0
     f_l10 = np.mean(f_com[-10:]) if tiene_f else base_faltas / 2.0
     f_l20 = np.mean(f_com) if tiene_f else base_faltas / 2.0
-    f_pond = (f_l5 * 0.50) + (f_l10 * 0.30) + (f_l20 * 0.20)
+    f_pond = (f_l5 * 0.45) + (f_l10 * 0.35) + (f_l20 * 0.20)
     f_rec_pond = np.mean(f_rec[-10:]) if tiene_f else base_faltas / 2.0
-    sot_pond = ((np.mean(sot[-5:]) * 0.50) + (np.mean(sot[-10:]) * 0.30) + (np.mean(sot) * 0.20)) if len(sot) >= 5 else base_sot / 2.0
-    tarj_pond = np.mean(tarj[-10:]) if len(tarj) >= 5 else base_tarj / 2.0
+
+    sot_pond = ((np.mean(sot[-5:]) * 0.45) + (np.mean(sot[-10:]) * 0.35) + (np.mean(sot) * 0.20)) if len(sot) >= 5 else base_sot / 2.0
+
+    # Promedio estricto de tarjetas propias y recibidas (L10 y L20)
+    if len(tarj_own) >= 5:
+        t_own_pond = (np.mean(tarj_own[-5:]) * 0.40) + (np.mean(tarj_own[-10:]) * 0.35) + (np.mean(tarj_own) * 0.25)
+        t_opp_pond = np.mean(tarj_opp[-10:])
+        t_l10 = np.mean(tarj_own[-10:])
+    else:
+        t_own_pond = base_tarj / 2.0
+        t_opp_pond = base_tarj / 2.0
+        t_l10 = base_tarj / 2.0
 
     return {
         "gf": gf_pond, "gc": gc_pond,
         "f_com": f_pond, "f_rec": f_rec_pond,
-        "sot": sot_pond, "tarj": tarj_pond,
+        "sot": sot_pond,
+        "tarj": t_own_pond, "tarj_rec": t_opp_pond,
         "f_l5": f_l5, "f_l10": f_l10, "f_l20": f_l20,
+        "t_l10": t_l10,
         "verificado": True
     }
 
 # ==============================================================================
-# 4. AUDITORÍA PERMANENTE
+# 4. AUDITORÍA PERMANENTE Y CLASIFICACIÓN ESTRICTA DE TIERS
 # ==============================================================================
 def cargar_auditoria():
     if os.path.exists(ARCHIVO_AUDITORIA):
@@ -572,7 +594,7 @@ def cargar_auditoria():
             "en_vivo": 0,
             "pendientes": 0,
             "racha_actual": "En espera",
-            "creditos_odds_api": "500"
+            "creditos_odds_api": "492"
         },
         "cache_odds_api": {"tiempos_ligas": {}, "partidos": {}},
         "historial": []
@@ -704,23 +726,28 @@ def auditar_picks_con_espn(auditoria, espn_partidos, creditos_restantes):
     }
     return auditoria
 
-def clasificar_tier(prob_pct, edge_pct):
-    if prob_pct >= 66.5 and edge_pct >= 2.0:
-        return "TIER S", "💎 TIER S (Blindado)", 1
-    elif prob_pct >= 58.0 and edge_pct >= 1.8:
-        return "TIER A", "🥇 TIER A (Fuerte +EV)", 2
-    elif prob_pct >= 52.5 and edge_pct >= 1.5:
-        return "TIER B", "🥈 TIER B (Valor Matemático)", 3
-    return "DESCARTADO", "❌", 99
+def clasificar_tier_realista_v16(prob_pct, edge_pct, cuota_m):
+    """
+    CANDADO DE SEGURIDAD v16.0:
+    - Prohibido clasificar como TIER S una cuota mayor a 1.66 (evita casos como Parma @1.72/@1.90).
+    - TIER S exige alta probabilidad real (>= 65.5%), cuota compacta (<= 1.66) y ventaja limpia.
+    """
+    if prob_pct >= 65.5 and edge_pct >= 2.2 and cuota_m <= 1.66:
+        return "TIER S", "💎 TIER S (Blindado)", 1, 4.50
+    elif prob_pct >= 58.5 and edge_pct >= 2.2 and cuota_m <= 1.85:
+        return "TIER A", "🥇 TIER A (Fuerte +EV)", 2, 3.50
+    elif prob_pct >= 53.5 and edge_pct >= 2.0 and cuota_m <= 2.20:
+        return "TIER B", "🥈 TIER B (Valor Moderado)", 3, 2.50
+    return "DESCARTADO", "❌", 99, 0.0
 
 # ==============================================================================
-# 5. GENERADOR DE LA PLATAFORMA WEB
+# 5. GENERADOR DE PLATAFORMA WEB INTERACTIVA v16.0
 # ==============================================================================
-def generar_web_interactiva_v15_1(auditoria, picks_jornada, partidos_analizados, ligas_csv_activas):
+def generar_web_interactiva_v16(auditoria, picks_jornada, partidos_analizados, ligas_csv_activas):
     res = auditoria["resumen"]
     historial = auditoria["historial"][-45:][::-1]
     ahora_peru = datetime.now(TZ_PERU).strftime("%Y-%m-%d %H:%M (Hora Perú)")
-    cred_txt = res.get("creditos_odds_api", "500")
+    cred_txt = res.get("creditos_odds_api", "492")
 
     ligas_unicas = sorted(list({p["liga"] for p in picks_jornada}))
     opts_ligas = '<option value="ALL">🌍 Todas las Ligas (' + str(len(ligas_unicas)) + ')</option>'
@@ -759,7 +786,7 @@ def generar_web_interactiva_v15_1(auditoria, picks_jornada, partidos_analizados,
                 <h3 class="match-title">{p['local']} vs {p['visita']}</h3>
                 <div class="market-box">
                     <div>
-                        <span class="market-label">PRONÓSTICO IA ({p['categoria']})</span>
+                        <span class="market-label">PRONÓSTICO CALIBRADO ({p['categoria']})</span>
                         <div class="market-name">{p['mercado']}</div>
                     </div>
                     <div class="odd-pill">@{p['cuota']:.2f}</div>
@@ -778,7 +805,7 @@ def generar_web_interactiva_v15_1(auditoria, picks_jornada, partidos_analizados,
                         <span class="m-val" style="color:#38bdf8;">+{p['edge']:.1f}%</span>
                     </div>
                     <div class="metric-item">
-                        <span class="m-label">Stake Sugerido</span>
+                        <span class="m-label">Stake Seguro</span>
                         <span class="m-val stake-dinamico" data-pct="{p['stake_pct']:.4f}">S/ {p['stake']:.2f}</span>
                     </div>
                 </div>
@@ -787,11 +814,12 @@ def generar_web_interactiva_v15_1(auditoria, picks_jornada, partidos_analizados,
                 </div>
 
                 <details class="tactical-drawer">
-                    <summary>🔬 Ver Desglose Táctico, Benchmark Pinnacle y Cuota Justa</summary>
+                    <summary>🔬 Ver Auditoría de Cuota Justa, Tarjetas y Faltas</summary>
                     <div class="drawer-content">
-                        <div class="drawer-row"><span>🎯 Cuota Justa (Sin Margen):</span> <b>@{p['cuota_justa']:.2f} vs @{p['cuota']:.2f} ({p['casa']})</b></div>
+                        <div class="drawer-row"><span>🎯 Cuota Justa Calibrada:</span> <b>@{p['cuota_justa']:.2f} vs @{p['cuota']:.2f} ({p['casa']})</b></div>
+                        <div class="drawer-row"><span>⚠️ Tope de Cuota Mínima:</span> <b>No apostar si baja de @{p['cuota_justa'] + 0.04:.2f}</b></div>
                         <div class="drawer-row"><span>📐 Proyección Goles (xG):</span> <b>Local {p['xg_l']:.2f} — Visita {p['xg_v']:.2f}</b></div>
-                        <div class="drawer-row"><span>🛑 Proyección Faltas / SOT:</span> <b>{p['faltas_proy']:.1f} Faltas | {p['sot_proy']:.1f} Tiros al Arco</b></div>
+                        <div class="drawer-row"><span>🛑 Faltas / SOT / Tarjetas:</span> <b>{p['faltas_proy']:.1f} Faltas | {p['sot_proy']:.1f} SOT | {p['tarj_proy']:.1f} Tarj.</b></div>
                         <div class="drawer-row"><span>📈 Forma & Récord ESPN:</span> <b>L: {p['form_l']} ({p['rec_l']}) | V: {p['form_v']} ({p['rec_v']})</b></div>
                         <div class="drawer-row"><span>🏥 Reporte de Plantilla:</span> <b>{p['bajas']}</b></div>
                         <p class="drawer-note">🧠 {p['explicacion']}</p>
@@ -805,8 +833,8 @@ def generar_web_interactiva_v15_1(auditoria, picks_jornada, partidos_analizados,
     if not tarjetas_html:
         tarjetas_html = """
         <div class="empty-state">
-            <h3>🛡️ Escaneo en Curso</h3>
-            <p>Monitoreando líneas de mercado. El bot actualizará nuevas entradas automáticamente en la siguiente ventana horaria.</p>
+            <h3>🛡️ Filtro de Rigor Activado</h3>
+            <p>Monitoreando líneas de mercado bajo calibración estricta v16.0.</p>
         </div>
         """
 
@@ -847,7 +875,7 @@ def generar_web_interactiva_v15_1(auditoria, picks_jornada, partidos_analizados,
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IABET Quant Pro v15.1 | The Odds API + Pinnacle De-Vig + ESPN Live</title>
+    <title>IABET Quant Pro v16.0 | Calibración Bayesiana & Control de Varianza</title>
     <style>
         :root {{
             --bg: #070b14;
@@ -869,7 +897,7 @@ def generar_web_interactiva_v15_1(auditoria, picks_jornada, partidos_analizados,
         .container {{ max-width: 1240px; margin: 0 auto; padding: 24px 16px; }}
         .hero {{ text-align: center; padding: 26px 18px; background: radial-gradient(circle at top, #1e293b70, #0f172a40); border-radius: 16px; margin-bottom: 24px; border: 1px solid var(--border); }}
         .hero h1 {{ font-size: 1.85rem; font-weight: 800; margin-bottom: 8px; }}
-        .hero p {{ color: var(--muted); max-width: 800px; margin: 0 auto; font-size: 0.92rem; }}
+        .hero p {{ color: var(--muted); max-width: 820px; margin: 0 auto; font-size: 0.92rem; }}
         .stats-bar {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(165px, 1fr)); gap: 12px; margin-bottom: 24px; }}
         .stat-box {{ background: var(--card); border: 1px solid var(--border); padding: 16px; border-radius: 12px; text-align: center; }}
         .stat-box .s-label {{ font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }}
@@ -929,16 +957,16 @@ def generar_web_interactiva_v15_1(auditoria, picks_jornada, partidos_analizados,
 </head>
 <body>
     <nav class="navbar">
-        <div class="logo">⚡ IABET <span>QUANT PRO v15.1</span></div>
+        <div class="logo">⚡ IABET <span>QUANT PRO v16.0</span></div>
         <div class="nav-right">
             <div class="quota-pill">🎫 Cuota OddsAPI: {cred_txt} disp.</div>
-            <div class="status-pill">🟢 Motor Estable | Modo: {MODO_COMERCIAL}</div>
+            <div class="status-pill">🛡️ Calibración Anti-Fantasía Activa | Modo: {MODO_COMERCIAL}</div>
         </div>
     </nav>
     <div class="container">
         <div class="hero">
-            <h1>Motor Cuantitativo con Pinnacle De-Vigging & Gestión Inteligente</h1>
-            <p>Sincronizado con The Odds API (Pinnacle/Betfair/Betsson), ESPN Summary API y series históricas L5 · L10 · L20 en horarios clave de máxima liquidez[cite: 7].</p>
+            <h1>Motor Cuantitativo con Anclaje Bayesiano & Control de Riesgo</h1>
+            <p>Sincronizado con The Odds API (Pinnacle De-Vig), ESPN Summary API y filtros estrictos de tarjetas/faltas L5 · L10 · L20 para proteger tu bankroll de cuotas engañosas.</p>
         </div>
 
         <div class="stats-bar">
@@ -985,9 +1013,9 @@ def generar_web_interactiva_v15_1(auditoria, picks_jornada, partidos_analizados,
                 </select>
                 <select id="filtroTier" class="select-pro" onchange="aplicarFiltros()">
                     <option value="ALL">💎 Todos los Tiers</option>
-                    <option value="TIER S">💎 Solo TIER S (Blindado)</option>
-                    <option value="TIER A">🥇 Solo TIER A (+EV)</option>
-                    <option value="TIER B">🥈 Solo TIER B (Valor)</option>
+                    <option value="TIER S">💎 Solo TIER S (Blindado &le; 1.66)</option>
+                    <option value="TIER A">🥇 Solo TIER A (+EV Fuerte)</option>
+                    <option value="TIER B">🥈 Solo TIER B (Valor Moderado)</option>
                 </select>
                 <div class="bankroll-calc">
                     <span>💰 Mi Bankroll: S/</span>
@@ -997,7 +1025,7 @@ def generar_web_interactiva_v15_1(auditoria, picks_jornada, partidos_analizados,
         </div>
 
         <div class="section-title">
-            <span id="contadorPicks">🎯 Pronósticos Futuros Verificados ({len(picks_jornada)} seleccionados de {partidos_analizados} partidos futuros)</span>
+            <span id="contadorPicks">🎯 Pronósticos Futuros Calibrados ({len(picks_jornada)} seleccionados de {partidos_analizados} partidos futuros)</span>
             <small style="color:var(--muted); font-size:0.8rem;">Actualizado: {ahora_peru}</small>
         </div>
         <div class="picks-grid" id="gridPicks">
@@ -1077,8 +1105,8 @@ def generar_web_interactiva_v15_1(auditoria, picks_jornada, partidos_analizados,
         function recalcularStakes() {{
             const bank = parseFloat(document.getElementById('inputBankroll').value) || 100;
             document.querySelectorAll('.stake-dinamico').forEach(el => {{
-                const pct = parseFloat(el.getAttribute('data-pct')) || 0.03;
-                const monto = Math.max(1.0, Math.min(bank * 0.08, Math.round((bank * pct) * 2) / 2));
+                const pct = parseFloat(el.getAttribute('data-pct')) || 0.025;
+                const monto = Math.max(1.0, Math.min(bank * 0.05, Math.round((bank * pct) * 2) / 2));
                 el.innerText = 'S/ ' + monto.toFixed(2);
             }});
         }}
@@ -1098,7 +1126,7 @@ def generar_web_interactiva_v15_1(auditoria, picks_jornada, partidos_analizados,
         f.write(html_completo)
 
 # ==============================================================================
-# 6. ORQUESTADOR MAESTRO v15.1
+# 6. ORQUESTADOR MAESTRO v16.0 (CON ANCLAJE BAYESIANO DE REALISMO)
 # ==============================================================================
 def enviar_telegram_seguro(texto):
     url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
@@ -1109,9 +1137,9 @@ def enviar_telegram_seguro(texto):
         except Exception:
             pass
 
-def ejecutar_iabet_v15_1():
+def ejecutar_iabet_v16():
     t0 = time.time()
-    caches_csv, espn_partidos, eventos_futuros = obtener_datos_pipeline_v15_1()
+    caches_csv, espn_partidos, eventos_futuros = obtener_datos_pipeline_v16()
 
     auditoria = cargar_auditoria()
 
@@ -1144,13 +1172,13 @@ def ejecutar_iabet_v15_1():
         vistos.add(id_p)
         partidos_analizados += 1
 
-        base_t = ev.get("base_tarj", 4.5)
-        base_f = ev.get("base_falt", 24.5)
-        base_s = ev.get("base_sot", 8.8)
+        base_t = ev.get("base_tarj", 4.3)
+        base_f = ev.get("base_falt", 24.2)
+        base_s = ev.get("base_sot", 8.6)
 
         df_liga = caches_csv.get(liga)
-        st_l = analizar_equipo_profundo(df_liga, loc, base_f, base_s, base_t, es_local=True)
-        st_v = analizar_equipo_profundo(df_liga, vis, base_f, base_s, base_t, es_local=False)
+        st_l = analizar_equipo_profundo_v16(df_liga, loc, base_f, base_s, base_t, es_local=True)
+        st_v = analizar_equipo_profundo_v16(df_liga, vis, base_f, base_s, base_t, es_local=False)
 
         form_l = ev.get("form_h", "WDW")
         form_v = ev.get("form_a", "DWL")
@@ -1180,16 +1208,16 @@ def ejecutar_iabet_v15_1():
             casa_2 = ev["casa"]
 
             if c_1 <= 1.05 or c_2 <= 1.05:
-                fuerza_rel = (bonus_l * 1.12) / max(0.75, bonus_v)
-                p_est_1 = min(0.68, max(0.24, 0.44 * fuerza_rel))
+                fuerza_rel = (bonus_l * 1.10) / max(0.78, bonus_v)
+                p_est_1 = min(0.65, max(0.25, 0.44 * fuerza_rel))
                 p_est_x = 0.27
-                p_est_2 = max(0.15, 1.0 - p_est_1 - p_est_x)
+                p_est_2 = max(0.16, 1.0 - p_est_1 - p_est_x)
                 c_1 = round((1.0 / p_est_1) * 0.95, 2)
                 c_x = round((1.0 / p_est_x) * 0.95, 2)
                 c_2 = round((1.0 / p_est_2) * 0.95, 2)
                 c_o25, c_u25 = 1.88, 1.92
-                casa_1 = "Línea Apertura B2B"
-                casa_2 = "Línea Apertura B2B"
+                casa_1 = "Línea Consenso B2B"
+                casa_2 = "Línea Consenso B2B"
 
             pin_1, pin_x, pin_2 = c_1, c_x, c_2
 
@@ -1198,35 +1226,39 @@ def ejecutar_iabet_v15_1():
         p_devig_x = (1.0 / pin_x) / overround
         p_devig_2 = (1.0 / pin_2) / overround
 
-        goles_mkt = 2.65
+        goles_mkt = 2.62
         if c_o25 > 1.05 and c_u25 > 1.05:
             p_ov = (1.0 / c_o25) / ((1.0 / c_o25) + (1.0 / c_u25))
             goles_mkt = 2.15 + (p_ov * 1.15)
 
-        l_mkt_l = max(0.55, min(3.10, goles_mkt * (p_devig_1 + 0.48 * p_devig_x) * 1.05))
-        l_mkt_v = max(0.45, min(2.75, goles_mkt * (p_devig_2 + 0.52 * p_devig_x) * 0.95))
+        l_mkt_l = max(0.55, min(3.00, goles_mkt * (p_devig_1 + 0.48 * p_devig_x) * 1.04))
+        l_mkt_v = max(0.45, min(2.65, goles_mkt * (p_devig_2 + 0.52 * p_devig_x) * 0.96))
 
         if st_l and st_v:
-            lambda_l = ((((st_l["gf"] + st_v["gc"]) / 2.0) * 0.62) + (l_mkt_l * 0.38)) * bonus_l
-            lambda_v = ((((st_v["gf"] + st_l["gc"]) / 2.0) * 0.62) + (l_mkt_v * 0.38)) * bonus_v
+            lambda_l = ((((st_l["gf"] + st_v["gc"]) / 2.0) * 0.60) + (l_mkt_l * 0.40)) * bonus_l
+            lambda_v = ((((st_v["gf"] + st_l["gc"]) / 2.0) * 0.60) + (l_mkt_v * 0.40)) * bonus_v
             f_loc_esp = (st_l["f_com"] * 0.65) + (st_v["f_rec"] * 0.35)
             f_vis_esp = (st_v["f_com"] * 0.65) + (st_l["f_rec"] * 0.35)
             sot_l, sot_v = st_l["sot"] * bonus_l, st_v["sot"] * bonus_v
-            tarj_esp = st_l["tarj"] + st_v["tarj"]
+            # Tarjetas proyectadas ponderando tanto las propias como las provocadas y la base de la liga
+            tarj_hist = ((st_l["tarj"] + st_v["tarj_rec"]) / 2.0) + ((st_v["tarj"] + st_l["tarj_rec"]) / 2.0)
+            tarj_esp = (tarj_hist * 0.70) + (base_t * 0.30)
+            min_tarj_equipo = min(st_l["t_l10"], st_v["t_l10"])
             f_l5 = st_l["f_l5"] + st_v["f_l5"]
             f_l10 = st_l["f_l10"] + st_v["f_l10"]
             f_l20 = st_l["f_l20"] + st_v["f_l20"]
-            str_ventanas = f"L5: {f_l5:.1f}f · L10: {f_l10:.1f}f · L20: {f_l20:.1f}f | xG: {lambda_l:.2f}-{lambda_v:.2f} | ESPN: {form_l}"
+            str_ventanas = f"L5: {f_l5:.1f}f · L10: {f_l10:.1f}f | Tarj: {tarj_esp:.1f}t | xG: {lambda_l:.2f}-{lambda_v:.2f}"
             tiene_stats = True
         else:
-            deseq = min(1.25, max(0.80, pin_2 / max(1.05, pin_1)))
+            deseq = min(1.22, max(0.82, pin_2 / max(1.05, pin_1)))
             lambda_l = l_mkt_l * bonus_l
             lambda_v = l_mkt_v * bonus_v
-            f_loc_esp = (base_f * 0.47) / (deseq ** 0.18)
-            f_vis_esp = (base_f * 0.53) * (deseq ** 0.18)
-            sot_l = (base_s * 0.54) * (deseq ** 0.15)
-            sot_v = (base_s * 0.46) / (deseq ** 0.15)
+            f_loc_esp = (base_f * 0.47) / (deseq ** 0.16)
+            f_vis_esp = (base_f * 0.53) * (deseq ** 0.16)
+            sot_l = (base_s * 0.54) * (deseq ** 0.14)
+            sot_v = (base_s * 0.46) / (deseq ** 0.14)
             tarj_esp = base_t
+            min_tarj_equipo = 1.9
             str_ventanas = f"xG Proy: {lambda_l:.2f}-{lambda_v:.2f} | SOT: {sot_l+sot_v:.1f} | ESPN: {form_l} vs {form_v}"
             tiene_stats = False
 
@@ -1234,18 +1266,18 @@ def ejecutar_iabet_v15_1():
         linea_sot = round(base_s) - 0.5
         linea_tarj = round(base_t) - 0.5
 
-        res_mc = motor_montecarlo_v15(
+        res_mc = motor_montecarlo_v16(
             lambda_l, lambda_v, f_loc_esp, f_vis_esp, linea_f_tot,
             sot_l, sot_v, linea_sot, tarj_esp, linea_tarj, N_SIMS
         )
 
-        p_fin_1 = (res_mc[0] * 0.65) + (p_devig_1 * 0.35)
-        p_fin_2 = (res_mc[2] * 0.65) + (p_devig_2 * 0.35)
-        p_fin_1x = (res_mc[3] * 0.65) + ((p_devig_1 + p_devig_x) * 0.35)
-        p_fin_x2 = (res_mc[4] * 0.65) + ((p_devig_2 + p_devig_x) * 0.35)
+        p_fin_1 = (res_mc[0] * 0.60) + (p_devig_1 * 0.40)
+        p_fin_2 = (res_mc[2] * 0.60) + (p_devig_2 * 0.40)
+        p_fin_1x = (res_mc[3] * 0.60) + ((p_devig_1 + p_devig_x) * 0.40)
+        p_fin_x2 = (res_mc[4] * 0.60) + ((p_devig_2 + p_devig_x) * 0.40)
 
-        c_1x = round((1.0 / ((1.0 / c_1) + (1.0 / c_x))) * 1.02, 2)
-        c_x2 = round((1.0 / ((1.0 / c_2) + (1.0 / c_x))) * 1.02, 2)
+        c_1x = round((1.0 / ((1.0 / c_1) + (1.0 / c_x))) * 1.01, 2)
+        c_x2 = round((1.0 / ((1.0 / c_2) + (1.0 / c_x))) * 1.01, 2)
 
         mercados_eval = [
             (f"Victoria {loc} (1)", p_fin_1, c_1, casa_1, "1X2"),
@@ -1258,42 +1290,57 @@ def ejecutar_iabet_v15_1():
             mercados_eval.append(("Más de 2.5 Goles (Over 2.5)", res_mc[6], c_o25, casa_1, "GOLES"))
         if c_u25 > 1.38:
             mercados_eval.append(("Menos de 2.5 Goles (Under 2.5)", res_mc[7], c_u25, casa_1, "GOLES"))
-            c_un35 = max(1.38, round(c_u25 * 0.80, 2))
+            c_un35 = max(1.38, round(c_u25 * 0.79, 2))
             mercados_eval.append(("Menos de 3.5 Goles (Under 3.5)", res_mc[8], c_un35, casa_1, "GOLES"))
 
+        # Mercados Secundarios con Anclaje Bayesiano (62% Monte Carlo + 38% Línea Limpia del Mercado)
         dif_f = (f_loc_esp + f_vis_esp) - linea_f_tot
-        if dif_f <= -0.85:
-            mercados_eval.append((f"Menos de {linea_f_tot} Faltas Totales", res_mc[11], 1.68, "Betsson/Inkabet", "FALTAS"))
-        elif dif_f >= 0.85:
-            mercados_eval.append((f"Más de {linea_f_tot} Faltas Totales", res_mc[10], 1.68, "Betsson/Inkabet", "FALTAS"))
+        if dif_f <= -1.10:
+            p_cal_f = (res_mc[11] * 0.62) + (0.56 * 0.38)
+            mercados_eval.append((f"Menos de {linea_f_tot} Faltas Totales", p_cal_f, 1.65, "Betano/Betsson", "FALTAS"))
+        elif dif_f >= 1.10:
+            p_cal_f = (res_mc[10] * 0.62) + (0.56 * 0.38)
+            mercados_eval.append((f"Más de {linea_f_tot} Faltas Totales", p_cal_f, 1.65, "Betano/Betsson", "FALTAS"))
 
         if tiene_stats:
             dif_sot = (sot_l + sot_v) - linea_sot
-            if dif_sot >= 0.65:
-                mercados_eval.append((f"Más de {linea_sot} Tiros al Arco", res_mc[12], 1.70, "Betsson/Inkabet", "TIROS"))
-            elif dif_sot <= -0.65:
-                mercados_eval.append((f"Menos de {linea_sot} Tiros al Arco", res_mc[13], 1.68, "Betsson/Inkabet", "TIROS"))
+            if dif_sot >= 0.85:
+                p_cal_s = (res_mc[12] * 0.62) + (0.55 * 0.38)
+                mercados_eval.append((f"Más de {linea_sot} Tiros al Arco", p_cal_s, 1.66, "Betano/Bet365", "TIROS"))
+            elif dif_sot <= -0.85:
+                p_cal_s = (res_mc[13] * 0.62) + (0.55 * 0.38)
+                mercados_eval.append((f"Menos de {linea_sot} Tiros al Arco", p_cal_s, 1.65, "Betano/Bet365", "TIROS"))
 
-            if (tarj_esp - linea_tarj) >= 0.40:
-                mercados_eval.append((f"Más de {linea_tarj} Tarjetas", res_mc[14], 1.72, "Betsson/Inkabet", "TARJETAS"))
+            # CANDADO ANTI-PARMA EN TARJETAS:
+            # Solo recomienda OVER de tarjetas si AMBOS equipos promedian >= 1.85 amarillas en L10
+            # y la suma proyectada supera la línea por al menos +0.65 tarjetas.
+            if (tarj_esp - linea_tarj) >= 0.65 and min_tarj_equipo >= 1.85:
+                p_cal_t = (res_mc[14] * 0.60) + (0.55 * 0.40)
+                mercados_eval.append((f"Más de {linea_tarj} Tarjetas", p_cal_t, 1.66, "Betano/Betsson", "TARJETAS"))
+            elif (linea_tarj - tarj_esp) >= 0.65:
+                p_cal_t = (res_mc[15] * 0.60) + (0.55 * 0.40)
+                mercados_eval.append((f"Menos de {linea_tarj} Tarjetas", p_cal_t, 1.66, "Betano/Betsson", "TARJETAS"))
 
         for nom_m, p_real, cuota_m, casa_m, cat in mercados_eval:
             if not (CUOTA_MIN <= cuota_m <= CUOTA_MAX):
                 continue
+
             p_imp = 1.0 / cuota_m
             edge_pct = (p_real - p_imp) * 100.0
-            if edge_pct < 1.5 or edge_pct > 19.5:
+
+            # Filtro de Realismo: descarta ventajas diminutas (<2.0%) o irreales (>11.5%)
+            if edge_pct < EDGE_MIN_REALISTA or edge_pct > EDGE_MAX_REALISTA:
                 continue
 
             prob_pct = p_real * 100.0
-            tier_cod, tier_label, tier_rank = clasificar_tier(prob_pct, edge_pct)
+            tier_cod, tier_label, tier_rank, tope_stake_tier = clasificar_tier_realista_v16(prob_pct, edge_pct, cuota_m)
             if tier_cod == "DESCARTADO":
                 continue
 
             b = cuota_m - 1.0
-            kelly = max(0.015, min(0.06, (((b * p_real) - (1.0 - p_real)) / b) * KELLY_FRAC))
-            stake_soles = min(6.0, max(1.50, round((bankroll_dinamico * kelly) * 2) / 2))
-            confianza_ia = min(97.4, 82.5 + (edge_pct * 0.85) + max(0.0, (prob_pct - 54.0) * 0.25))
+            kelly = max(0.015, min(0.045, (((b * p_real) - (1.0 - p_real)) / b) * KELLY_FRAC))
+            stake_soles = min(tope_stake_tier, max(1.50, round((bankroll_dinamico * kelly) * 2) / 2))
+            confianza_ia = min(96.8, 80.0 + (edge_pct * 1.10) + max(0.0, (prob_pct - 55.0) * 0.30))
             cuota_justa = round(1.0 / max(0.05, p_real), 2)
 
             candidatos.append({
@@ -1321,17 +1368,18 @@ def ejecutar_iabet_v15_1():
                 "xg_v": round(lambda_v, 2),
                 "faltas_proy": round(f_loc_esp + f_vis_esp, 1),
                 "sot_proy": round(sot_l + sot_v, 1),
+                "tarj_proy": round(tarj_esp, 1),
                 "form_l": form_l,
                 "form_v": form_v,
                 "rec_l": rec_l,
                 "rec_v": rec_v,
                 "bajas": "Plantillas titulares disponibles",
                 "ventanas": str_ventanas,
-                "explicacion": f"En 1,000,000 de simulaciones + Pinnacle De-Vig la cuota justa es @{cuota_justa:.2f}, mientras que {casa_m} ofrece @{cuota_m:.2f} (+{edge_pct:.1f}% EV).",
+                "explicacion": f"Calibración Bayesiana v16.0: Cuota Justa @{cuota_justa:.2f} frente a @{cuota_m:.2f} en {casa_m} (+{edge_pct:.1f}% EV). No operar si la cuota cae por debajo de @{cuota_justa + 0.04:.2f}.",
                 "estado": "PENDIENTE",
                 "marcador_final": f"Juega {ev['etiqueta_dia']} {ev['hora_peru']}",
                 "profit": 0.0,
-                "score": (p_real * 0.55) + ((edge_pct / 100.0) * 0.45)
+                "score": (p_real * 0.65) + ((edge_pct / 100.0) * 0.35)
             })
 
     candidatos.sort(key=lambda x: (x["tier_rank"], -x["score"]))
@@ -1362,16 +1410,16 @@ def ejecutar_iabet_v15_1():
     with open(ARCHIVO_AUDITORIA, "w", encoding="utf-8") as f:
         json.dump(auditoria, f, ensure_ascii=False, indent=2)
 
-    generar_web_interactiva_v15_1(auditoria, picks_finales, partidos_analizados, len(caches_csv))
+    generar_web_interactiva_v16(auditoria, picks_finales, partidos_analizados, len(caches_csv))
 
     res = auditoria["resumen"]
     dur = time.time() - t0
     lineas_tg = [
-        "⚡ IABET QUANT PRO v15.1 (ESTABLE)",
+        "🛡️ IABET QUANT PRO v16.0 (CALIBRACIÓN ANTI-FANTASÍA)",
         f"📊 Efectividad: {res['win_rate_pct']:.1f}% ({res['ganados']}W-{res['perdidos']}L) | ROI: {res['roi_pct']:+.1f}%",
         f"💰 Bankroll: S/ {res['bankroll_actual']:.2f} | 🎫 Créditos OddsAPI: {creditos_restantes}",
         f"🌐 Web Interactiva: https://blakeffx.github.io/iabet-cloud/",
-        f"⏱️ {len(picks_finales)} picks futuros seleccionados de {partidos_analizados} partidos ({dur:.1f}s)",
+        f"⏱️ {len(picks_finales)} picks calibrados de {partidos_analizados} partidos ({dur:.1f}s)",
         "━━━━━━━━━━━━━━━━━━━━"
     ]
 
@@ -1379,13 +1427,13 @@ def ejecutar_iabet_v15_1():
         lineas_tg.append(
             f"{idx}. {p['tier_label']} [📅 {p['etiqueta_dia']} {p['hora_peru']} · {p['liga']}]\n"
             f"⚽ {p['local']} vs {p['visita']}\n"
-            f"👉 {p['mercado']}  @{p['cuota']:.2f} ({p['casa']})\n"
-            f"🔥 Confianza IA: {p['confianza']:.1f}% (Prob: {p['prob']:.1f}% | Edge: +{p['edge']:.1f}%)\n"
+            f"👉 {p['mercado']}  @{p['cuota']:.2f} (Justa: @{p['cuota_justa']:.2f})\n"
+            f"🔥 Confianza: {p['confianza']:.1f}% (Prob: {p['prob']:.1f}% | Edge: +{p['edge']:.1f}%)\n"
             f"📊 {p['ventanas']} | 💰 Stake: S/ {p['stake']:.2f}\n"
         )
 
     enviar_telegram_seguro("\n".join(lineas_tg))
-    print(f"✅ IABET v15.1 completado: {len(picks_finales)} picks publicados.")
+    print(f"✅ IABET v16.0 completado: {len(picks_finales)} picks calibrados.")
 
 if __name__ == "__main__":
-    ejecutar_iabet_v15_1()
+    ejecutar_iabet_v16()
