@@ -10,27 +10,26 @@ import pandas as pd
 from numba import njit, prange
 
 # ==============================================================================
-# 1. CREDENCIALES Y CONFIGURACIÓN SMART-QUOTA (IABET QUANT PRO v15.0)
+# 1. CREDENCIALES Y CONFIGURACIÓN ESTABLE (IABET QUANT PRO v15.1)
 # ==============================================================================
 THE_ODDS_API_KEY = "a13d27d9c5cc3ea988f72ba4ff74c56f"
 TELEGRAM_TOKEN = "8902181028:AAE1ywEiCc6do90ZPclI8GnUdmVqKBc7iOU"
 TELEGRAM_CHAT_ID = "5203732922"
 GEMINI_API_KEY = "AQ.Ab8RN6IKL6yh9YxXdsAzjRn9RKHo9xOtu1Rq8OpZhBKg8rPp-Q"
 
-MODO_COMERCIAL = "PRUEBA"  # "PRUEBA" (Picks abiertos) o "VENTA" (Bloquea Tier S con Blur VIP)
+MODO_COMERCIAL = "PRUEBA"
 LINK_CONTACTO_VIP = "https://t.me/+TuEnlaceDeContacto"
 
 BANKROLL_INICIAL = 100.0
 KELLY_FRAC = 0.25
 N_SIMS = 1_000_000
-CUOTA_MIN = 1.38
+CUOTA_MIN = 1.35
 CUOTA_MAX = 2.45
 MAX_PICKS_WEB = 15
 ARCHIVO_AUDITORIA = "auditoria_iabet.json"
 
-# Protección de tus 500 peticiones mensuales de The Odds API:
-HORAS_CACHE_ODDS_API = 4.0       # Reutiliza cuotas durante 4 horas para no gastar en pruebas manuales
-MAX_LIGAS_ODDS_POR_CICLO = 4     # Máximo 4 créditos por escaneo en ligas con partidos hoy/mañana
+HORAS_CACHE_ODDS_API = 4.0
+MAX_LIGAS_ODDS_POR_CICLO = 4
 
 TZ_PERU = timezone(timedelta(hours=-5))
 
@@ -40,7 +39,6 @@ HEADERS_PRO = {
     "Accept-Language": "es-ES,es;q=0.9"
 }
 
-# Mapa Maestro: Slug ESPN -> (Nombre, Código CSV, Key en The Odds API, Tarjetas, Faltas, SOT)
 LIGAS_CONFIG = {
     "esp.1": ("LaLiga", "SP1", "soccer_spain_la_liga", 4.7, 25.0, 8.6),
     "eng.1": ("Premier League", "E0", "soccer_epl", 3.9, 21.6, 9.3),
@@ -91,7 +89,7 @@ DB_EQUIPOS_PRO = {
 }
 
 # ==============================================================================
-# 2. MOTOR MONTE CARLO JIT EN C (1,000,000 DE SIMULACIONES)
+# 2. MOTOR MONTE CARLO JIT EN C (1,000,000 SIMULACIONES)
 # ==============================================================================
 @njit(parallel=True)
 def motor_montecarlo_v15(
@@ -157,7 +155,7 @@ def motor_montecarlo_v15(
     )
 
 # ==============================================================================
-# 3. GESTIÓN INTELIGENTE DE THE ODDS API + INGESTA MULTIFECHA ESPN
+# 3. EXTRACCIÓN DE DATOS ESTABLE MULTI-DÍA
 # ==============================================================================
 def normalizar_nombre(nombre):
     if not nombre:
@@ -168,20 +166,12 @@ def normalizar_nombre(nombre):
     return limpio.strip()
 
 def consultar_the_odds_api_smart(ligas_con_partidos_hoy, auditoria):
-    """
-    Ahorra tus 500 peticiones mensuales de The Odds API:
-    1. En el turno nocturno de auditoría (22:00 a 05:00 Hora Perú) NO gasta créditos.
-    2. Si ya consultó una liga hace menos de 4 horas, reutiliza la caché guardada.
-    3. Solo consulta ligas que realmente tengan partidos programados para HOY o MAÑANA.
-    4. Usa markets=h2h (costo mínimo: 1 crédito por liga activa) y extrae Pinnacle + Mejor Cuota.
-    """
     cache_global = auditoria.get("cache_odds_api", {})
     creditos_restantes = auditoria.get("resumen", {}).get("creditos_odds_api", "500")
     ahora_ts = time.time()
     hora_peru_actual = datetime.now(TZ_PERU).hour
 
-    # Si es de madrugada o turno de cierre nocturno (22h a 05h Perú), ahorramos el 100% de créditos
-    if not THE_ODDS_API_KEY or hora_peru_actual >= 22 or hora_peru_actual < 6:
+    if not THE_ODDS_API_KEY or hora_peru_actual >= 23 or hora_peru_actual < 5:
         return cache_global.get("partidos", {}), creditos_restantes
 
     mapa_cuotas = cache_global.get("partidos", {})
@@ -194,7 +184,6 @@ def consultar_the_odds_api_smart(ligas_con_partidos_hoy, auditoria):
 
         ult_consulta = float(tiempos_ligas.get(odds_key, 0.0))
         if (ahora_ts - ult_consulta) < (HORAS_CACHE_ODDS_API * 3600):
-            # Usamos las cuotas en caché sin gastar ni 1 petición
             continue
 
         url = f"https://api.the-odds-api.com/v4/sports/{odds_key}/odds"
@@ -339,22 +328,37 @@ def extraer_estadisticas_summary_espn(event_id):
     except Exception:
         return None
 
-def descargar_espn_multifecha(item):
+def descargar_espn_liga_estable(item):
     slug, (nom_liga, _, odds_key, b_tarj, b_falt, b_sot) = item
     ahora_peru = datetime.now(TZ_PERU)
-    f_ini = (ahora_peru - timedelta(days=1)).strftime("%Y%m%d")
-    f_fin = (ahora_peru + timedelta(days=3)).strftime("%Y%m%d")
-    url = f"https://site.api.espn.com/apis/site/v2/sports/soccer/{slug}/scoreboard?dates={f_ini}-{f_fin}"
+    dia_hoy = ahora_peru.strftime("%Y%m%d")
+    dia_manana = (ahora_peru + timedelta(days=1)).strftime("%Y%m%d")
+    dia_pasado = (ahora_peru + timedelta(days=2)).strftime("%Y%m%d")
 
-    eventos_futuros = []
+    # Consulta segura multi-fecha a ESPN (sin rangos con guión)
+    urls_a_probar = [
+        f"https://site.api.espn.com/apis/site/v2/sports/soccer/{slug}/scoreboard",
+        f"https://site.api.espn.com/apis/site/v2/sports/soccer/{slug}/scoreboard?dates={dia_hoy}",
+        f"https://site.api.espn.com/apis/site/v2/sports/soccer/{slug}/scoreboard?dates={dia_manana}",
+        f"https://site.api.espn.com/apis/site/v2/sports/soccer/{slug}/scoreboard?dates={dia_pasado}"
+    ]
+
+    eventos_encontrados = []
     partidos_espn_estado = {}
+    ids_vistos = set()
 
-    try:
-        r = requests.get(url, headers=HEADERS_PRO, timeout=8)
-        if r.status_code == 200:
+    for url in urls_a_probar:
+        try:
+            r = requests.get(url, headers=HEADERS_PRO, timeout=7)
+            if r.status_code != 200:
+                continue
             data = r.json()
             for ev in data.get("events", []):
                 ev_id = str(ev.get("id", ""))
+                if ev_id in ids_vistos:
+                    continue
+                ids_vistos.add(ev_id)
+
                 comp = (ev.get("competitions") or [{}])[0]
                 st_obj = comp.get("status", {})
                 estado = st_obj.get("type", {}).get("state", "pre")
@@ -368,6 +372,7 @@ def descargar_espn_multifecha(item):
                     hora_peru_str = dt_peru.strftime("%H:%M")
                     hoy_str = ahora_peru.strftime("%Y-%m-%d")
                     manana_str = (ahora_peru + timedelta(days=1)).strftime("%Y-%m-%d")
+
                     if fecha_peru_str == hoy_str:
                         etiqueta_dia = "HOY"
                     elif fecha_peru_str == manana_str:
@@ -399,6 +404,7 @@ def descargar_espn_multifecha(item):
                         "clock": detalle_tiempo, "home_score": sh, "away_score": sa
                     }
 
+                    # Para picks nuevos en tarjetas: solo futuros (pre)
                     if estado != "pre":
                         continue
 
@@ -409,8 +415,7 @@ def descargar_espn_multifecha(item):
 
                     if odds_obj:
                         prov = odds_obj.get("provider", {}).get("name")
-                        if prov:
-                            casa_nombre = prov
+                        if prov: casa_nombre = prov
                         ml_h = odds_obj.get("homeTeamOdds", {}).get("moneyLine")
                         ml_a = odds_obj.get("awayTeamOdds", {}).get("moneyLine")
                         ml_d = odds_obj.get("drawOdds", {}).get("moneyLine")
@@ -429,7 +434,7 @@ def descargar_espn_multifecha(item):
                         if ou and abs(float(ou) - 2.5) < 0.2:
                             c_o25, c_u25 = 1.88, 1.92
 
-                    eventos_futuros.append({
+                    eventos_encontrados.append({
                         "event_id": ev_id,
                         "liga": nom_liga,
                         "odds_key": odds_key,
@@ -452,12 +457,12 @@ def descargar_espn_multifecha(item):
                         "c_u25": c_u25,
                         "casa": casa_nombre
                     })
-    except Exception:
-        pass
+        except Exception:
+            continue
 
-    return eventos_futuros, partidos_espn_estado
+    return eventos_encontrados, partidos_espn_estado
 
-def obtener_datos_pipeline_v15():
+def obtener_datos_pipeline_v15_1():
     caches_csv = {}
     espn_partidos = {}
     eventos_futuros = []
@@ -466,7 +471,7 @@ def obtener_datos_pipeline_v15():
         for nom, df in ex.map(descargar_csv_liga, CSV_LIGAS_MAPA.items()):
             if not df.empty:
                 caches_csv[nom] = df
-        for evs, p_dict in ex.map(descargar_espn_multifecha, LIGAS_CONFIG.items()):
+        for evs, p_dict in ex.map(descargar_espn_liga_estable, LIGAS_CONFIG.items()):
             eventos_futuros.extend(evs)
             espn_partidos.update(p_dict)
 
@@ -545,18 +550,13 @@ def analizar_equipo_profundo(df, equipo, base_faltas, base_sot, base_tarj, es_lo
     }
 
 # ==============================================================================
-# 4. AUDITORÍA PROFUNDA (CALIFICA GOLES, FALTAS, TIROS Y TARJETAS VÍA SUMMARY)
+# 4. AUDITORÍA PERMANENTE
 # ==============================================================================
 def cargar_auditoria():
     if os.path.exists(ARCHIVO_AUDITORIA):
         try:
             with open(ARCHIVO_AUDITORIA, "r", encoding="utf-8") as f:
                 data = json.load(f)
-                hist_limpio = [
-                    p for p in data.get("historial", [])
-                    if p.get("event_id") or p.get("estado") == "GANADO"
-                ]
-                data["historial"] = hist_limpio
                 return data
         except Exception:
             pass
@@ -571,7 +571,7 @@ def cargar_auditoria():
             "perdidos": 0,
             "en_vivo": 0,
             "pendientes": 0,
-            "racha_actual": "Lista",
+            "racha_actual": "En espera",
             "creditos_odds_api": "500"
         },
         "cache_odds_api": {"tiempos_ligas": {}, "partidos": {}},
@@ -705,20 +705,20 @@ def auditar_picks_con_espn(auditoria, espn_partidos, creditos_restantes):
     return auditoria
 
 def clasificar_tier(prob_pct, edge_pct):
-    if prob_pct >= 66.5 and edge_pct >= 2.2:
+    if prob_pct >= 66.5 and edge_pct >= 2.0:
         return "TIER S", "💎 TIER S (Blindado)", 1
-    elif prob_pct >= 58.5 and edge_pct >= 2.0:
+    elif prob_pct >= 58.0 and edge_pct >= 1.8:
         return "TIER A", "🥇 TIER A (Fuerte +EV)", 2
-    elif prob_pct >= 53.0 and edge_pct >= 1.5:
+    elif prob_pct >= 52.5 and edge_pct >= 1.5:
         return "TIER B", "🥈 TIER B (Valor Matemático)", 3
     return "DESCARTADO", "❌", 99
 
 # ==============================================================================
-# 5. GENERADOR DE PLATAFORMA WEB INTERACTIVA v15.0
+# 5. GENERADOR DE LA PLATAFORMA WEB
 # ==============================================================================
-def generar_web_interactiva_v15(auditoria, picks_jornada, partidos_analizados, ligas_csv_activas):
+def generar_web_interactiva_v15_1(auditoria, picks_jornada, partidos_analizados, ligas_csv_activas):
     res = auditoria["resumen"]
-    historial = auditoria["historial"][-40:][::-1]
+    historial = auditoria["historial"][-45:][::-1]
     ahora_peru = datetime.now(TZ_PERU).strftime("%Y-%m-%d %H:%M (Hora Perú)")
     cred_txt = res.get("creditos_odds_api", "500")
 
@@ -806,7 +806,7 @@ def generar_web_interactiva_v15(auditoria, picks_jornada, partidos_analizados, l
         tarjetas_html = """
         <div class="empty-state">
             <h3>🛡️ Escaneo en Curso</h3>
-            <p>Analizando los calendarios de Hoy y Mañana. En breve se publicarán las nuevas líneas con valor positivo (+EV).</p>
+            <p>Monitoreando líneas de mercado. El bot actualizará nuevas entradas automáticamente en la siguiente ventana horaria.</p>
         </div>
         """
 
@@ -847,7 +847,7 @@ def generar_web_interactiva_v15(auditoria, picks_jornada, partidos_analizados, l
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IABET Quant Pro v15.0 | The Odds API + Pinnacle De-Vig + ESPN Live</title>
+    <title>IABET Quant Pro v15.1 | The Odds API + Pinnacle De-Vig + ESPN Live</title>
     <style>
         :root {{
             --bg: #070b14;
@@ -929,16 +929,16 @@ def generar_web_interactiva_v15(auditoria, picks_jornada, partidos_analizados, l
 </head>
 <body>
     <nav class="navbar">
-        <div class="logo">⚡ IABET <span>QUANT PRO v15.0</span></div>
+        <div class="logo">⚡ IABET <span>QUANT PRO v15.1</span></div>
         <div class="nav-right">
-            <div class="quota-pill" title="Peticiones restantes en tu plan mensual de The Odds API">🎫 Cuota OddsAPI: {cred_txt} disp.</div>
-            <div class="status-pill">🟢 Smart-Cron Activo (4 Horas Clave) | Modo: {MODO_COMERCIAL}</div>
+            <div class="quota-pill">🎫 Cuota OddsAPI: {cred_txt} disp.</div>
+            <div class="status-pill">🟢 Motor Estable | Modo: {MODO_COMERCIAL}</div>
         </div>
     </nav>
     <div class="container">
         <div class="hero">
             <h1>Motor Cuantitativo con Pinnacle De-Vigging & Gestión Inteligente</h1>
-            <p>Sincronizado con The Odds API (Pinnacle/Betfair/Betsson), ESPN Summary API y series históricas L5 · L10 · L20 en horarios clave de máxima liquidez.</p>
+            <p>Sincronizado con The Odds API (Pinnacle/Betfair/Betsson), ESPN Summary API y series históricas L5 · L10 · L20 en horarios clave de máxima liquidez[cite: 7].</p>
         </div>
 
         <div class="stats-bar">
@@ -1098,7 +1098,7 @@ def generar_web_interactiva_v15(auditoria, picks_jornada, partidos_analizados, l
         f.write(html_completo)
 
 # ==============================================================================
-# 6. ORQUESTADOR MAESTRO v15.0
+# 6. ORQUESTADOR MAESTRO v15.1
 # ==============================================================================
 def enviar_telegram_seguro(texto):
     url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
@@ -1109,20 +1109,18 @@ def enviar_telegram_seguro(texto):
         except Exception:
             pass
 
-def ejecutar_iabet_v15():
+def ejecutar_iabet_v15_1():
     t0 = time.time()
-    caches_csv, espn_partidos, eventos_futuros = obtener_datos_pipeline_v15()
+    caches_csv, espn_partidos, eventos_futuros = obtener_datos_pipeline_v15_1()
 
     auditoria = cargar_auditoria()
 
-    # Identificar ligas que tienen partidos programados para HOY o MAÑANA (Ahorro Inteligente)
     ligas_activas_hoy = []
     for ev in eventos_futuros:
-        if ev.get("etiqueta_dia") in ("HOY", "MAÑANA") and ev.get("odds_key"):
+        if ev.get("odds_key"):
             if ev["odds_key"] not in ligas_activas_hoy:
                 ligas_activas_hoy.append(ev["odds_key"])
 
-    # Consultar The Odds API con Caché de 4 horas y límite por ciclo
     mapa_odds_api, creditos_restantes = consultar_the_odds_api_smart(ligas_activas_hoy, auditoria)
 
     auditoria = auditar_picks_con_espn(auditoria, espn_partidos, creditos_restantes)
@@ -1161,7 +1159,6 @@ def ejecutar_iabet_v15():
         bonus_l = calcular_bonus_forma(form_l)
         bonus_v = calcular_bonus_forma(form_v)
 
-        # Cruzar contra cuotas de The Odds API (Pinnacle Benchmark + Mejor Casa) si están disponibles
         datos_odds = mapa_odds_api.get(id_p)
         if datos_odds:
             c_1 = datos_odds["best_1"]
@@ -1196,7 +1193,6 @@ def ejecutar_iabet_v15():
 
             pin_1, pin_x, pin_2 = c_1, c_x, c_2
 
-        # Power De-Vigging sobre la línea de Pinnacle / Consenso
         overround = (1.0 / pin_1) + (1.0 / pin_x) + (1.0 / pin_2)
         p_devig_1 = (1.0 / pin_1) / overround
         p_devig_x = (1.0 / pin_x) / overround
@@ -1286,7 +1282,7 @@ def ejecutar_iabet_v15():
                 continue
             p_imp = 1.0 / cuota_m
             edge_pct = (p_real - p_imp) * 100.0
-            if edge_pct < 1.6 or edge_pct > 19.5:
+            if edge_pct < 1.5 or edge_pct > 19.5:
                 continue
 
             prob_pct = p_real * 100.0
@@ -1366,12 +1362,12 @@ def ejecutar_iabet_v15():
     with open(ARCHIVO_AUDITORIA, "w", encoding="utf-8") as f:
         json.dump(auditoria, f, ensure_ascii=False, indent=2)
 
-    generar_web_interactiva_v15(auditoria, picks_finales, partidos_analizados, len(caches_csv))
+    generar_web_interactiva_v15_1(auditoria, picks_finales, partidos_analizados, len(caches_csv))
 
     res = auditoria["resumen"]
     dur = time.time() - t0
     lineas_tg = [
-        "⚡ IABET QUANT PRO v15.0 (THE ODDS API + SMART-QUOTA)",
+        "⚡ IABET QUANT PRO v15.1 (ESTABLE)",
         f"📊 Efectividad: {res['win_rate_pct']:.1f}% ({res['ganados']}W-{res['perdidos']}L) | ROI: {res['roi_pct']:+.1f}%",
         f"💰 Bankroll: S/ {res['bankroll_actual']:.2f} | 🎫 Créditos OddsAPI: {creditos_restantes}",
         f"🌐 Web Interactiva: https://blakeffx.github.io/iabet-cloud/",
@@ -1389,7 +1385,7 @@ def ejecutar_iabet_v15():
         )
 
     enviar_telegram_seguro("\n".join(lineas_tg))
-    print(f"✅ IABET v15.0 completado: {len(picks_finales)} picks publicados | Créditos OddsAPI restantes: {creditos_restantes}")
+    print(f"✅ IABET v15.1 completado: {len(picks_finales)} picks publicados.")
 
 if __name__ == "__main__":
-    ejecutar_iabet_v15()
+    ejecutar_iabet_v15_1()
