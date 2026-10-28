@@ -3,7 +3,11 @@ name: IABET Cloud Scanner
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 */2 * * *'
+    # 4 HORAS CLAVE EN HORA PERUANA (UTC-5) PARA CUIDAR TUS 500 PETICIONES/MES:
+    - cron: '30 13 * * *'  # 08:30 AM Perú (Previa Mañana / Europa)
+    - cron: '30 17 * * *'  # 12:30 PM Perú (Mediodía / Cierre Europa y Copas)
+    - cron: '0 22 * * *'   # 05:00 PM Perú (Previa Noche / Liga 1, Libertadores, Sudamérica)
+    - cron: '30 3 * * *'   # 10:30 PM Perú (Auditoría Nocturna de Resultados - 0 créditos)
 
 permissions:
   contents: write
@@ -23,13 +27,13 @@ jobs:
       - name: 3. Instalar Dependencias de Alto Rendimiento
         run: pip install numba numpy pandas requests
 
-      - name: 4. Ejecutar Pipeline Nivel 2+ (Kambi + ESPN + Monte Carlo 1M)
+      - name: 4. Ejecutar Motor v15.0 (The Odds API Smart-Quota + ESPN + Monte Carlo)
         run: python iabet_cloud.py
 
-      - name: 5. Auto-Guardar Auditoria y Publicar Web Dashboard
+      - name: 5. Auto-Guardar Auditoria, Cache de Cuotas y Web Dashboard
         run: |
           git config --global user.name "IABET Quant Bot"
           git config --global user.email "bot@iabet.cloud"
           git add auditoria_iabet.json index.html
-          git diff --staged --quiet || git commit -m "Auto-update: Auditoria ESPN + Web Dashboard"
+          git diff --staged --quiet || git commit -m "Auto-update: Smart-Quota OddsAPI + Web v15.0"
           git push
