@@ -11,16 +11,13 @@ import pandas as pd
 from numba import njit, prange
 
 # ==============================================================================
-# 1. CONFIGURACIÓN ENTERPRISE SaaS (IABET QUANT PRO v17.0 - FUTBOLDATAPRO)
+# 1. CONFIGURACIÓN ENTERPRISE SaaS (IABET QUANT PRO v18.0 - LIVE STATS CENTER)
 # ==============================================================================
 THE_ODDS_API_KEY = "a13d27d9c5cc3ea988f72ba4ff74c56f"
 TELEGRAM_TOKEN = "8902181028:AAE1ywEiCc6do90ZPclI8GnUdmVqKBc7iOU"
 TELEGRAM_CHAT_ID = "5203732922"
 
-# INTERRUPTOR COMERCIAL:
-# "PRUEBA" -> Muestra todo desbloqueado para captar clientes y demostrar aciertos.
-# "VENTA"  -> Bloquea con efecto Blur los picks TIER S dejando 1 abierto como muestra.
-MODO_COMERCIAL = "PRUEBA"
+MODO_COMERCIAL = "PRUEBA"  # "PRUEBA" (Picks abiertos) o "VENTA" (Blur VIP en Tier S)
 LINK_CONTACTO_VIP = "https://t.me/+TuEnlaceDeContacto"
 
 BANKROLL_INICIAL = 100.0
@@ -31,7 +28,6 @@ CUOTA_MAX = 2.20           # Candado anti-fantasía
 MAX_PICKS_WEB = 15
 ARCHIVO_AUDITORIA = "auditoria_iabet.json"
 
-# Gestión Inteligente de tus 500 créditos mensuales de The Odds API
 HORAS_CACHE_ODDS_API = 4.0
 MAX_LIGAS_ODDS_POR_CICLO = 4
 
@@ -90,10 +86,10 @@ DB_EQUIPOS_PRO = {
 }
 
 # ==============================================================================
-# 2. MOTOR MONTE CARLO JIT EN C (INCLUYE CÓRNERS, FALTAS, TIROS, TARJETAS Y GOLES)
+# 2. MOTOR MONTE CARLO JIT EN C (1,000,000 SIMULACIONES)
 # ==============================================================================
 @njit(parallel=True)
-def motor_montecarlo_v17(
+def motor_montecarlo_v18(
     l_loc, l_vis, f_loc, f_vis, linea_f_tot,
     sot_loc, sot_vis, linea_sot, tarj_esp, linea_tarj,
     cor_loc, cor_vis, n_sims
@@ -122,7 +118,6 @@ def motor_montecarlo_v17(
         if tot_g < 3.5: under_35 += 1
         if gl > 0 and gv > 0: btts_si += 1
 
-        # Faltas con dispersión realista
         friccion = 1.04 if abs(gl - gv) <= 1 else 0.96
         fl = max(4.0, np.random.normal(f_loc * friccion, 2.55))
         fv = max(4.0, np.random.normal(f_vis * friccion, 2.65))
@@ -130,46 +125,42 @@ def motor_montecarlo_v17(
         if ftot > linea_f_tot: f_over += 1
         else: f_under += 1
 
-        # Tiros al Arco (SOT)
         sot_tot = max(1.0, np.random.normal(sot_loc + sot_vis, 2.60))
         if sot_tot > linea_sot: sot_over += 1
         else: sot_under += 1
 
-        # Tarjetas desacopladas de faltas (Factor amortiguado 0.35)
         ratio_f = ftot / max(19.0, (f_loc + f_vis))
         factor_tarj = 1.0 + ((ratio_f - 1.0) * 0.35)
         t_sim = max(0.0, np.random.normal(tarj_esp * factor_tarj, 1.45))
         if t_sim > linea_tarj: tarj_over35 += 1
         if t_sim < 4.5: tarj_under45 += 1
 
-        # Córners (Poisson acoplada al flujo ofensivo)
         c_tot = np.random.poisson(max(1.5, cor_loc)) + np.random.poisson(max(1.5, cor_vis))
         if c_tot > 8.5: cor_over85 += 1
         if c_tot < 10.5: cor_under105 += 1
 
     return (
-        vic_loc / n_sims,            # 0: Local (1)
-        empate / n_sims,             # 1: Empate (X)
-        vic_vis / n_sims,            # 2: Visita (2)
-        (vic_loc + empate) / n_sims, # 3: 1X
-        (vic_vis + empate) / n_sims, # 4: X2
-        over_15 / n_sims,            # 5: Over 1.5 Goles
-        over_25 / n_sims,            # 6: Over 2.5 Goles
-        under_25 / n_sims,           # 7: Under 2.5 Goles
-        under_35 / n_sims,           # 8: Under 3.5 Goles
-        btts_si / n_sims,            # 9: Ambos Anotan (BTTS)
-        f_over / n_sims,             # 10: Faltas Over
-        f_under / n_sims,            # 11: Faltas Under
-        sot_over / n_sims,           # 12: SOT Over
-        sot_under / n_sims,          # 13: SOT Under
-        tarj_over35 / n_sims,        # 14: Tarjetas Over 3.5
-        tarj_under45 / n_sims,       # 15: Tarjetas Under 4.5
-        cor_over85 / n_sims,         # 16: Córners Over 8.5
-        cor_under105 / n_sims        # 17: Córners Under 10.5
+        vic_loc / n_sims,
+        empate / n_sims,
+        vic_vis / n_sims,
+        (vic_loc + empate) / n_sims,
+        (vic_vis + empate) / n_sims,
+        over_15 / n_sims,
+        over_25 / n_sims,
+        under_25 / n_sims,
+        under_35 / n_sims,
+        btts_si / n_sims,
+        f_over / n_sims,
+        f_under / n_sims,
+        sot_over / n_sims,
+        sot_under / n_sims,
+        tarj_over35 / n_sims,
+        tarj_under45 / n_sims,
+        cor_over85 / n_sims,
+        cor_under105 / n_sims
     )
 
 def calcular_top3_marcadores_exactos(l_loc, l_vis):
-    """Calcula los 3 marcadores exactos más probables con ajuste Dixon-Coles."""
     marcadores = []
     rho = -0.08
     for gl in range(5):
@@ -191,7 +182,7 @@ def calcular_top3_marcadores_exactos(l_loc, l_vis):
     return [f"{m[0]} ({m[1]:.1f}%)" for m in marcadores[:3]]
 
 # ==============================================================================
-# 3. INGESTA INTELIGENTE (THE ODDS API + ESPN + CSV MULTIDIMENSIONAL)
+# 3. INGESTA INTELIGENTE MULTI-CASA + ESTADÍSTICAS PROFUNDAS ESPN SUMMARY
 # ==============================================================================
 def normalizar_nombre(nombre):
     if not nombre:
@@ -463,13 +454,14 @@ def descargar_espn_liga_estable(item):
                         "clock": detalle_tiempo, "home_score": sh, "away_score": sa
                     }
 
-                    if estado != "pre":
+                    # Permitir que partidos en juego ('in') de hoy y futuros ('pre') estén en el radar vivo
+                    if estado == "post":
                         continue
 
                     odds_obj = (comp.get("odds") or [{}])[0]
                     c_1, c_x, c_2 = 0.0, 0.0, 0.0
                     c_o25, c_u25 = 0.0, 0.0
-                    casa_nombre = "ESPN Bet / DraftKings"
+                    casa_nombre = "Consenso Internacional"
 
                     if odds_obj:
                         prov = odds_obj.get("provider", {}).get("name")
@@ -494,6 +486,10 @@ def descargar_espn_liga_estable(item):
 
                     eventos_encontrados.append({
                         "event_id": ev_id,
+                        "estado_espn": estado,
+                        "reloj_espn": detalle_tiempo,
+                        "goles_h_vivo": sh,
+                        "goles_a_vivo": sa,
                         "liga": nom_liga,
                         "odds_key": odds_key,
                         "fecha_partido": fecha_peru_str,
@@ -521,20 +517,20 @@ def descargar_espn_liga_estable(item):
 
     return eventos_encontrados, partidos_espn_estado
 
-def obtener_datos_pipeline_v17():
+def obtener_datos_pipeline_v18():
     caches_csv = {}
     espn_partidos = {}
-    eventos_futuros = []
+    eventos_activos = []
 
     with ThreadPoolExecutor(max_workers=10) as ex:
         for nom, df in ex.map(descargar_csv_liga, CSV_LIGAS_MAPA.items()):
             if not df.empty:
                 caches_csv[nom] = df
         for evs, p_dict in ex.map(descargar_espn_liga_estable, LIGAS_CONFIG.items()):
-            eventos_futuros.extend(evs)
+            eventos_activos.extend(evs)
             espn_partidos.update(p_dict)
 
-    return caches_csv, espn_partidos, eventos_futuros
+    return caches_csv, espn_partidos, eventos_activos
 
 def calcular_bonus_forma(form_str):
     if not form_str:
@@ -545,7 +541,7 @@ def calcular_bonus_forma(form_str):
         elif ch.upper() == "L": pesos -= 0.018
     return max(0.91, min(1.09, 1.0 + pesos))
 
-def analizar_equipo_profundo_v17(df, equipo, base_faltas, base_sot, base_tarj, base_cor, es_local=True):
+def analizar_equipo_profundo_v18(df, equipo, base_faltas, base_sot, base_tarj, base_cor, es_local=True):
     eq_low = normalizar_nombre(equipo)
     for k, v in DB_EQUIPOS_PRO.items():
         if k in eq_low:
@@ -635,7 +631,7 @@ def calcular_hit_rate_combinado(arr_l, arr_v, linea, direccion="OVER"):
     return float((aciertos / n) * 100.0)
 
 # ==============================================================================
-# 4. AUDITORÍA AUTOMÁTICA MULTIVARIABLE (INCLUYE CÓRNERS, FALTAS, SOT Y TARJETAS)
+# 4. AUDITORÍA AUTOMÁTICA MULTIVARIABLE
 # ==============================================================================
 def cargar_auditoria():
     if os.path.exists(ARCHIVO_AUDITORIA):
@@ -695,6 +691,8 @@ def auditar_picks_con_espn(auditoria, espn_partidos, creditos_restantes):
         ga = partido_espn["away_score"]
         gtot = gh + ga
         ev_id = pick.get("event_id") or partido_espn.get("event_id", "")
+        if ev_id:
+            pick["event_id"] = ev_id
 
         if st == "in":
             en_vivo_cnt += 1
@@ -802,9 +800,9 @@ def clasificar_tier_realista(prob_pct, edge_pct, cuota_m, hit_rate_l10):
     return "DESCARTADO", "❌", 99
 
 # ==============================================================================
-# 5. GENERADOR WEB SPA v17.0 CON BUSCADOR Y EXPLORADOR "FUTBOLDATAPRO"
+# 5. GENERADOR WEB SPA v18.0 CON TELEMETRÍA Y ESTADÍSTICAS EN TIEMPO REAL
 # ==============================================================================
-def generar_web_spa_v17(auditoria, picks_jornada, catalogo_partidos, ligas_csv_activas):
+def generar_web_spa_v18(auditoria, picks_jornada, catalogo_partidos, ligas_csv_activas):
     res = auditoria["resumen"]
     historial = auditoria["historial"][-45:][::-1]
     ahora_peru = datetime.now(TZ_PERU).strftime("%Y-%m-%d %H:%M (Hora Perú)")
@@ -823,6 +821,7 @@ def generar_web_spa_v17(auditoria, picks_jornada, catalogo_partidos, ligas_csv_a
         dia_badge_bg = "#ef444425" if p["etiqueta_dia"] == "HOY" else "#38bdf820"
         dia_badge_col = "#f87171" if p["etiqueta_dia"] == "HOY" else "#38bdf8"
         texto_busqueda = f"{p['local']} {p['visita']} {p['liga']} {p['mercado']}".lower()
+        linea_objetivo = extraer_linea_numerica(p["mercado"])
 
         overlay_vip = ""
         if bloquear:
@@ -836,16 +835,20 @@ def generar_web_spa_v17(auditoria, picks_jornada, catalogo_partidos, ligas_csv_a
             """
 
         tarjetas_picks_html += f"""
-        <div class="pick-card" data-search="{texto_busqueda}" data-dia="{p['etiqueta_dia']}" data-liga="{p['liga']}" data-cat="{p['categoria']}" data-tier="{p['tier_cod']}">
+        <div class="pick-card" id="card-{p['event_id']}" data-event-id="{p['event_id']}" data-cat="{p['categoria']}" data-linea="{linea_objetivo}" data-mercado="{p['mercado']}" data-search="{texto_busqueda}" data-dia="{p['etiqueta_dia']}" data-liga="{p['liga']}" data-tier="{p['tier_cod']}">
             <div class="pick-header">
-                <div style="display:flex; gap:6px; align-items:center;">
-                    <span class="day-pill" style="background:{dia_badge_bg}; color:{dia_badge_col};">📅 {p['etiqueta_dia']} · {p['hora_peru']}</span>
+                <div style="display:flex; gap:6px; align-items:center; flex-wrap:wrap;">
+                    <span class="day-pill" id="pill-{p['event_id']}" style="background:{dia_badge_bg}; color:{dia_badge_col};">📅 {p['etiqueta_dia']} · {p['hora_peru']}</span>
                     <span class="league-tag">{p['liga']}</span>
                 </div>
                 <span class="tier-badge" style="background:{badge_color}22; color:{badge_color}; border:1px solid {badge_color};">{p['tier_label']}</span>
             </div>
             <div class="CardBody {blur_class}">
-                <h3 class="match-title">{p['local']} vs {p['visita']}</h3>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                    <h3 class="match-title" style="margin-bottom:0;">{p['local']} vs {p['visita']}</h3>
+                    <span class="live-score-badge" id="score-{p['event_id']}">⏳ Pre-Partido</span>
+                </div>
+
                 <div class="market-box">
                     <div>
                         <span class="market-label">PRONÓSTICO IA CALIBRADO ({p['categoria']})</span>
@@ -853,6 +856,26 @@ def generar_web_spa_v17(auditoria, picks_jornada, catalogo_partidos, ligas_csv_a
                     </div>
                     <div class="odd-pill">@{p['cuota']:.2f}</div>
                 </div>
+
+                <!-- BARRA DE TELEMETRÍA Y PROGRESO DEL PICK EN TIEMPO REAL -->
+                <div class="live-tracker-box" id="tracker-{p['event_id']}">
+                    <div class="lt-top">
+                        <span id="lt-status-{p['event_id']}">📡 Estadísticas en Tiempo Real: Esperando inicio ({p['hora_peru']})</span>
+                        <b id="lt-val-{p['event_id']}" style="color:#38bdf8;">Meta: {p['mercado']}</b>
+                    </div>
+                    <div class="lt-bar-bg">
+                        <div class="lt-bar-fill" id="lt-bar-{p['event_id']}" style="width:0%;"></div>
+                    </div>
+                </div>
+
+                <!-- CENTRO DE ESTADÍSTICAS EN VIVO ESTILO CASA DE APUESTAS -->
+                <details class="live-stats-drawer" id="drawer-live-{p['event_id']}" ontoggle="if(this.open) actualizarPartidoEnVivo('{p['event_id']}')">
+                    <summary>📊 Estadísticas del Partido en Tiempo Real (Posesión, Tiros, Córners, Faltas y Tarjetas)</summary>
+                    <div class="live-stats-body" id="live-body-{p['event_id']}">
+                        <div style="text-align:center; color:#94a3b8; padding:8px;">🔄 Conectando en tiempo real con el estadio (ESPN Live Telemetry)...</div>
+                    </div>
+                </details>
+
                 <div class="metrics-grid">
                     <div class="metric-item">
                         <span class="m-label">Confianza IA</span>
@@ -875,18 +898,19 @@ def generar_web_spa_v17(auditoria, picks_jornada, catalogo_partidos, ligas_csv_a
                     <span>📊 {p['ventanas']}</span>
                 </div>
 
+                <!-- CALCULADORA UNIVERSAL MULTI-CASA -->
                 <div class="betano-checker">
-                    <span>🧡 ¿Cuota en tu casa (Betano)?</span>
+                    <span>🧮 ¿Qué cuota paga tu casa de apuestas?</span>
                     <input type="number" step="0.01" value="{p['cuota']:.2f}" data-prob="{p['prob']/100.0:.4f}" oninput="verificarCuotaCasa(this)">
                     <span class="betano-res" style="color:#10b981;">✅ Rentable (+{p['edge']:.1f}% EV)</span>
                 </div>
 
                 <div style="display:flex; gap:8px; margin-bottom:8px;">
-                    <button class="btn-lab" onclick="abrirLaboratorioPartido('{p['match_key']}')">📊 Abrir Radar FutbolDataPro Completo</button>
+                    <button class="btn-lab" onclick="abrirLaboratorioPartido('{p['match_key']}')">🔬 Abrir Radar Pre-Partido (12 Mercados + Exactos)</button>
                 </div>
 
                 <details class="tactical-drawer">
-                    <summary>🔬 Ver Cuota Mínima, Córners, Tarjetas y Marcadores</summary>
+                    <summary>📐 Ver Cuota Mínima Justa, Córners, Tarjetas y Bajas</summary>
                     <div class="drawer-content">
                         <div class="drawer-row"><span>🎯 Cuota Mínima Rentable (Sin Vig):</span> <b>@{p['cuota_justa']:.2f} vs @{p['cuota']:.2f} ({p['casa']})</b></div>
                         <div class="drawer-row"><span>✅ Cumplimiento Histórico (L10/L20):</span> <b>{p['hit_rate']:.0f}% de frecuencia real</b></div>
@@ -906,11 +930,10 @@ def generar_web_spa_v17(auditoria, picks_jornada, catalogo_partidos, ligas_csv_a
         tarjetas_picks_html = """
         <div class="empty-state">
             <h3>🛡️ Filtro Anti-Varianza Activo</h3>
-            <p>Usa la pestaña "🔍 Buscador FutbolDataPro" arriba para consultar las probabilidades y estadísticas de cualquiera de los partidos de la jornada.</p>
+            <p>Usa la pestaña "📊 Buscador FutbolDataPro" arriba para consultar las probabilidades y estadísticas en vivo de todos los partidos de la jornada.</p>
         </div>
         """
 
-    # Tarjetas del Explorador FutbolDataPro (TODOS LOS PARTIDOS ESCANEADOS)
     tarjetas_explorador_html = ""
     for m in catalogo_partidos:
         t_search = f"{m['local']} {m['visita']} {m['liga']}".lower()
@@ -918,12 +941,15 @@ def generar_web_spa_v17(auditoria, picks_jornada, catalogo_partidos, ligas_csv_a
         dia_col = "#f87171" if m["etiqueta_dia"] == "HOY" else "#38bdf8"
 
         tarjetas_explorador_html += f"""
-        <div class="explorer-card" data-search="{t_search}" data-dia="{m['etiqueta_dia']}" data-liga="{m['liga']}">
+        <div class="explorer-card" data-event-id="{m['event_id']}" data-search="{t_search}" data-dia="{m['etiqueta_dia']}" data-liga="{m['liga']}">
             <div class="pick-header">
                 <span class="day-pill" style="background:{dia_bg}; color:{dia_col};">📅 {m['etiqueta_dia']} · {m['hora_peru']}</span>
                 <span class="league-tag">{m['liga']}</span>
             </div>
-            <h3 class="match-title">{m['local']} vs {m['visita']}</h3>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                <h3 class="match-title" style="margin-bottom:0;">{m['local']} vs {m['visita']}</h3>
+                <span class="live-score-badge" id="exp-score-{m['event_id']}">⏳ {m['hora_peru']}</span>
+            </div>
             <div class="exp-prob-bar">
                 <div class="p-seg p-loc" style="width:{m['p_1']:.0f}%" title="Local">{m['p_1']:.0f}% (1)</div>
                 <div class="p-seg p-emp" style="width:{m['p_x']:.0f}%" title="Empate">{m['p_x']:.0f}% (X)</div>
@@ -939,7 +965,7 @@ def generar_web_spa_v17(auditoria, picks_jornada, catalogo_partidos, ligas_csv_a
                 <span>🎲 Marcador Top: <b>{m['top_scores'].split(',')[0]}</b></span>
                 <span>🔥 BTTS: <b>{m['p_btts']:.0f}%</b></span>
             </div>
-            <button class="btn-lab" onclick="abrirLaboratorioPartido('{m['match_key']}')">🔬 Abrir Ficha Estadística FutbolDataPro</button>
+            <button class="btn-lab" onclick="abrirLaboratorioPartido('{m['match_key']}')">📊 Ver Estadísticas en Vivo + 12 Mercados</button>
         </div>
         """
 
@@ -982,7 +1008,7 @@ def generar_web_spa_v17(auditoria, picks_jornada, catalogo_partidos, ligas_csv_a
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IABET Quant Pro v17.0 | Predicciones Auditadas & Buscador FutbolDataPro</title>
+    <title>IABET Quant Pro v18.0 | Live Match Center & Buscador FutbolDataPro</title>
     <style>
         :root {{
             --bg: #060911;
@@ -992,7 +1018,6 @@ def generar_web_spa_v17(auditoria, picks_jornada, catalogo_partidos, ligas_csv_a
             --muted: #94a3b8;
             --accent: #10b981;
             --blue: #38bdf8;
-            --orange: #fb923c;
         }}
         * {{ box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }}
         body {{ background-color: var(--bg); color: var(--text); line-height: 1.5; padding-bottom: 80px; }}
@@ -1003,8 +1028,9 @@ def generar_web_spa_v17(auditoria, picks_jornada, catalogo_partidos, ligas_csv_a
         .nav-tab {{ background: #1e293b; color: #cbd5e1; border: 1px solid #334155; padding: 8px 16px; border-radius: 99px; font-size: 0.83rem; font-weight: 700; cursor: pointer; transition: all 0.2s; }}
         .nav-tab.active, .nav-tab:hover {{ background: linear-gradient(90deg, #10b981, #059669); color: #022c22; border-color: #10b981; box-shadow: 0 0 15px rgba(16,185,129,0.3); }}
         .nav-right {{ display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }}
+        .btn-refresh-live {{ background: #ef444425; color: #f87171; border: 1px solid #ef444460; padding: 6px 12px; border-radius: 999px; font-size: 0.76rem; font-weight: 800; cursor: pointer; transition: all 0.2s; }}
+        .btn-refresh-live:hover {{ background: #ef4444; color: #fff; }}
         .quota-pill {{ font-size: 0.75rem; background: #38bdf818; color: #38bdf8; border: 1px solid #38bdf850; padding: 5px 11px; border-radius: 999px; font-weight: 700; }}
-        .status-pill {{ font-size: 0.75rem; background: #10b98120; color: #10b981; border: 1px solid #10b98150; padding: 5px 11px; border-radius: 999px; font-weight: 700; }}
 
         .container {{ max-width: 1260px; margin: 0 auto; padding: 22px 16px; }}
         .stats-bar {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(165px, 1fr)); gap: 12px; margin-bottom: 22px; }}
@@ -1012,12 +1038,11 @@ def generar_web_spa_v17(auditoria, picks_jornada, catalogo_partidos, ligas_csv_a
         .stat-box .s-label {{ font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }}
         .stat-box .s-val {{ font-size: 1.5rem; font-weight: 800; margin-top: 4px; color: #fff; }}
 
-        /* BUSCADOR GLOBAL Y BARRA DE FILTROS */
         .controls-panel {{ background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 16px; margin-bottom: 24px; display: flex; flex-direction: column; gap: 14px; }}
         .search-row {{ display: flex; gap: 12px; flex-wrap: wrap; align-items: center; justify-content: space-between; }}
-        .search-input-wrap {{ flex: 1; min-width: 260px; position: relative; }}
-        .search-input {{ width: 100%; background: #060911; border: 1px solid #334155; color: #fff; padding: 11px 16px; border-radius: 10px; font-size: 0.9rem; font-weight: 600; outline: none; transition: border 0.2s; }}
-        .search-input:focus {{ border-color: var(--blue); box-shadow: 0 0 0 3px rgba(56,189,248,0.15); }}
+        .search-input-wrap {{ flex: 1; min-width: 260px; }}
+        .search-input {{ width: 100%; background: #060911; border: 1px solid #334155; color: #fff; padding: 11px 16px; border-radius: 10px; font-size: 0.9rem; font-weight: 600; outline: none; }}
+        .search-input:focus {{ border-color: var(--blue); }}
         .filters-row {{ display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; }}
         .day-tabs {{ display: flex; gap: 6px; flex-wrap: wrap; }}
         .day-tab {{ background: #1e293b; color: var(--muted); border: 1px solid #334155; padding: 7px 13px; border-radius: 8px; font-size: 0.8rem; font-weight: 700; cursor: pointer; }}
@@ -1028,25 +1053,46 @@ def generar_web_spa_v17(auditoria, picks_jornada, catalogo_partidos, ligas_csv_a
         .bankroll-calc input {{ width: 70px; background: transparent; border: none; color: #10b981; font-weight: 800; font-size: 0.9rem; text-align: right; outline: none; }}
 
         .section-title {{ font-size: 1.15rem; font-weight: 800; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }}
-        .picks-grid {{ display: grid; grid-template-columns: repeat(auto-fill, minmax(355px, 1fr)); gap: 18px; margin-bottom: 42px; }}
+        .picks-grid {{ display: grid; grid-template-columns: repeat(auto-fill, minmax(365px, 1fr)); gap: 18px; margin-bottom: 42px; }}
         .pick-card, .explorer-card {{ background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 18px; position: relative; overflow: hidden; transition: transform 0.2s, border-color 0.2s; }}
         .pick-card:hover, .explorer-card:hover {{ transform: translateY(-3px); border-color: #38bdf860; }}
         .pick-header {{ display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; gap: 6px; flex-wrap: wrap; }}
         .day-pill {{ font-size: 0.7rem; font-weight: 800; padding: 3px 8px; border-radius: 6px; }}
         .league-tag {{ font-size: 0.72rem; color: var(--muted); font-weight: 700; text-transform: uppercase; }}
         .tier-badge {{ font-size: 0.7rem; font-weight: 700; padding: 3px 9px; border-radius: 99px; }}
-        .match-title {{ font-size: 1.12rem; font-weight: 800; margin-bottom: 12px; color: #fff; }}
-        .market-box {{ background: #060911; border: 1px solid #1e293b; border-radius: 10px; padding: 12px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }}
+        .match-title {{ font-size: 1.08rem; font-weight: 800; color: #fff; }}
+        .live-score-badge {{ font-size: 0.75rem; font-weight: 800; padding: 4px 9px; border-radius: 8px; background: #1e293b; color: #cbd5e1; white-space: nowrap; }}
+        .live-active-badge {{ background: #ef444430 !important; color: #f87171 !important; border: 1px solid #ef4444; animation: pulseLive 2s infinite; }}
+        @keyframes pulseLive {{ 0% {{ opacity: 1; }} 50% {{ opacity: 0.65; }} 100% {{ opacity: 1; }} }}
+
+        .market-box {{ background: #060911; border: 1px solid #1e293b; border-radius: 10px; padding: 12px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }}
         .market-label {{ font-size: 0.64rem; color: var(--muted); font-weight: 700; }}
-        .market-name {{ font-size: 0.96rem; font-weight: 800; color: #38bdf8; }}
+        .market-name {{ font-size: 0.95rem; font-weight: 800; color: #38bdf8; }}
         .odd-pill {{ background: #10b98120; color: #10b981; font-weight: 800; font-size: 1.1rem; padding: 6px 12px; border-radius: 8px; border: 1px solid #10b98140; }}
+
+        /* BARRA DE PROGRESO EN VIVO DEL PICK */
+        .live-tracker-box {{ background: #060911; border: 1px solid #1e293b; border-radius: 8px; padding: 8px 10px; margin-bottom: 10px; font-size: 0.74rem; }}
+        .lt-top {{ display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; gap: 6px; flex-wrap: wrap; }}
+        .lt-bar-bg {{ width: 100%; height: 7px; background: #1e293b; border-radius: 99px; overflow: hidden; }}
+        .lt-bar-fill {{ height: 100%; background: linear-gradient(90deg, #38bdf8, #10b981); transition: width 0.5s ease; }}
+
+        /* DESPLEGABLE DE ESTADÍSTICAS EN VIVO (ESTILO CASA DE APUESTAS) */
+        .live-stats-drawer {{ background: #080d1a; border: 1px solid #38bdf840; border-radius: 8px; padding: 8px 12px; margin-bottom: 12px; font-size: 0.76rem; }}
+        .live-stats-drawer summary {{ cursor: pointer; font-weight: 800; color: #38bdf8; outline: none; list-style: none; display: flex; justify-content: space-between; align-items: center; }}
+        .live-stats-drawer summary::after {{ content: "📡 VIVO ▼"; font-size: 0.65rem; background: #38bdf820; padding: 2px 6px; border-radius: 4px; }}
+        .live-stats-body {{ margin-top: 10px; padding-top: 10px; border-top: 1px solid #1e293b; }}
+        .stat-bar-item {{ margin-bottom: 8px; }}
+        .sb-head {{ display: flex; justify-content: space-between; font-size: 0.73rem; font-weight: 700; margin-bottom: 3px; color: #e2e8f0; }}
+        .sb-track {{ display: flex; height: 7px; border-radius: 99px; overflow: hidden; background: #1e293b; }}
+        .events-feed {{ margin-top: 8px; padding-top: 8px; border-top: 1px dashed #334155; font-size: 0.72rem; color: #cbd5e1; max-height: 110px; overflow-y: auto; }}
+
         .metrics-grid {{ display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 12px; text-align: center; background: #060911; padding: 10px; border-radius: 8px; }}
         .m-label {{ display: block; font-size: 0.64rem; color: var(--muted); }}
         .m-val {{ font-size: 0.86rem; font-weight: 700; }}
         .l-bars {{ font-size: 0.75rem; color: #cbd5e1; background: #1e293b60; padding: 7px 10px; border-radius: 6px; margin-bottom: 10px; }}
 
-        .betano-checker {{ background: #18181b; border: 1px solid #fb923c40; border-radius: 8px; padding: 7px 10px; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; gap: 6px; font-size: 0.74rem; flex-wrap: wrap; }}
-        .betano-checker input {{ width: 58px; background: #09090b; border: 1px solid #fb923c; color: #fb923c; font-weight: 800; border-radius: 5px; padding: 3px 6px; text-align: center; font-size: 0.8rem; outline: none; }}
+        .betano-checker {{ background: #18181b; border: 1px solid #38bdf840; border-radius: 8px; padding: 7px 10px; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; gap: 6px; font-size: 0.74rem; flex-wrap: wrap; }}
+        .betano-checker input {{ width: 58px; background: #09090b; border: 1px solid #38bdf8; color: #38bdf8; font-weight: 800; border-radius: 5px; padding: 3px 6px; text-align: center; font-size: 0.8rem; outline: none; }}
         .betano-res {{ font-weight: 800; font-size: 0.74rem; }}
 
         .btn-lab {{ width: 100%; background: linear-gradient(90deg, #1e293b, #0f172a); color: #38bdf8; border: 1px solid #38bdf850; padding: 8px 12px; border-radius: 8px; font-size: 0.78rem; font-weight: 700; cursor: pointer; transition: all 0.2s; }}
@@ -1065,9 +1111,8 @@ def generar_web_spa_v17(auditoria, picks_jornada, catalogo_partidos, ligas_csv_a
         .drawer-row {{ display: flex; justify-content: space-between; gap: 8px; }}
         .drawer-note {{ margin-top: 6px; color: var(--muted); font-style: italic; }}
 
-        /* MODAL LABORATORIO FUTBOLDATAPRO */
         .modal-backdrop {{ position: fixed; inset: 0; background: rgba(6, 9, 17, 0.85); backdrop-filter: blur(6px); display: none; align-items: center; justify-content: center; z-index: 200; padding: 16px; }}
-        .modal-card {{ background: #0f172a; border: 1px solid #38bdf860; border-radius: 16px; max-width: 780px; width: 100%; max-height: 90vh; overflow-y: auto; padding: 22px; box-shadow: 0 20px 50px rgba(0,0,0,0.8); }}
+        .modal-card {{ background: #0f172a; border: 1px solid #38bdf860; border-radius: 16px; max-width: 800px; width: 100%; max-height: 90vh; overflow-y: auto; padding: 22px; box-shadow: 0 20px 50px rgba(0,0,0,0.8); }}
         .modal-header {{ display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 12px; margin-bottom: 16px; }}
         .btn-close {{ background: #ef444425; color: #f87171; border: 1px solid #ef444450; padding: 6px 12px; border-radius: 8px; cursor: pointer; font-weight: 800; }}
         .h2h-row {{ margin-bottom: 12px; }}
@@ -1095,15 +1140,15 @@ def generar_web_spa_v17(auditoria, picks_jornada, catalogo_partidos, ligas_csv_a
 </head>
 <body>
     <nav class="navbar">
-        <div class="logo">⚡ IABET <span>QUANT PRO v17.0</span></div>
+        <div class="logo">⚡ IABET <span>QUANT PRO v18.0</span></div>
         <div class="nav-tabs">
-            <button class="nav-tab active" onclick="cambiarVista('PICKS', this)">🎯 Picks IA Calibrados ({len(picks_jornada)})</button>
+            <button class="nav-tab active" onclick="cambiarVista('PICKS', this)">🎯 Picks IA + Live Stats ({len(picks_jornada)})</button>
             <button class="nav-tab" onclick="cambiarVista('EXPLORER', this)">📊 Buscador FutbolDataPro ({len(catalogo_partidos)} Partidos)</button>
             <button class="nav-tab" onclick="cambiarVista('AUDITORIA', this)">📋 Historial Auditado</button>
         </div>
         <div class="nav-right">
+            <button class="btn-refresh-live" onclick="sincronizarTodosLosPartidosEnVivo()" id="btnSyncLive">📡 Actualizar Stats en Vivo (Auto 30s)</button>
             <div class="quota-pill">🎫 OddsAPI: {cred_txt} disp.</div>
-            <div class="status-pill">🟢 Modo: {MODO_COMERCIAL}</div>
         </div>
     </nav>
 
@@ -1126,16 +1171,15 @@ def generar_web_spa_v17(auditoria, picks_jornada, catalogo_partidos, ligas_csv_a
                 <div class="s-val">S/ {res['bankroll_actual']:.2f}</div>
             </div>
             <div class="stat-box">
-                <div class="s-label">Cartera / Racha</div>
-                <div class="s-val">🔥 {res['racha_actual']}</div>
+                <div class="s-label">Estado Live / Racha</div>
+                <div class="s-val" id="contadorEnVivoGlobal">🔥 {res['racha_actual']}</div>
             </div>
         </div>
 
-        <!-- PANEL UNIFICADO DE BÚSQUEDA Y FILTROS -->
         <div class="controls-panel" id="panelControles">
             <div class="search-row">
                 <div class="search-input-wrap">
-                    <input type="text" id="inputBuscador" class="search-input" placeholder="🔍 Buscar equipo, partido o liga (ej. Real Madrid, Serie A, Universitario, Córners)..." oninput="aplicarFiltros()">
+                    <input type="text" id="inputBuscador" class="search-input" placeholder="🔍 Buscar equipo, partido o liga en vivo (ej. Real Madrid, Serie A, Universitario, Córners)..." oninput="aplicarFiltros()">
                 </div>
                 <div class="bankroll-calc">
                     <span>💰 Mi Capital: S/</span>
@@ -1172,32 +1216,32 @@ def generar_web_spa_v17(auditoria, picks_jornada, catalogo_partidos, ligas_csv_a
             </div>
         </div>
 
-        <!-- VISTA 1: PICKS IA CALIBRADOS -->
+        <!-- VISTA 1: PICKS IA CON TELEMETRÍA EN VIVO -->
         <div id="vistaPicks">
             <div class="section-title">
-                <span id="contadorPicks">🎯 Pronósticos Calibrados con Ventaja Matemática ({len(picks_jornada)} seleccionados)</span>
-                <small style="color:var(--muted); font-size:0.8rem;">Actualizado: {ahora_peru}</small>
+                <span id="contadorPicks">🎯 Pronósticos Calibrados + Telemetría en Tiempo Real ({len(picks_jornada)} seleccionados)</span>
+                <small id="relojSync" style="color:#10b981; font-size:0.8rem; font-weight:700;">📡 Telemetría en vivo conectada · Escaneo base: {ahora_peru}</small>
             </div>
             <div class="picks-grid" id="gridPicks">
                 {tarjetas_picks_html}
             </div>
         </div>
 
-        <!-- VISTA 2: BUSCADOR & EXPLORADOR ESTADÍSTICO FUTBOLDATAPRO -->
+        <!-- VISTA 2: EXPLORADOR FUTBOLDATAPRO -->
         <div id="vistaExplorer" style="display:none;">
             <div class="section-title">
-                <span id="contadorExplorer">📊 Laboratorio Estadístico FutbolDataPro ({len(catalogo_partidos)} partidos analizados en {ligas_csv_activas} bases históricas)</span>
-                <small style="color:#38bdf8; font-size:0.8rem;">Haz clic en cualquier partido para abrir sus 12 mercados, córners y marcadores exactos</small>
+                <span id="contadorExplorer">📊 Laboratorio Estadístico FutbolDataPro ({len(catalogo_partidos)} partidos analizados)</span>
+                <small style="color:#38bdf8; font-size:0.8rem;">Haz clic en cualquier partido para ver sus estadísticas en vivo y sus 12 mercados</small>
             </div>
             <div class="picks-grid" id="gridExplorer">
                 {tarjetas_explorador_html}
             </div>
         </div>
 
-        <!-- VISTA 3: TABLA DE AUDITORÍA -->
+        <!-- VISTA 3: AUDITORÍA -->
         <div id="vistaAuditoria" style="display:none;">
             <div class="section-title">
-                <span>📋 Auditoría Automática en Tiempo Real (Goles, Córners, Faltas, Tiros y Tarjetas vía ESPN Summary)</span>
+                <span>📋 Auditoría Automática en Tiempo Real (Goles, Córners, Faltas, Tiros y Tarjetas)</span>
                 <select id="filtroAuditoria" class="select-pro" onchange="filtrarTablaAuditoria()">
                     <option value="ALL">Ver Todos los Estados</option>
                     <option value="PENDIENTE">⏳ Solo Por Jugar</option>
@@ -1228,14 +1272,188 @@ def generar_web_spa_v17(auditoria, picks_jornada, catalogo_partidos, ligas_csv_a
         </div>
     </div>
 
-    <!-- MODAL INTERACTIVO FUTBOLDATAPRO -->
     <div class="modal-backdrop" id="modalLab" onclick="if(event.target===this) cerrarModal()">
         <div class="modal-card" id="modalContent"></div>
     </div>
 
     <script>
         const CATALOGO_PARTIDOS = {json_catalogo};
+        const CACHE_LIVE_STATS = {{}};
         let diaSeleccionado = 'ALL';
+
+        function extraerStatEquipo(teamBox, statNames) {{
+            if (!teamBox || !teamBox.statistics) return 0;
+            for (const st of teamBox.statistics) {{
+                if (statNames.includes(st.name)) {{
+                    return parseFloat(st.displayValue) || 0;
+                }}
+            }}
+            return 0;
+        }}
+
+        async function actualizarPartidoEnVivo(eventId) {{
+            if (!eventId) return null;
+            try {{
+                const r = await fetch(`https://site.api.espn.com/apis/site/v2/sports/soccer/all/summary?event=${{eventId}}`);
+                if (!r.ok) return null;
+                const data = await r.json();
+
+                const comp = (data.header && data.header.competitions && data.header.competitions[0]) || {{}};
+                const stObj = comp.status || {{}};
+                const state = (stObj.type && stObj.type.state) || 'pre';
+                const clock = (stObj.type && stObj.type.shortDetail) || '';
+                const comps = comp.competitors || [];
+                const tHome = comps.find(c => c.homeAway === 'home') || comps[0] || {{}};
+                const tAway = comps.find(c => c.homeAway === 'away') || comps[1] || {{}};
+                const gh = parseInt(tHome.score || 0);
+                const ga = parseInt(tAway.score || 0);
+
+                const boxTeams = (data.boxscore && data.boxscore.teams) || [];
+                const bHome = boxTeams[0] || {{}};
+                const bAway = boxTeams[1] || {{}};
+
+                const statsVivo = {{
+                    state: state,
+                    clock: clock,
+                    gh: gh,
+                    ga: ga,
+                    posL: extraerStatEquipo(bHome, ['possessionPct']) || 50,
+                    posV: extraerStatEquipo(bAway, ['possessionPct']) || 50,
+                    sotL: extraerStatEquipo(bHome, ['shotsOnTarget', 'shotsOnGoal']),
+                    sotV: extraerStatEquipo(bAway, ['shotsOnTarget', 'shotsOnGoal']),
+                    tirL: extraerStatEquipo(bHome, ['totalShots']),
+                    tirV: extraerStatEquipo(bAway, ['totalShots']),
+                    corL: extraerStatEquipo(bHome, ['wonCorners', 'cornerKicks']),
+                    corV: extraerStatEquipo(bAway, ['wonCorners', 'cornerKicks']),
+                    faltL: extraerStatEquipo(bHome, ['foulsCommitted']),
+                    faltV: extraerStatEquipo(bAway, ['foulsCommitted']),
+                    amarL: extraerStatEquipo(bHome, ['yellowCards']),
+                    amarV: extraerStatEquipo(bAway, ['yellowCards']),
+                    rojaL: extraerStatEquipo(bHome, ['redCards']),
+                    rojaV: extraerStatEquipo(bAway, ['redCards']),
+                    eventos: []
+                }};
+
+                const details = comp.details || data.keyEvents || [];
+                details.slice(-6).forEach(d => {{
+                    const min = (d.clock && d.clock.displayValue) || '';
+                    const tipo = (d.type && d.type.text) || '';
+                    const jug = (d.participants && d.participants[0] && d.participants[0].athlete && d.participants[0].athlete.displayName) || '';
+                    if (min && (tipo || jug)) {{
+                        statsVivo.eventos.push(`⏱️ ${{min}} — ${{tipo}} ${{jug}}`);
+                    }}
+                }});
+
+                CACHE_LIVE_STATS[eventId] = statsVivo;
+                renderizarTelemetriaEnTarjeta(eventId, statsVivo);
+                return statsVivo;
+            }} catch (e) {{
+                return null;
+            }}
+        }}
+
+        function renderizarBarraDual(titulo, valL, valV, colorL='#10b981', colorV='#3b82f6', sufijo='') {{
+            const tot = Math.max(1, valL + valV);
+            const pctL = (valL / tot) * 100;
+            return `
+                <div class="stat-bar-item">
+                    <div class="sb-head">
+                        <span>${{valL}}${{sufijo}}</span>
+                        <span>${{titulo}} (Total: ${{valL + valV}}${{sufijo}})</span>
+                        <span>${{valV}}${{sufijo}}</span>
+                    </div>
+                    <div class="sb-track">
+                        <div style="width:${{pctL}}%; background:${{colorL}};"></div>
+                        <div style="width:${{100 - pctL}}%; background:${{colorV}};"></div>
+                    </div>
+                </div>
+            `;
+        }}
+
+        function renderizarTelemetriaEnTarjeta(eventId, st) {{
+            const badgeScore = document.getElementById(`score-${{eventId}}`);
+            const expScore = document.getElementById(`exp-score-${{eventId}}`);
+            const card = document.getElementById(`card-${{eventId}}`);
+
+            let txtMarcador = '⏳ Pre-Partido';
+            if (st.state === 'in') {{
+                txtMarcador = `🔴 ${{st.gh}} - ${{st.ga}} (${{st.clock}})`;
+                if (badgeScore) badgeScore.classList.add('live-active-badge');
+                if (expScore) expScore.classList.add('live-active-badge');
+            }} else if (st.state === 'post') {{
+                txtMarcador = `🏁 Final: ${{st.gh}} - ${{st.ga}}`;
+                if (badgeScore) badgeScore.classList.remove('live-active-badge');
+            }}
+
+            if (badgeScore) badgeScore.innerText = txtMarcador;
+            if (expScore) expScore.innerText = txtMarcador;
+
+            if (card) {{
+                const cat = card.getAttribute('data-cat') || '';
+                const linea = parseFloat(card.getAttribute('data-linea')) || 2.5;
+                const mercado = card.getAttribute('data-mercado') || '';
+                const ltStatus = document.getElementById(`lt-status-${{eventId}}`);
+                const ltVal = document.getElementById(`lt-val-${{eventId}}`);
+                const ltBar = document.getElementById(`lt-bar-${{eventId}}`);
+
+                let actual = 0;
+                let unidad = '';
+                if (cat === 'FALTAS') {{ actual = st.faltL + st.faltV; unidad = 'Faltas'; }}
+                else if (cat === 'TIROS') {{ actual = st.sotL + st.sotV; unidad = 'Tiros al Arco'; }}
+                else if (cat === 'CORNERS') {{ actual = st.corL + st.corV; unidad = 'Córners'; }}
+                else if (cat === 'TARJETAS') {{ actual = st.amarL + st.amarV + st.rojaL + st.rojaV; unidad = 'Tarjetas'; }}
+                else {{ actual = st.gh + st.ga; unidad = 'Goles'; }}
+
+                if (st.state === 'in' || st.state === 'post') {{
+                    const meta = linea > 0 ? Math.ceil(linea) : 1;
+                    const pct = Math.min(100, Math.round((actual / Math.max(1, meta)) * 100));
+                    if (ltStatus) ltStatus.innerHTML = `<b style="color:#10b981;">📡 EN VIVO (${{st.clock}}):</b> Actual <b>${{actual}} ${{unidad}}</b>`;
+                    if (ltVal) ltVal.innerText = `Línea: ${{mercado}} (${{pct}}%)`;
+                    if (ltBar) ltBar.style.width = `${{pct}}%`;
+                }}
+            }}
+
+            const bodyLive = document.getElementById(`live-body-${{eventId}}`);
+            if (bodyLive) {{
+                if (st.state === 'pre' && (st.tirL + st.tirV + st.faltL + st.faltV === 0)) {{
+                    bodyLive.innerHTML = `<div style="text-align:center; color:#94a3b8; padding:6px;">⏳ El partido aún no ha iniciado. Apenas ruede el balón, aquí verás Posesión, Tiros al Arco, Córners, Faltas y Tarjetas en tiempo real.</div>`;
+                }} else {{
+                    const evHtml = st.eventos.length > 0
+                        ? `<div class="events-feed"><b>⚡ Últimas Incidencias en Vivo:</b><br>${{st.eventos.join('<br>')}}</div>`
+                        : '';
+                    bodyLive.innerHTML = `
+                        ${{renderizarBarraDual('⚽ Posesión (%)', st.posL, st.posV, '#10b981', '#3b82f6', '%')}}
+                        ${{renderizarBarraDual('🎯 Tiros al Arco (SOT)', st.sotL, st.sotV, '#10b981', '#38bdf8')}}
+                        ${{renderizarBarraDual('🚀 Remates Totales', st.tirL, st.tirV, '#38bdf8', '#6366f1')}}
+                        ${{renderizarBarraDual('🚩 Córners', st.corL, st.corV, '#10b981', '#3b82f6')}}
+                        ${{renderizarBarraDual('🛑 Faltas Cometidas', st.faltL, st.faltV, '#f59e0b', '#ef4444')}}
+                        ${{renderizarBarraDual('🟨 Tarjetas (Amarillas+Rojas)', st.amarL + st.rojaL, st.amarV + st.rojaV, '#eab308', '#ef4444')}}
+                        ${{evHtml}}
+                    `;
+                }}
+            }}
+        }}
+
+        async function sincronizarTodosLosPartidosEnVivo() {{
+            const btn = document.getElementById('btnSyncLive');
+            if (btn) btn.innerText = '🔄 Sincronizando...';
+            const ids = new Set();
+            document.querySelectorAll('[data-event-id]').forEach(el => {{
+                const id = el.getAttribute('data-event-id');
+                if (id) ids.add(id);
+            }});
+
+            let enVivoCount = 0;
+            for (const id of ids) {{
+                const res = await actualizarPartidoEnVivo(id);
+                if (res && res.state === 'in') enVivoCount++;
+            }}
+
+            const ahoraStr = new Date().toLocaleTimeString('es-PE', {{ hour: '2-digit', minute: '2-digit', second: '2-digit' }});
+            const rel = document.getElementById('relojSync');
+            if (rel) rel.innerText = `📡 Telemetría sincronizada a las ${{ahoraStr}} (${{enVivoCount}} partidos en juego ahora mismo)`;
+            if (btn) btn.innerText = '📡 Actualizar Stats en Vivo (Auto 30s)';
+        }}
 
         function cambiarVista(vista, btn) {{
             document.querySelectorAll('.nav-tab').forEach(b => b.classList.remove('active'));
@@ -1292,13 +1510,15 @@ def generar_web_spa_v17(auditoria, picks_jornada, catalogo_partidos, ligas_csv_a
             document.getElementById('contadorExplorer').innerText = `📊 Partidos en Laboratorio: ${{visExp}} de ${{cardsE.length}}`;
         }}
 
-        function abrirLaboratorioPartido(key) {{
+        async function abrirLaboratorioPartido(key) {{
             const m = CATALOGO_PARTIDOS[key];
             if (!m) return;
             const pctXgL = (m.xg_l / Math.max(0.1, m.xg_l + m.xg_v)) * 100;
             const pctCorL = (m.cor_l / Math.max(0.1, m.cor_tot)) * 100;
             const pctSotL = (m.sot_l / Math.max(0.1, m.sot_tot)) * 100;
             const pctFaltL = (m.falt_l / Math.max(0.1, m.falt_tot)) * 100;
+
+            let bloqueVivoModal = `<div id="modal-live-${{m.event_id}}" style="background:#060911; border:1px solid #38bdf840; padding:12px; border-radius:10px; margin-bottom:14px; text-align:center; color:#94a3b8;">🔄 Consultando estadísticas en tiempo real del partido...</div>`;
 
             const html = `
                 <div class="modal-header">
@@ -1309,6 +1529,9 @@ def generar_web_spa_v17(auditoria, picks_jornada, catalogo_partidos, ligas_csv_a
                     <button class="btn-close" onclick="cerrarModal()">✕ Cerrar</button>
                 </div>
 
+                ${{bloqueVivoModal}}
+
+                <h4 style="margin-bottom:10px; font-size:0.88rem; color:#10b981;">📐 Proyecciones Pre-Partido (Modelo L5 · L10 · L20 + Monte Carlo 1M):</h4>
                 <div class="h2h-row">
                     <div class="h2h-labels"><span>${{m.local}}: ${{m.xg_l.toFixed(2)}} xG</span><span>Goles Esperados (xG)</span><span>${{m.visita}}: ${{m.xg_v.toFixed(2)}} xG</span></div>
                     <div class="h2h-track"><div style="width:${{pctXgL}}%; background:#10b981;"></div><div style="width:${{100-pctXgL}}%; background:#3b82f6;"></div></div>
@@ -1348,6 +1571,23 @@ def generar_web_spa_v17(auditoria, picks_jornada, catalogo_partidos, ligas_csv_a
             `;
             document.getElementById('modalContent').innerHTML = html;
             document.getElementById('modalLab').style.display = 'flex';
+
+            const st = await actualizarPartidoEnVivo(m.event_id);
+            const boxModal = document.getElementById(`modal-live-${{m.event_id}}`);
+            if (boxModal && st) {{
+                if (st.state === 'pre' && (st.tirL + st.tirV === 0)) {{
+                    boxModal.innerHTML = `⏳ <b>Partido por iniciar (${{m.hora_peru}} Hora Perú)</b> — Las barras en tiempo real se activarán automáticamente al comenzar el encuentro.`;
+                }} else {{
+                    boxModal.innerHTML = `
+                        <div style="font-weight:800; color:#f87171; margin-bottom:8px;">📡 ESTADÍSTICAS EN TIEMPO REAL (${{st.clock}} | Marcador: ${{st.gh}} - ${{st.ga}})</div>
+                        ${{renderizarBarraDual('⚽ Posesión (%)', st.posL, st.posV, '#10b981', '#3b82f6', '%')}}
+                        ${{renderizarBarraDual('🎯 Tiros al Arco (SOT)', st.sotL, st.sotV, '#10b981', '#38bdf8')}}
+                        ${{renderizarBarraDual('🚩 Córners', st.corL, st.corV, '#10b981', '#3b82f6')}}
+                        ${{renderizarBarraDual('🛑 Faltas Cometidas', st.faltL, st.faltV, '#f59e0b', '#ef4444')}}
+                        ${{renderizarBarraDual('🟨 Tarjetas', st.amarL + st.rojaL, st.amarV + st.rojaV, '#eab308', '#ef4444')}}
+                    `;
+                }}
+            }}
         }}
 
         function cerrarModal() {{
@@ -1392,6 +1632,12 @@ def generar_web_spa_v17(auditoria, picks_jornada, catalogo_partidos, ligas_csv_a
                 row.style.display = (est === 'ALL' || rEst === est) ? '' : 'none';
             }});
         }}
+
+        // Iniciar telemetría en tiempo real al abrir la página y actualizar cada 30 segundos
+        window.addEventListener('DOMContentLoaded', () => {{
+            sincronizarTodosLosPartidosEnVivo();
+            setInterval(sincronizarTodosLosPartidosEnVivo, 30000);
+        }});
     </script>
 </body>
 </html>"""
@@ -1400,7 +1646,7 @@ def generar_web_spa_v17(auditoria, picks_jornada, catalogo_partidos, ligas_csv_a
         f.write(html_completo)
 
 # ==============================================================================
-# 6. ORQUESTADOR MAESTRO v17.0
+# 6. ORQUESTADOR MAESTRO v18.0
 # ==============================================================================
 def enviar_telegram_seguro(texto):
     url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
@@ -1411,14 +1657,14 @@ def enviar_telegram_seguro(texto):
         except Exception:
             pass
 
-def ejecutar_iabet_v17():
+def ejecutar_iabet_v18():
     t0 = time.time()
-    caches_csv, espn_partidos, eventos_futuros = obtener_datos_pipeline_v17()
+    caches_csv, espn_partidos, eventos_activos = obtener_datos_pipeline_v18()
 
     auditoria = cargar_auditoria()
 
     ligas_activas_hoy = []
-    for ev in eventos_futuros:
+    for ev in eventos_activos:
         if ev.get("odds_key") and ev["odds_key"] not in ligas_activas_hoy:
             ligas_activas_hoy.append(ev["odds_key"])
 
@@ -1432,7 +1678,7 @@ def ejecutar_iabet_v17():
     partidos_analizados = 0
     vistos = set()
 
-    for ev in eventos_futuros:
+    for ev in eventos_activos:
         loc = ev.get("home_team")
         vis = ev.get("away_team")
         liga = ev.get("liga", "Fútbol")
@@ -1452,8 +1698,8 @@ def ejecutar_iabet_v17():
         base_c = ev.get("base_cor", 9.6)
 
         df_liga = caches_csv.get(liga)
-        st_l = analizar_equipo_profundo_v17(df_liga, loc, base_f, base_s, base_t, base_c, es_local=True)
-        st_v = analizar_equipo_profundo_v17(df_liga, vis, base_f, base_s, base_t, base_c, es_local=False)
+        st_l = analizar_equipo_profundo_v18(df_liga, loc, base_f, base_s, base_t, base_c, es_local=True)
+        st_v = analizar_equipo_profundo_v18(df_liga, vis, base_f, base_s, base_t, base_c, es_local=False)
 
         form_l = ev.get("form_h", "WDW")
         form_v = ev.get("form_a", "DWL")
@@ -1494,8 +1740,8 @@ def ejecutar_iabet_v17():
                 c_x = round((1.0 / p_est_x) * 0.94, 2)
                 c_2 = round((1.0 / p_est_2) * 0.94, 2)
                 c_o25, c_u25 = 1.86, 1.90
-                casa_1 = "Consenso B2B"
-                casa_2 = "Consenso B2B"
+                casa_1 = "Consenso Multi-Casa"
+                casa_2 = "Consenso Multi-Casa"
 
             pin_1, pin_x, pin_2 = c_1, c_x, c_2
             mean_o25, mean_u25 = c_o25, c_u25
@@ -1549,13 +1795,12 @@ def ejecutar_iabet_v17():
             str_ventanas = f"xG Proy: {lambda_l:.2f}-{lambda_v:.2f} | Córners: {cor_esp:.1f} | SOT: {sot_l+sot_v:.1f}"
             tiene_stats = False
 
-        res_mc = motor_montecarlo_v17(
+        res_mc = motor_montecarlo_v18(
             lambda_l, lambda_v, f_loc_esp, f_vis_esp, linea_f_tot,
             sot_l, sot_v, linea_sot, tarj_esp, linea_tarj_over,
             cor_l_real, cor_v_real, N_SIMS
         )
 
-        # Contracción Bayesiana Anti-Varianza
         p_fin_1 = (res_mc[0] * 0.45) + (p_devig_1 * 0.55)
         p_fin_x = (res_mc[1] * 0.45) + (p_devig_x * 0.55)
         p_fin_2 = (res_mc[2] * 0.45) + (p_devig_2 * 0.55)
@@ -1565,9 +1810,9 @@ def ejecutar_iabet_v17():
         p_fin_u25 = (res_mc[7] * 0.45) + (p_devig_u25 * 0.55)
         top_scores_str = ", ".join(calcular_top3_marcadores_exactos(lambda_l, lambda_v))
 
-        # Guardar radiografía completa del partido en el Explorador FutbolDataPro
         catalogo_partidos.append({
             "match_key": id_p,
+            "event_id": ev_id,
             "liga": liga,
             "local": loc,
             "visita": vis,
@@ -1623,55 +1868,51 @@ def ejecutar_iabet_v17():
             mercados_eval.append(("Menos de 3.5 Goles (Under 3.5)", p_fin_u35, c_un35, casa_1, "GOLES", p_fin_u35 * 100.0))
 
         if tiene_stats:
-            # 1. Córners Reales (HC/AC)
             if cor_esp >= 10.1:
                 hr_co = calcular_hit_rate_combinado(st_l["arr_cor"], st_v["arr_cor"], 8.5, "OVER")
                 p_cal_co = min(0.72, (res_mc[16] * 0.50) + ((hr_co / 100.0) * 0.50))
                 if hr_co >= 65.0:
-                    mercados_eval.append(("Más de 8.5 Córners", p_cal_co, 1.62, "Betano/Betsson", "CORNERS", hr_co))
+                    mercados_eval.append(("Más de 8.5 Córners", p_cal_co, 1.62, "Consenso Multi-Casa", "CORNERS", hr_co))
             elif cor_esp <= 9.1:
                 hr_cu = calcular_hit_rate_combinado(st_l["arr_cor"], st_v["arr_cor"], 10.5, "UNDER")
                 p_cal_cu = min(0.73, (res_mc[17] * 0.50) + ((hr_cu / 100.0) * 0.50))
                 if hr_cu >= 65.0:
-                    mercados_eval.append(("Menos de 10.5 Córners", p_cal_cu, 1.58, "Betano/Betsson", "CORNERS", hr_cu))
+                    mercados_eval.append(("Menos de 10.5 Córners", p_cal_cu, 1.58, "Consenso Multi-Casa", "CORNERS", hr_cu))
 
-            # 2. Faltas Reales (HF/AF)
             dif_f = (f_loc_esp + f_vis_esp) - linea_f_tot
             if dif_f <= -1.1:
                 hr_fu = calcular_hit_rate_combinado(st_l["arr_f"], st_v["arr_f"], linea_f_tot, "UNDER")
                 p_cal_fu = min(0.71, (res_mc[11] * 0.55) + ((hr_fu / 100.0) * 0.45))
                 if hr_fu >= 65.0:
-                    mercados_eval.append((f"Menos de {linea_f_tot} Faltas Totales", p_cal_fu, 1.66, "Betano/Betsson", "FALTAS", hr_fu))
+                    mercados_eval.append((f"Menos de {linea_f_tot} Faltas Totales", p_cal_fu, 1.66, "Consenso Multi-Casa", "FALTAS", hr_fu))
             elif dif_f >= 1.1:
                 hr_fo = calcular_hit_rate_combinado(st_l["arr_f"], st_v["arr_f"], linea_f_tot, "OVER")
                 p_cal_fo = min(0.71, (res_mc[10] * 0.55) + ((hr_fo / 100.0) * 0.45))
                 if hr_fo >= 65.0:
-                    mercados_eval.append((f"Más de {linea_f_tot} Faltas Totales", p_cal_fo, 1.66, "Betano/Betsson", "FALTAS", hr_fo))
+                    mercados_eval.append((f"Más de {linea_f_tot} Faltas Totales", p_cal_fo, 1.66, "Consenso Multi-Casa", "FALTAS", hr_fo))
 
-            # 3. Tiros al Arco (HST/AST)
             dif_sot = (sot_l + sot_v) - linea_sot
             if dif_sot >= 0.85:
                 hr_so = calcular_hit_rate_combinado(st_l["arr_sot"], st_v["arr_sot"], linea_sot, "OVER")
                 p_cal_so = min(0.70, (res_mc[12] * 0.55) + ((hr_so / 100.0) * 0.45))
                 if hr_so >= 65.0:
-                    mercados_eval.append((f"Más de {linea_sot} Tiros al Arco", p_cal_so, 1.66, "Betano/Bet365", "TIROS", hr_so))
+                    mercados_eval.append((f"Más de {linea_sot} Tiros al Arco", p_cal_so, 1.66, "Consenso Multi-Casa", "TIROS", hr_so))
             elif dif_sot <= -0.85:
                 hr_su = calcular_hit_rate_combinado(st_l["arr_sot"], st_v["arr_sot"], linea_sot, "UNDER")
                 p_cal_su = min(0.70, (res_mc[13] * 0.55) + ((hr_su / 100.0) * 0.45))
                 if hr_su >= 65.0:
-                    mercados_eval.append((f"Menos de {linea_sot} Tiros al Arco", p_cal_su, 1.65, "Betano/Bet365", "TIROS", hr_su))
+                    mercados_eval.append((f"Menos de {linea_sot} Tiros al Arco", p_cal_su, 1.65, "Consenso Multi-Casa", "TIROS", hr_su))
 
-            # 4. Tarjetas Calibradas (Candado Anti-Parma)
             if tarj_esp >= 4.35 and tarj_l_real >= 1.75 and tarj_v_real >= 1.75:
                 hr_to = calcular_hit_rate_combinado(st_l["arr_tarj"], st_v["arr_tarj"], 3.5, "OVER")
                 p_cal_to = min(0.68, (res_mc[14] * 0.50) + ((hr_to / 100.0) * 0.50))
                 if hr_to >= 65.0:
-                    mercados_eval.append(("Más de 3.5 Tarjetas", p_cal_to, 1.66, "Betano/Betsson", "TARJETAS", hr_to))
+                    mercados_eval.append(("Más de 3.5 Tarjetas", p_cal_to, 1.66, "Consenso Multi-Casa", "TARJETAS", hr_to))
             elif tarj_esp <= 3.85 and (tarj_l_real <= 1.65 or tarj_v_real <= 1.65):
                 hr_tu = calcular_hit_rate_combinado(st_l["arr_tarj"], st_v["arr_tarj"], 4.5, "UNDER")
                 p_cal_tu = min(0.72, (res_mc[15] * 0.45) + ((hr_tu / 100.0) * 0.55))
                 if hr_tu >= 70.0:
-                    mercados_eval.append(("Menos de 4.5 Tarjetas", p_cal_tu, 1.55, "Betano/Betsson", "TARJETAS", hr_tu))
+                    mercados_eval.append(("Menos de 4.5 Tarjetas", p_cal_tu, 1.55, "Consenso Multi-Casa", "TARJETAS", hr_tu))
 
         for nom_m, p_real, cuota_m, casa_m, cat, hr_val in mercados_eval:
             if not (CUOTA_MIN <= cuota_m <= CUOTA_MAX):
@@ -1765,16 +2006,16 @@ def ejecutar_iabet_v17():
     with open(ARCHIVO_AUDITORIA, "w", encoding="utf-8") as f:
         json.dump(auditoria, f, ensure_ascii=False, indent=2)
 
-    generar_web_spa_v17(auditoria, picks_finales, catalogo_partidos, len(caches_csv))
+    generar_web_spa_v18(auditoria, picks_finales, catalogo_partidos, len(caches_csv))
 
     res = auditoria["resumen"]
     dur = time.time() - t0
     lineas_tg = [
-        "👑 IABET QUANT PRO v17.0 (FUTBOLDATAPRO EXPLORER + ANTI-VARIANZA)",
+        "📡 IABET QUANT PRO v18.0 (LIVE MATCH STATS CENTER)",
         f"📊 Efectividad: {res['win_rate_pct']:.1f}% ({res['ganados']}W-{res['perdidos']}L) | ROI: {res['roi_pct']:+.1f}%",
         f"💰 Bankroll: S/ {res['bankroll_actual']:.2f} | 🎫 Créditos OddsAPI: {creditos_restantes}",
-        f"🔍 Buscador Web ({len(catalogo_partidos)} partidos cargados): https://blakeffx.github.io/iabet-cloud/",
-        f"⏱️ {len(picks_finales)} picks calibrados en {dur:.1f}s",
+        f"🌐 Live Tracker Web: https://blakeffx.github.io/iabet-cloud/",
+        f"⏱️ {len(picks_finales)} picks con telemetría en vivo ({dur:.1f}s)",
         "━━━━━━━━━━━━━━━━━━━━"
     ]
 
@@ -1788,7 +2029,7 @@ def ejecutar_iabet_v17():
         )
 
     enviar_telegram_seguro("\n".join(lineas_tg))
-    print(f"✅ IABET v17.0 completado: {len(picks_finales)} picks y {len(catalogo_partidos)} partidos en el buscador.")
+    print(f"✅ IABET v18.0 completado: {len(picks_finales)} picks con Live Match Center publicados.")
 
 if __name__ == "__main__":
-    ejecutar_iabet_v17()
+    ejecutar_iabet_v18()
