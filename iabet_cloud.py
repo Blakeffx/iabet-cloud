@@ -10,16 +10,14 @@ import pandas as pd
 from numba import njit, prange
 
 # ==============================================================================
-# 1. CONFIGURACIÓN EMPRESARIAL E INTEGRACIÓN DE APIS (IABET QUANT PRO v14.0)
+# 1. CREDENCIALES Y CONFIGURACIÓN SMART-QUOTA (IABET QUANT PRO v15.0)
 # ==============================================================================
+THE_ODDS_API_KEY = "a13d27d9c5cc3ea988f72ba4ff74c56f"
 TELEGRAM_TOKEN = "8902181028:AAE1ywEiCc6do90ZPclI8GnUdmVqKBc7iOU"
 TELEGRAM_CHAT_ID = "5203732922"
+GEMINI_API_KEY = "AQ.Ab8RN6IKL6yh9YxXdsAzjRn9RKHo9xOtu1Rq8OpZhBKg8rPp-Q"
 
-# LLAVES OPCIONALES PARA POTENCIAR EL MOTOR (Si las consigues, pégalas entre las comillas)
-THE_ODDS_API_KEY = ""   # Opcional: https://the-odds-api.com/ (Suma Pinnacle y Betfair directo)
-GEMINI_API_KEY = ""     # Opcional: https://aistudio.google.com/
-
-MODO_COMERCIAL = "PRUEBA"  # "PRUEBA" (Todo abierto) o "VENTA" (Bloquea Tier S con Blur VIP)
+MODO_COMERCIAL = "PRUEBA"  # "PRUEBA" (Picks abiertos) o "VENTA" (Bloquea Tier S con Blur VIP)
 LINK_CONTACTO_VIP = "https://t.me/+TuEnlaceDeContacto"
 
 BANKROLL_INICIAL = 100.0
@@ -30,7 +28,10 @@ CUOTA_MAX = 2.45
 MAX_PICKS_WEB = 15
 ARCHIVO_AUDITORIA = "auditoria_iabet.json"
 
-# Zona horaria oficial de Perú / Colombia / Ecuador (UTC-5)
+# Protección de tus 500 peticiones mensuales de The Odds API:
+HORAS_CACHE_ODDS_API = 4.0       # Reutiliza cuotas durante 4 horas para no gastar en pruebas manuales
+MAX_LIGAS_ODDS_POR_CICLO = 4     # Máximo 4 créditos por escaneo en ligas con partidos hoy/mañana
+
 TZ_PERU = timezone(timedelta(hours=-5))
 
 HEADERS_PRO = {
@@ -39,26 +40,26 @@ HEADERS_PRO = {
     "Accept-Language": "es-ES,es;q=0.9"
 }
 
-# Catálogo Ampliado de Torneos (Slugs de ESPN API + Códigos CSV + Líneas Base)
+# Mapa Maestro: Slug ESPN -> (Nombre, Código CSV, Key en The Odds API, Tarjetas, Faltas, SOT)
 LIGAS_CONFIG = {
-    "esp.1": ("LaLiga", "SP1", 4.7, 25.0, 8.6),
-    "eng.1": ("Premier League", "E0", 3.9, 21.6, 9.3),
-    "ita.1": ("Serie A", "I1", 4.4, 24.5, 8.7),
-    "ger.1": ("Bundesliga", "D1", 4.0, 22.2, 9.5),
-    "fra.1": ("Ligue 1", "F1", 4.0, 23.6, 8.8),
-    "ned.1": ("Eredivisie", "N1", 3.3, 20.4, 9.6),
-    "por.1": ("Primeira Liga", "P1", 5.1, 26.5, 8.5),
-    "uefa.champions": ("Champions League", None, 4.1, 22.6, 9.4),
-    "uefa.europa": ("Europa League", None, 4.3, 23.8, 9.0),
-    "conmebol.libertadores": ("Copa Libertadores", None, 5.3, 27.5, 8.6),
-    "conmebol.sudamericana": ("Copa Sudamericana", None, 5.0, 26.8, 8.4),
-    "per.1": ("Liga 1 Perú", None, 5.3, 28.0, 8.5),
-    "bra.1": ("Brasileirão", "BRA", 5.0, 27.2, 8.9),
-    "arg.1": ("Liga Argentina", "ARG", 5.2, 27.6, 8.3),
-    "mex.1": ("Liga MX", "MEX", 4.5, 24.4, 8.8),
-    "eng.league_cup": ("EFL Cup", None, 3.8, 21.5, 9.1),
-    "esp.copa_del_rey": ("Copa del Rey", None, 4.6, 25.5, 8.5),
-    "ita.coppa_italia": ("Coppa Italia", None, 4.4, 24.8, 8.6)
+    "esp.1": ("LaLiga", "SP1", "soccer_spain_la_liga", 4.7, 25.0, 8.6),
+    "eng.1": ("Premier League", "E0", "soccer_epl", 3.9, 21.6, 9.3),
+    "ita.1": ("Serie A", "I1", "soccer_italy_serie_a", 4.4, 24.5, 8.7),
+    "ger.1": ("Bundesliga", "D1", "soccer_germany_bundesliga", 4.0, 22.2, 9.5),
+    "fra.1": ("Ligue 1", "F1", "soccer_france_ligue_one", 4.0, 23.6, 8.8),
+    "ned.1": ("Eredivisie", "N1", "soccer_netherlands_eredivisie", 3.3, 20.4, 9.6),
+    "por.1": ("Primeira Liga", "P1", "soccer_portugal_primeira_liga", 5.1, 26.5, 8.5),
+    "uefa.champions": ("Champions League", None, "soccer_uefa_champs_league", 4.1, 22.6, 9.4),
+    "uefa.europa": ("Europa League", None, "soccer_uefa_europa_league", 4.3, 23.8, 9.0),
+    "conmebol.libertadores": ("Copa Libertadores", None, "soccer_conmebol_copa_libertadores", 5.3, 27.5, 8.6),
+    "conmebol.sudamericana": ("Copa Sudamericana", None, "soccer_conmebol_copa_sudamericana", 5.0, 26.8, 8.4),
+    "per.1": ("Liga 1 Perú", None, None, 5.3, 28.0, 8.5),
+    "bra.1": ("Brasileirão", "BRA", "soccer_brazil_campeonato", 5.0, 27.2, 8.9),
+    "arg.1": ("Liga Argentina", "ARG", "soccer_argentina_primera_division", 5.2, 27.6, 8.3),
+    "mex.1": ("Liga MX", "MEX", "soccer_mexico_ligamx", 4.5, 24.4, 8.8),
+    "eng.league_cup": ("EFL Cup", None, "soccer_england_efl_cup", 3.8, 21.5, 9.1),
+    "esp.copa_del_rey": ("Copa del Rey", None, None, 4.6, 25.5, 8.5),
+    "ita.coppa_italia": ("Coppa Italia", None, None, 4.4, 24.8, 8.6)
 }
 
 CSV_LIGAS_MAPA = {
@@ -90,10 +91,10 @@ DB_EQUIPOS_PRO = {
 }
 
 # ==============================================================================
-# 2. MOTOR MONTE CARLO JIT EN C (1,000,000 DE SIMULACIONES + PERCENTILES P75)
+# 2. MOTOR MONTE CARLO JIT EN C (1,000,000 DE SIMULACIONES)
 # ==============================================================================
 @njit(parallel=True)
-def motor_montecarlo_v14(
+def motor_montecarlo_v15(
     l_loc, l_vis, f_loc, f_vis, linea_f_tot,
     sot_loc, sot_vis, linea_sot, tarj_esp, linea_tarj, n_sims
 ):
@@ -156,7 +157,7 @@ def motor_montecarlo_v14(
     )
 
 # ==============================================================================
-# 3. INGESTA MULTIFECHA (HOY, MAÑANA, PASADO MAÑANA) + ENDPOINT SUMMARY PROFUNDO
+# 3. GESTIÓN INTELIGENTE DE THE ODDS API + INGESTA MULTIFECHA ESPN
 # ==============================================================================
 def normalizar_nombre(nombre):
     if not nombre:
@@ -165,6 +166,103 @@ def normalizar_nombre(nombre):
     for p in ["fc ", "cf ", "cd ", "ca ", "sc ", "ac ", "as ", "ud ", "rcd ", "real ", "sporting ", "club ", "deportivo ", "atletico ", "united", "city"]:
         limpio = limpio.replace(p, "")
     return limpio.strip()
+
+def consultar_the_odds_api_smart(ligas_con_partidos_hoy, auditoria):
+    """
+    Ahorra tus 500 peticiones mensuales de The Odds API:
+    1. En el turno nocturno de auditoría (22:00 a 05:00 Hora Perú) NO gasta créditos.
+    2. Si ya consultó una liga hace menos de 4 horas, reutiliza la caché guardada.
+    3. Solo consulta ligas que realmente tengan partidos programados para HOY o MAÑANA.
+    4. Usa markets=h2h (costo mínimo: 1 crédito por liga activa) y extrae Pinnacle + Mejor Cuota.
+    """
+    cache_global = auditoria.get("cache_odds_api", {})
+    creditos_restantes = auditoria.get("resumen", {}).get("creditos_odds_api", "500")
+    ahora_ts = time.time()
+    hora_peru_actual = datetime.now(TZ_PERU).hour
+
+    # Si es de madrugada o turno de cierre nocturno (22h a 05h Perú), ahorramos el 100% de créditos
+    if not THE_ODDS_API_KEY or hora_peru_actual >= 22 or hora_peru_actual < 6:
+        return cache_global.get("partidos", {}), creditos_restantes
+
+    mapa_cuotas = cache_global.get("partidos", {})
+    tiempos_ligas = cache_global.get("tiempos_ligas", {})
+    peticiones_hechas = 0
+
+    for odds_key in ligas_con_partidos_hoy:
+        if not odds_key or peticiones_hechas >= MAX_LIGAS_ODDS_POR_CICLO:
+            continue
+
+        ult_consulta = float(tiempos_ligas.get(odds_key, 0.0))
+        if (ahora_ts - ult_consulta) < (HORAS_CACHE_ODDS_API * 3600):
+            # Usamos las cuotas en caché sin gastar ni 1 petición
+            continue
+
+        url = f"https://api.the-odds-api.com/v4/sports/{odds_key}/odds"
+        params = {
+            "apiKey": THE_ODDS_API_KEY,
+            "regions": "eu",
+            "markets": "h2h",
+            "oddsFormat": "decimal"
+        }
+        try:
+            r = requests.get(url, params=params, timeout=8)
+            if r.status_code == 200:
+                peticiones_hechas += 1
+                tiempos_ligas[odds_key] = ahora_ts
+                rem = r.headers.get("x-requests-remaining")
+                if rem is not None:
+                    creditos_restantes = str(rem)
+
+                for ev in r.json():
+                    loc = ev.get("home_team", "")
+                    vis = ev.get("away_team", "")
+                    if not loc or not vis:
+                        continue
+
+                    best_1, best_x, best_2 = (0.0, ""), (0.0, ""), (0.0, "")
+                    pin_1, pin_x, pin_2 = 0.0, 0.0, 0.0
+                    all_1, all_x, all_2 = [], [], []
+
+                    for bm in ev.get("bookmakers", []):
+                        b_key = bm.get("key", "")
+                        b_title = bm.get("title", "Bookie")
+                        for m in bm.get("markets", []):
+                            if m.get("key") == "h2h":
+                                for o in m.get("outcomes", []):
+                                    pr = float(o.get("price", 0) or 0)
+                                    if pr <= 1.01:
+                                        continue
+                                    if o.get("name") == loc:
+                                        all_1.append(pr)
+                                        if pr > best_1[0]: best_1 = (pr, b_title)
+                                        if b_key == "pinnacle": pin_1 = pr
+                                    elif o.get("name") == vis:
+                                        all_2.append(pr)
+                                        if pr > best_2[0]: best_2 = (pr, b_title)
+                                        if b_key == "pinnacle": pin_2 = pr
+                                    else:
+                                        all_x.append(pr)
+                                        if pr > best_x[0]: best_x = (pr, b_title)
+                                        if b_key == "pinnacle": pin_x = pr
+
+                    if best_1[0] > 1.01 and best_2[0] > 1.01:
+                        clave = f"{normalizar_nombre(loc)[:5]}__{normalizar_nombre(vis)[:5]}"
+                        mapa_cuotas[clave] = {
+                            "best_1": best_1[0], "casa_1": best_1[1],
+                            "best_x": best_x[0] if best_x[0] > 1.0 else 3.25, "casa_x": best_x[1] or best_1[1],
+                            "best_2": best_2[0], "casa_2": best_2[1],
+                            "pin_1": pin_1 if pin_1 > 1.0 else float(np.mean(all_1)),
+                            "pin_x": pin_x if pin_x > 1.0 else (float(np.mean(all_x)) if all_x else 3.25),
+                            "pin_2": pin_2 if pin_2 > 1.0 else float(np.mean(all_2))
+                        }
+        except Exception:
+            continue
+
+    auditoria["cache_odds_api"] = {
+        "tiempos_ligas": tiempos_ligas,
+        "partidos": mapa_cuotas
+    }
+    return mapa_cuotas, creditos_restantes
 
 def descargar_csv_liga(item):
     nom_liga, cod_csv = item
@@ -193,11 +291,6 @@ def descargar_csv_liga(item):
     return nom_liga, pd.DataFrame()
 
 def extraer_estadisticas_summary_espn(event_id):
-    """
-    Conecta al endpoint oculto descubierto en URLS.txt:
-    https://site.api.espn.com/apis/site/v2/sports/soccer/all/summary?event={event_id}
-    Extrae Faltas Reales, Tiros al Arco Reales, Tarjetas y Lesiones del partido.
-    """
     if not event_id:
         return None
     url = f"https://site.api.espn.com/apis/site/v2/sports/soccer/all/summary?event={event_id}"
@@ -208,9 +301,7 @@ def extraer_estadisticas_summary_espn(event_id):
         data = r.json()
         box = data.get("boxscore", {})
         teams = box.get("teams", [])
-        faltas_tot = 0
-        sot_tot = 0
-        tarj_tot = 0
+        faltas_tot, sot_tot, tarj_tot = 0, 0, 0
         tiene_datos = False
 
         for t in teams:
@@ -231,7 +322,6 @@ def extraer_estadisticas_summary_espn(event_id):
                     tarj_tot += int(val)
                     tiene_datos = True
 
-        # Extraer lesiones o bajas si están disponibles antes del partido
         bajas = []
         for inj_team in data.get("injuries", []):
             t_nom = inj_team.get("team", {}).get("displayName", "")
@@ -244,15 +334,14 @@ def extraer_estadisticas_summary_espn(event_id):
             "faltas_tot": faltas_tot,
             "sot_tot": sot_tot,
             "tarj_tot": tarj_tot,
-            "bajas_txt": " | ".join(bajas) if bajas else "Plantillas sin bajas críticas reportadas"
+            "bajas_txt": " | ".join(bajas) if bajas else "Plantillas titulares disponibles"
         }
     except Exception:
         return None
 
 def descargar_espn_multifecha(item):
-    slug, (nom_liga, _, b_tarj, b_falt, b_sot) = item
+    slug, (nom_liga, _, odds_key, b_tarj, b_falt, b_sot) = item
     ahora_peru = datetime.now(TZ_PERU)
-    # Rango desde ayer hasta dentro de 3 días para cubrir auditoría y partidos próximos
     f_ini = (ahora_peru - timedelta(days=1)).strftime("%Y%m%d")
     f_fin = (ahora_peru + timedelta(days=3)).strftime("%Y%m%d")
     url = f"https://site.api.espn.com/apis/site/v2/sports/soccer/{slug}/scoreboard?dates={f_ini}-{f_fin}"
@@ -272,7 +361,6 @@ def descargar_espn_multifecha(item):
                 detalle_tiempo = st_obj.get("type", {}).get("shortDetail", "")
                 fecha_iso = ev.get("date", "")
 
-                # Convertir fecha UTC del partido a Hora Oficial de Perú (UTC-5)
                 try:
                     dt_utc = datetime.fromisoformat(fecha_iso.replace("Z", "+00:00"))
                     dt_peru = dt_utc.astimezone(TZ_PERU)
@@ -311,7 +399,6 @@ def descargar_espn_multifecha(item):
                         "clock": detalle_tiempo, "home_score": sh, "away_score": sa
                     }
 
-                    # FILTRO ESTRICTO: Solo generar Picks Nuevos para partidos FUTUROS (state == "pre")
                     if estado != "pre":
                         continue
 
@@ -345,6 +432,7 @@ def descargar_espn_multifecha(item):
                     eventos_futuros.append({
                         "event_id": ev_id,
                         "liga": nom_liga,
+                        "odds_key": odds_key,
                         "fecha_partido": fecha_peru_str,
                         "hora_peru": hora_peru_str,
                         "etiqueta_dia": etiqueta_dia,
@@ -369,7 +457,7 @@ def descargar_espn_multifecha(item):
 
     return eventos_futuros, partidos_espn_estado
 
-def obtener_datos_pipeline_v14():
+def obtener_datos_pipeline_v15():
     caches_csv = {}
     espn_partidos = {}
     eventos_futuros = []
@@ -403,7 +491,6 @@ def analizar_equipo_profundo(df, equipo, base_faltas, base_sot, base_tarj, es_lo
                 "f_com": f_esp, "f_rec": v["f_rec"],
                 "sot": v["sot"], "tarj": v["tarj"],
                 "f_l5": f_esp, "f_l10": f_esp * 0.98, "f_l20": f_esp * 0.96,
-                "hit_l5": 80, "hit_l10": 80, "hit_l20": 75,
                 "verificado": True
             }
 
@@ -465,7 +552,6 @@ def cargar_auditoria():
         try:
             with open(ARCHIVO_AUDITORIA, "r", encoding="utf-8") as f:
                 data = json.load(f)
-                # Limpieza automática de registros desfasados sin event_id de la prueba inicial
                 hist_limpio = [
                     p for p in data.get("historial", [])
                     if p.get("event_id") or p.get("estado") == "GANADO"
@@ -485,8 +571,10 @@ def cargar_auditoria():
             "perdidos": 0,
             "en_vivo": 0,
             "pendientes": 0,
-            "racha_actual": "Lista"
+            "racha_actual": "Lista",
+            "creditos_odds_api": "500"
         },
+        "cache_odds_api": {"tiempos_ligas": {}, "partidos": {}},
         "historial": []
     }
 
@@ -499,7 +587,7 @@ def extraer_linea_numerica(texto_mercado):
             continue
     return 0.0
 
-def auditar_picks_con_espn(auditoria, espn_partidos):
+def auditar_picks_con_espn(auditoria, espn_partidos, creditos_restantes):
     historial = auditoria.get("historial", [])
     en_vivo_cnt = 0
 
@@ -535,7 +623,6 @@ def auditar_picks_con_espn(auditoria, espn_partidos):
             gano = None
             stats_extra_txt = ""
 
-            # 1. Calificación de Mercados de Goles y 1X2
             if "(1)" in mercado or "Victoria Local" in mercado:
                 gano = (gh > ga)
             elif "(2)" in mercado or "Victoria Visita" in mercado:
@@ -551,8 +638,6 @@ def auditar_picks_con_espn(auditoria, espn_partidos):
                     gano = (gtot < linea_num)
             elif "Ambos Anotan" in mercado:
                 gano = (gh > 0 and ga > 0)
-
-            # 2. Calificación de Faltas, Tiros al Arco y Tarjetas vía ESPN Summary API
             elif any(x in mercado for x in ["Faltas", "Tiros al Arco", "Tarjetas"]):
                 res_sum = extraer_estadisticas_summary_espn(ev_id)
                 if res_sum and res_sum.get("tiene_stats_vivo"):
@@ -614,7 +699,8 @@ def auditar_picks_con_espn(auditoria, espn_partidos):
         "perdidos": perdidos,
         "en_vivo": en_vivo_cnt,
         "pendientes": pendientes,
-        "racha_actual": f"{racha_cnt}{racha_tipo}" if racha_cnt > 0 else f"{pendientes} En Cartera"
+        "racha_actual": f"{racha_cnt}{racha_tipo}" if racha_cnt > 0 else f"{pendientes} En Cartera",
+        "creditos_odds_api": creditos_restantes
     }
     return auditoria
 
@@ -628,12 +714,13 @@ def clasificar_tier(prob_pct, edge_pct):
     return "DESCARTADO", "❌", 99
 
 # ==============================================================================
-# 5. GENERADOR DE PLATAFORMA WEB INTERACTIVA CON DESPLEGABLES Y FILTROS POR DÍA
+# 5. GENERADOR DE PLATAFORMA WEB INTERACTIVA v15.0
 # ==============================================================================
-def generar_web_interactiva_v14(auditoria, picks_jornada, partidos_analizados, ligas_csv_activas):
+def generar_web_interactiva_v15(auditoria, picks_jornada, partidos_analizados, ligas_csv_activas):
     res = auditoria["resumen"]
     historial = auditoria["historial"][-40:][::-1]
     ahora_peru = datetime.now(TZ_PERU).strftime("%Y-%m-%d %H:%M (Hora Perú)")
+    cred_txt = res.get("creditos_odds_api", "500")
 
     ligas_unicas = sorted(list({p["liga"] for p in picks_jornada}))
     opts_ligas = '<option value="ALL">🌍 Todas las Ligas (' + str(len(ligas_unicas)) + ')</option>'
@@ -699,9 +786,8 @@ def generar_web_interactiva_v14(auditoria, picks_jornada, partidos_analizados, l
                     <span>📊 {p['ventanas']}</span>
                 </div>
 
-                <!-- DESPLEGABLE INTERACTIVO DE RADIOGRAFÍA TÁCTICA -->
                 <details class="tactical-drawer">
-                    <summary>🔬 Ver Desglose Táctico, Percentil P75 y Cuota Justa</summary>
+                    <summary>🔬 Ver Desglose Táctico, Benchmark Pinnacle y Cuota Justa</summary>
                     <div class="drawer-content">
                         <div class="drawer-row"><span>🎯 Cuota Justa (Sin Margen):</span> <b>@{p['cuota_justa']:.2f} vs @{p['cuota']:.2f} ({p['casa']})</b></div>
                         <div class="drawer-row"><span>📐 Proyección Goles (xG):</span> <b>Local {p['xg_l']:.2f} — Visita {p['xg_v']:.2f}</b></div>
@@ -761,7 +847,7 @@ def generar_web_interactiva_v14(auditoria, picks_jornada, partidos_analizados, l
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IABET Quant Pro v14.0 | Plataforma Interactiva de Predicciones Auditadas</title>
+    <title>IABET Quant Pro v15.0 | The Odds API + Pinnacle De-Vig + ESPN Live</title>
     <style>
         :root {{
             --bg: #070b14;
@@ -777,17 +863,18 @@ def generar_web_interactiva_v14(auditoria, picks_jornada, partidos_analizados, l
         .navbar {{ background: rgba(15, 23, 42, 0.92); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border); padding: 14px 24px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; flex-wrap: wrap; gap: 10px; }}
         .logo {{ font-size: 1.3rem; font-weight: 800; color: #fff; display: flex; align-items: center; gap: 8px; }}
         .logo span {{ background: linear-gradient(90deg, #10b981, #38bdf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }}
+        .nav-right {{ display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }}
+        .quota-pill {{ font-size: 0.76rem; background: #38bdf818; color: #38bdf8; border: 1px solid #38bdf850; padding: 6px 12px; border-radius: 999px; font-weight: 700; }}
         .status-pill {{ font-size: 0.78rem; background: #10b98120; color: #10b981; border: 1px solid #10b98150; padding: 6px 12px; border-radius: 999px; font-weight: 600; }}
         .container {{ max-width: 1240px; margin: 0 auto; padding: 24px 16px; }}
         .hero {{ text-align: center; padding: 26px 18px; background: radial-gradient(circle at top, #1e293b70, #0f172a40); border-radius: 16px; margin-bottom: 24px; border: 1px solid var(--border); }}
         .hero h1 {{ font-size: 1.85rem; font-weight: 800; margin-bottom: 8px; }}
-        .hero p {{ color: var(--muted); max-width: 780px; margin: 0 auto; font-size: 0.92rem; }}
+        .hero p {{ color: var(--muted); max-width: 800px; margin: 0 auto; font-size: 0.92rem; }}
         .stats-bar {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(165px, 1fr)); gap: 12px; margin-bottom: 24px; }}
         .stat-box {{ background: var(--card); border: 1px solid var(--border); padding: 16px; border-radius: 12px; text-align: center; }}
         .stat-box .s-label {{ font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }}
         .stat-box .s-val {{ font-size: 1.55rem; font-weight: 800; margin-top: 4px; color: #fff; }}
 
-        /* BARRA DE CONTROLES INTERACTIVOS Y DESPLEGABLES */
         .controls-panel {{ background: #0f172a; border: 1px solid var(--border); border-radius: 14px; padding: 16px; margin-bottom: 24px; display: flex; flex-wrap: wrap; gap: 14px; align-items: center; justify-content: space-between; }}
         .day-tabs {{ display: flex; gap: 8px; flex-wrap: wrap; }}
         .day-tab {{ background: #1e293b; color: var(--muted); border: 1px solid #334155; padding: 8px 14px; border-radius: 8px; font-size: 0.82rem; font-weight: 700; cursor: pointer; transition: all 0.2s; }}
@@ -816,7 +903,6 @@ def generar_web_interactiva_v14(auditoria, picks_jornada, partidos_analizados, l
         .m-val {{ font-size: 0.88rem; font-weight: 700; }}
         .l-bars {{ font-size: 0.76rem; color: #cbd5e1; background: #1e293b60; padding: 7px 10px; border-radius: 6px; margin-bottom: 10px; }}
 
-        /* ACORDEÓN TÁCTICO DESPLEGABLE */
         .tactical-drawer {{ background: #0b1120; border: 1px solid #1e293b; border-radius: 8px; padding: 8px 12px; font-size: 0.78rem; }}
         .tactical-drawer summary {{ cursor: pointer; font-weight: 700; color: #38bdf8; outline: none; list-style: none; display: flex; justify-content: space-between; align-items: center; }}
         .tactical-drawer summary::after {{ content: "▼"; font-size: 0.65rem; transition: transform 0.2s; }}
@@ -843,13 +929,16 @@ def generar_web_interactiva_v14(auditoria, picks_jornada, partidos_analizados, l
 </head>
 <body>
     <nav class="navbar">
-        <div class="logo">⚡ IABET <span>QUANT PRO v14.0</span></div>
-        <div class="status-pill">🟢 Motor Multifecha Activo | Modo: {MODO_COMERCIAL}</div>
+        <div class="logo">⚡ IABET <span>QUANT PRO v15.0</span></div>
+        <div class="nav-right">
+            <div class="quota-pill" title="Peticiones restantes en tu plan mensual de The Odds API">🎫 Cuota OddsAPI: {cred_txt} disp.</div>
+            <div class="status-pill">🟢 Smart-Cron Activo (4 Horas Clave) | Modo: {MODO_COMERCIAL}</div>
+        </div>
     </nav>
     <div class="container">
         <div class="hero">
-            <h1>Inteligencia Artificial Cuantitativa & Control Dinámico por Jornada</h1>
-            <p>Filtra tus pronósticos por día (Hoy / Mañana), liga, categoría de mercado o nivel de seguridad, y despliega la radiografía táctica completa de cada partido verificada con ESPN Summary API.</p>
+            <h1>Motor Cuantitativo con Pinnacle De-Vigging & Gestión Inteligente</h1>
+            <p>Sincronizado con The Odds API (Pinnacle/Betfair/Betsson), ESPN Summary API y series históricas L5 · L10 · L20 en horarios clave de máxima liquidez.</p>
         </div>
 
         <div class="stats-bar">
@@ -875,7 +964,6 @@ def generar_web_interactiva_v14(auditoria, picks_jornada, partidos_analizados, l
             </div>
         </div>
 
-        <!-- PANEL INTERACTIVO DE FILTROS Y DESPLEGABLES -->
         <div class="controls-panel">
             <div class="day-tabs">
                 <button class="day-tab active" onclick="filtrarDia('ALL', this)">📅 Todos los Días</button>
@@ -901,7 +989,7 @@ def generar_web_interactiva_v14(auditoria, picks_jornada, partidos_analizados, l
                     <option value="TIER A">🥇 Solo TIER A (+EV)</option>
                     <option value="TIER B">🥈 Solo TIER B (Valor)</option>
                 </select>
-                <div class="bankroll-calc" title="Cambia tu capital para recalcular automáticamente el monto a apostar en cada pick">
+                <div class="bankroll-calc">
                     <span>💰 Mi Bankroll: S/</span>
                     <input type="number" id="inputBankroll" value="{res['bankroll_actual']:.0f}" min="10" step="10" oninput="recalcularStakes()">
                 </div>
@@ -1010,7 +1098,7 @@ def generar_web_interactiva_v14(auditoria, picks_jornada, partidos_analizados, l
         f.write(html_completo)
 
 # ==============================================================================
-# 6. ORQUESTADOR MAESTRO v14.0
+# 6. ORQUESTADOR MAESTRO v15.0
 # ==============================================================================
 def enviar_telegram_seguro(texto):
     url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
@@ -1021,12 +1109,23 @@ def enviar_telegram_seguro(texto):
         except Exception:
             pass
 
-def ejecutar_iabet_v14():
+def ejecutar_iabet_v15():
     t0 = time.time()
-    caches_csv, espn_partidos, eventos_futuros = obtener_datos_pipeline_v14()
+    caches_csv, espn_partidos, eventos_futuros = obtener_datos_pipeline_v15()
 
     auditoria = cargar_auditoria()
-    auditoria = auditar_picks_con_espn(auditoria, espn_partidos)
+
+    # Identificar ligas que tienen partidos programados para HOY o MAÑANA (Ahorro Inteligente)
+    ligas_activas_hoy = []
+    for ev in eventos_futuros:
+        if ev.get("etiqueta_dia") in ("HOY", "MAÑANA") and ev.get("odds_key"):
+            if ev["odds_key"] not in ligas_activas_hoy:
+                ligas_activas_hoy.append(ev["odds_key"])
+
+    # Consultar The Odds API con Caché de 4 horas y límite por ciclo
+    mapa_odds_api, creditos_restantes = consultar_the_odds_api_smart(ligas_activas_hoy, auditoria)
+
+    auditoria = auditar_picks_con_espn(auditoria, espn_partidos, creditos_restantes)
     bankroll_dinamico = max(50.0, float(auditoria["resumen"]["bankroll_actual"]))
 
     candidatos = []
@@ -1041,7 +1140,7 @@ def ejecutar_iabet_v14():
         if not loc or not vis:
             continue
 
-        id_p = f"{normalizar_nombre(loc)[:6]}__{normalizar_nombre(vis)[:6]}"
+        id_p = f"{normalizar_nombre(loc)[:5]}__{normalizar_nombre(vis)[:5]}"
         if id_p in vistos:
             continue
         vistos.add(id_p)
@@ -1062,29 +1161,46 @@ def ejecutar_iabet_v14():
         bonus_l = calcular_bonus_forma(form_l)
         bonus_v = calcular_bonus_forma(form_v)
 
-        c_1 = ev["c_1"]
-        c_x = ev["c_x"]
-        c_2 = ev["c_2"]
-        c_o25 = ev["c_o25"]
-        c_u25 = ev["c_u25"]
-        casa = ev["casa"]
-
-        # Si el partido futuro aún no tiene línea 1X2 abierta en ESPN Bet, la estimamos desde la fuerza histórica
-        if c_1 <= 1.05 or c_2 <= 1.05:
-            fuerza_rel = (bonus_l * 1.12) / max(0.75, bonus_v)
-            p_est_1 = min(0.68, max(0.24, 0.44 * fuerza_rel))
-            p_est_x = 0.27
-            p_est_2 = max(0.15, 1.0 - p_est_1 - p_est_x)
-            c_1 = round((1.0 / p_est_1) * 0.95, 2)
-            c_x = round((1.0 / p_est_x) * 0.95, 2)
-            c_2 = round((1.0 / p_est_2) * 0.95, 2)
+        # Cruzar contra cuotas de The Odds API (Pinnacle Benchmark + Mejor Casa) si están disponibles
+        datos_odds = mapa_odds_api.get(id_p)
+        if datos_odds:
+            c_1 = datos_odds["best_1"]
+            c_x = datos_odds["best_x"]
+            c_2 = datos_odds["best_2"]
+            pin_1 = datos_odds["pin_1"]
+            pin_x = datos_odds["pin_x"]
+            pin_2 = datos_odds["pin_2"]
+            casa_1 = f"{datos_odds['casa_1']} (OddsAPI)"
+            casa_2 = f"{datos_odds['casa_2']} (OddsAPI)"
             c_o25, c_u25 = 1.88, 1.92
-            casa = "Línea Apertura B2B"
+        else:
+            c_1 = ev["c_1"]
+            c_x = ev["c_x"]
+            c_2 = ev["c_2"]
+            c_o25 = ev["c_o25"]
+            c_u25 = ev["c_u25"]
+            casa_1 = ev["casa"]
+            casa_2 = ev["casa"]
 
-        overround = (1.0 / c_1) + (1.0 / c_x) + (1.0 / c_2)
-        p_devig_1 = (1.0 / c_1) / overround
-        p_devig_x = (1.0 / c_x) / overround
-        p_devig_2 = (1.0 / c_2) / overround
+            if c_1 <= 1.05 or c_2 <= 1.05:
+                fuerza_rel = (bonus_l * 1.12) / max(0.75, bonus_v)
+                p_est_1 = min(0.68, max(0.24, 0.44 * fuerza_rel))
+                p_est_x = 0.27
+                p_est_2 = max(0.15, 1.0 - p_est_1 - p_est_x)
+                c_1 = round((1.0 / p_est_1) * 0.95, 2)
+                c_x = round((1.0 / p_est_x) * 0.95, 2)
+                c_2 = round((1.0 / p_est_2) * 0.95, 2)
+                c_o25, c_u25 = 1.88, 1.92
+                casa_1 = "Línea Apertura B2B"
+                casa_2 = "Línea Apertura B2B"
+
+            pin_1, pin_x, pin_2 = c_1, c_x, c_2
+
+        # Power De-Vigging sobre la línea de Pinnacle / Consenso
+        overround = (1.0 / pin_1) + (1.0 / pin_x) + (1.0 / pin_2)
+        p_devig_1 = (1.0 / pin_1) / overround
+        p_devig_x = (1.0 / pin_x) / overround
+        p_devig_2 = (1.0 / pin_2) / overround
 
         goles_mkt = 2.65
         if c_o25 > 1.05 and c_u25 > 1.05:
@@ -1107,7 +1223,7 @@ def ejecutar_iabet_v14():
             str_ventanas = f"L5: {f_l5:.1f}f · L10: {f_l10:.1f}f · L20: {f_l20:.1f}f | xG: {lambda_l:.2f}-{lambda_v:.2f} | ESPN: {form_l}"
             tiene_stats = True
         else:
-            deseq = min(1.25, max(0.80, c_2 / max(1.05, c_1)))
+            deseq = min(1.25, max(0.80, pin_2 / max(1.05, pin_1)))
             lambda_l = l_mkt_l * bonus_l
             lambda_v = l_mkt_v * bonus_v
             f_loc_esp = (base_f * 0.47) / (deseq ** 0.18)
@@ -1122,32 +1238,32 @@ def ejecutar_iabet_v14():
         linea_sot = round(base_s) - 0.5
         linea_tarj = round(base_t) - 0.5
 
-        res_mc = motor_montecarlo_v14(
+        res_mc = motor_montecarlo_v15(
             lambda_l, lambda_v, f_loc_esp, f_vis_esp, linea_f_tot,
             sot_l, sot_v, linea_sot, tarj_esp, linea_tarj, N_SIMS
         )
 
-        p_fin_1 = (res_mc[0] * 0.68) + (p_devig_1 * 0.32)
-        p_fin_2 = (res_mc[2] * 0.68) + (p_devig_2 * 0.32)
-        p_fin_1x = (res_mc[3] * 0.68) + ((p_devig_1 + p_devig_x) * 0.32)
-        p_fin_x2 = (res_mc[4] * 0.68) + ((p_devig_2 + p_devig_x) * 0.32)
+        p_fin_1 = (res_mc[0] * 0.65) + (p_devig_1 * 0.35)
+        p_fin_2 = (res_mc[2] * 0.65) + (p_devig_2 * 0.35)
+        p_fin_1x = (res_mc[3] * 0.65) + ((p_devig_1 + p_devig_x) * 0.35)
+        p_fin_x2 = (res_mc[4] * 0.65) + ((p_devig_2 + p_devig_x) * 0.35)
 
         c_1x = round((1.0 / ((1.0 / c_1) + (1.0 / c_x))) * 1.02, 2)
         c_x2 = round((1.0 / ((1.0 / c_2) + (1.0 / c_x))) * 1.02, 2)
 
         mercados_eval = [
-            (f"Victoria {loc} (1)", p_fin_1, c_1, casa, "1X2"),
-            (f"Victoria {vis} (2)", p_fin_2, c_2, casa, "1X2"),
-            (f"Doble Oportunidad {loc} o Empate (1X)", p_fin_1x, c_1x, casa, "DOBLE"),
-            (f"Doble Oportunidad {vis} o Empate (X2)", p_fin_x2, c_x2, casa, "DOBLE"),
+            (f"Victoria {loc} (1)", p_fin_1, c_1, casa_1, "1X2"),
+            (f"Victoria {vis} (2)", p_fin_2, c_2, casa_2, "1X2"),
+            (f"Doble Oportunidad {loc} o Empate (1X)", p_fin_1x, c_1x, casa_1, "DOBLE"),
+            (f"Doble Oportunidad {vis} o Empate (X2)", p_fin_x2, c_x2, casa_2, "DOBLE"),
         ]
 
         if c_o25 > 1.38:
-            mercados_eval.append(("Más de 2.5 Goles (Over 2.5)", res_mc[6], c_o25, casa, "GOLES"))
+            mercados_eval.append(("Más de 2.5 Goles (Over 2.5)", res_mc[6], c_o25, casa_1, "GOLES"))
         if c_u25 > 1.38:
-            mercados_eval.append(("Menos de 2.5 Goles (Under 2.5)", res_mc[7], c_u25, casa, "GOLES"))
+            mercados_eval.append(("Menos de 2.5 Goles (Under 2.5)", res_mc[7], c_u25, casa_1, "GOLES"))
             c_un35 = max(1.38, round(c_u25 * 0.80, 2))
-            mercados_eval.append(("Menos de 3.5 Goles (Under 3.5)", res_mc[8], c_un35, casa, "GOLES"))
+            mercados_eval.append(("Menos de 3.5 Goles (Under 3.5)", res_mc[8], c_un35, casa_1, "GOLES"))
 
         dif_f = (f_loc_esp + f_vis_esp) - linea_f_tot
         if dif_f <= -0.85:
@@ -1213,9 +1329,9 @@ def ejecutar_iabet_v14():
                 "form_v": form_v,
                 "rec_l": rec_l,
                 "rec_v": rec_v,
-                "bajas": "Sin bajas críticas reportadas",
+                "bajas": "Plantillas titulares disponibles",
                 "ventanas": str_ventanas,
-                "explicacion": f"En 1,000,000 de simulaciones la cuota justa es @{cuota_justa:.2f}, pero {casa_m} paga @{cuota_m:.2f} (+{edge_pct:.1f}% EV).",
+                "explicacion": f"En 1,000,000 de simulaciones + Pinnacle De-Vig la cuota justa es @{cuota_justa:.2f}, mientras que {casa_m} ofrece @{cuota_m:.2f} (+{edge_pct:.1f}% EV).",
                 "estado": "PENDIENTE",
                 "marcador_final": f"Juega {ev['etiqueta_dia']} {ev['hora_peru']}",
                 "profit": 0.0,
@@ -1231,7 +1347,6 @@ def ejecutar_iabet_v14():
         clave_p = f"{c['local']}_{c['visita']}"
         cat = c["categoria"]
         if clave_p not in partidos_usados and conteo_cat.get(cat, 0) < 4 and len(picks_finales) < MAX_PICKS_WEB:
-            # Enriquecer con el endpoint profundo summary?event= de ESPN los picks seleccionados
             res_sum = extraer_estadisticas_summary_espn(c.get("event_id"))
             if res_sum and res_sum.get("bajas_txt"):
                 c["bajas"] = res_sum["bajas_txt"]
@@ -1246,19 +1361,19 @@ def ejecutar_iabet_v14():
             auditoria["historial"].append(pf)
             claves_hist.add(k_nuevo)
 
-    auditoria = auditar_picks_con_espn(auditoria, espn_partidos)
+    auditoria = auditar_picks_con_espn(auditoria, espn_partidos, creditos_restantes)
 
     with open(ARCHIVO_AUDITORIA, "w", encoding="utf-8") as f:
         json.dump(auditoria, f, ensure_ascii=False, indent=2)
 
-    generar_web_interactiva_v14(auditoria, picks_finales, partidos_analizados, len(caches_csv))
+    generar_web_interactiva_v15(auditoria, picks_finales, partidos_analizados, len(caches_csv))
 
     res = auditoria["resumen"]
     dur = time.time() - t0
     lineas_tg = [
-        "⚡ IABET QUANT PRO v14.0 (INTERACTIVE SaaS + MULTIFECHA)",
+        "⚡ IABET QUANT PRO v15.0 (THE ODDS API + SMART-QUOTA)",
         f"📊 Efectividad: {res['win_rate_pct']:.1f}% ({res['ganados']}W-{res['perdidos']}L) | ROI: {res['roi_pct']:+.1f}%",
-        f"💰 Bankroll: S/ {res['bankroll_actual']:.2f} | Cartera: 🔥 {res['racha_actual']}",
+        f"💰 Bankroll: S/ {res['bankroll_actual']:.2f} | 🎫 Créditos OddsAPI: {creditos_restantes}",
         f"🌐 Web Interactiva: https://blakeffx.github.io/iabet-cloud/",
         f"⏱️ {len(picks_finales)} picks futuros seleccionados de {partidos_analizados} partidos ({dur:.1f}s)",
         "━━━━━━━━━━━━━━━━━━━━"
@@ -1268,13 +1383,13 @@ def ejecutar_iabet_v14():
         lineas_tg.append(
             f"{idx}. {p['tier_label']} [📅 {p['etiqueta_dia']} {p['hora_peru']} · {p['liga']}]\n"
             f"⚽ {p['local']} vs {p['visita']}\n"
-            f"👉 {p['mercado']}  @{p['cuota']:.2f} (Justa: @{p['cuota_justa']:.2f})\n"
+            f"👉 {p['mercado']}  @{p['cuota']:.2f} ({p['casa']})\n"
             f"🔥 Confianza IA: {p['confianza']:.1f}% (Prob: {p['prob']:.1f}% | Edge: +{p['edge']:.1f}%)\n"
             f"📊 {p['ventanas']} | 💰 Stake: S/ {p['stake']:.2f}\n"
         )
 
     enviar_telegram_seguro("\n".join(lineas_tg))
-    print(f"✅ IABET v14.0 completado: {len(picks_finales)} picks futuros publicados en la web.")
+    print(f"✅ IABET v15.0 completado: {len(picks_finales)} picks publicados | Créditos OddsAPI restantes: {creditos_restantes}")
 
 if __name__ == "__main__":
-    ejecutar_iabet_v14()
+    ejecutar_iabet_v15()
