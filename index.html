@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IABET Quant Pro v14.0 | Plataforma Interactiva de Predicciones Auditadas</title>
+    <title>IABET Quant Pro v15.0 | The Odds API + Pinnacle De-Vig + ESPN Live</title>
     <style>
         :root {
             --bg: #070b14;
@@ -19,17 +19,18 @@
         .navbar { background: rgba(15, 23, 42, 0.92); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border); padding: 14px 24px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; flex-wrap: wrap; gap: 10px; }
         .logo { font-size: 1.3rem; font-weight: 800; color: #fff; display: flex; align-items: center; gap: 8px; }
         .logo span { background: linear-gradient(90deg, #10b981, #38bdf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .nav-right { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+        .quota-pill { font-size: 0.76rem; background: #38bdf818; color: #38bdf8; border: 1px solid #38bdf850; padding: 6px 12px; border-radius: 999px; font-weight: 700; }
         .status-pill { font-size: 0.78rem; background: #10b98120; color: #10b981; border: 1px solid #10b98150; padding: 6px 12px; border-radius: 999px; font-weight: 600; }
         .container { max-width: 1240px; margin: 0 auto; padding: 24px 16px; }
         .hero { text-align: center; padding: 26px 18px; background: radial-gradient(circle at top, #1e293b70, #0f172a40); border-radius: 16px; margin-bottom: 24px; border: 1px solid var(--border); }
         .hero h1 { font-size: 1.85rem; font-weight: 800; margin-bottom: 8px; }
-        .hero p { color: var(--muted); max-width: 780px; margin: 0 auto; font-size: 0.92rem; }
+        .hero p { color: var(--muted); max-width: 800px; margin: 0 auto; font-size: 0.92rem; }
         .stats-bar { display: grid; grid-template-columns: repeat(auto-fit, minmax(165px, 1fr)); gap: 12px; margin-bottom: 24px; }
         .stat-box { background: var(--card); border: 1px solid var(--border); padding: 16px; border-radius: 12px; text-align: center; }
         .stat-box .s-label { font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
         .stat-box .s-val { font-size: 1.55rem; font-weight: 800; margin-top: 4px; color: #fff; }
 
-        /* BARRA DE CONTROLES INTERACTIVOS Y DESPLEGABLES */
         .controls-panel { background: #0f172a; border: 1px solid var(--border); border-radius: 14px; padding: 16px; margin-bottom: 24px; display: flex; flex-wrap: wrap; gap: 14px; align-items: center; justify-content: space-between; }
         .day-tabs { display: flex; gap: 8px; flex-wrap: wrap; }
         .day-tab { background: #1e293b; color: var(--muted); border: 1px solid #334155; padding: 8px 14px; border-radius: 8px; font-size: 0.82rem; font-weight: 700; cursor: pointer; transition: all 0.2s; }
@@ -58,7 +59,6 @@
         .m-val { font-size: 0.88rem; font-weight: 700; }
         .l-bars { font-size: 0.76rem; color: #cbd5e1; background: #1e293b60; padding: 7px 10px; border-radius: 6px; margin-bottom: 10px; }
 
-        /* ACORDEÓN TÁCTICO DESPLEGABLE */
         .tactical-drawer { background: #0b1120; border: 1px solid #1e293b; border-radius: 8px; padding: 8px 12px; font-size: 0.78rem; }
         .tactical-drawer summary { cursor: pointer; font-weight: 700; color: #38bdf8; outline: none; list-style: none; display: flex; justify-content: space-between; align-items: center; }
         .tactical-drawer summary::after { content: "▼"; font-size: 0.65rem; transition: transform 0.2s; }
@@ -85,13 +85,16 @@
 </head>
 <body>
     <nav class="navbar">
-        <div class="logo">⚡ IABET <span>QUANT PRO v14.0</span></div>
-        <div class="status-pill">🟢 Motor Multifecha Activo | Modo: PRUEBA</div>
+        <div class="logo">⚡ IABET <span>QUANT PRO v15.0</span></div>
+        <div class="nav-right">
+            <div class="quota-pill" title="Peticiones restantes en tu plan mensual de The Odds API">🎫 Cuota OddsAPI: 500 disp.</div>
+            <div class="status-pill">🟢 Smart-Cron Activo (4 Horas Clave) | Modo: PRUEBA</div>
+        </div>
     </nav>
     <div class="container">
         <div class="hero">
-            <h1>Inteligencia Artificial Cuantitativa & Control Dinámico por Jornada</h1>
-            <p>Filtra tus pronósticos por día (Hoy / Mañana), liga, categoría de mercado o nivel de seguridad, y despliega la radiografía táctica completa de cada partido verificada con ESPN Summary API.</p>
+            <h1>Motor Cuantitativo con Pinnacle De-Vigging & Gestión Inteligente</h1>
+            <p>Sincronizado con The Odds API (Pinnacle/Betfair/Betsson), ESPN Summary API y series históricas L5 · L10 · L20 en horarios clave de máxima liquidez.</p>
         </div>
 
         <div class="stats-bar">
@@ -117,7 +120,6 @@
             </div>
         </div>
 
-        <!-- PANEL INTERACTIVO DE FILTROS Y DESPLEGABLES -->
         <div class="controls-panel">
             <div class="day-tabs">
                 <button class="day-tab active" onclick="filtrarDia('ALL', this)">📅 Todos los Días</button>
@@ -143,7 +145,7 @@
                     <option value="TIER A">🥇 Solo TIER A (+EV)</option>
                     <option value="TIER B">🥈 Solo TIER B (Valor)</option>
                 </select>
-                <div class="bankroll-calc" title="Cambia tu capital para recalcular automáticamente el monto a apostar en cada pick">
+                <div class="bankroll-calc">
                     <span>💰 Mi Bankroll: S/</span>
                     <input type="number" id="inputBankroll" value="100" min="10" step="10" oninput="recalcularStakes()">
                 </div>
@@ -152,7 +154,7 @@
 
         <div class="section-title">
             <span id="contadorPicks">🎯 Pronósticos Futuros Verificados (0 seleccionados de 0 partidos futuros)</span>
-            <small style="color:var(--muted); font-size:0.8rem;">Actualizado: 2026-10-27 19:11 (Hora Perú)</small>
+            <small style="color:var(--muted); font-size:0.8rem;">Actualizado: 2026-10-27 19:20 (Hora Perú)</small>
         </div>
         <div class="picks-grid" id="gridPicks">
             

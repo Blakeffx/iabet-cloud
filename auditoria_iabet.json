@@ -9,7 +9,12 @@
     "perdidos": 0,
     "en_vivo": 0,
     "pendientes": 0,
-    "racha_actual": "0 En Cartera"
+    "racha_actual": "0 En Cartera",
+    "creditos_odds_api": "500"
   },
-  "historial": []
+  "historial": [],
+  "cache_odds_api": {
+    "tiempos_ligas": {},
+    "partidos": {}
+  }
 }
