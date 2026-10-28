@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IABET Quant Pro v15.1 | The Odds API + Pinnacle De-Vig + ESPN Live</title>
+    <title>IABET Quant Pro v16.0 | Calibración Bayesiana & Control de Varianza</title>
     <style>
         :root {
             --bg: #070b14;
@@ -25,7 +25,7 @@
         .container { max-width: 1240px; margin: 0 auto; padding: 24px 16px; }
         .hero { text-align: center; padding: 26px 18px; background: radial-gradient(circle at top, #1e293b70, #0f172a40); border-radius: 16px; margin-bottom: 24px; border: 1px solid var(--border); }
         .hero h1 { font-size: 1.85rem; font-weight: 800; margin-bottom: 8px; }
-        .hero p { color: var(--muted); max-width: 800px; margin: 0 auto; font-size: 0.92rem; }
+        .hero p { color: var(--muted); max-width: 820px; margin: 0 auto; font-size: 0.92rem; }
         .stats-bar { display: grid; grid-template-columns: repeat(auto-fit, minmax(165px, 1fr)); gap: 12px; margin-bottom: 24px; }
         .stat-box { background: var(--card); border: 1px solid var(--border); padding: 16px; border-radius: 12px; text-align: center; }
         .stat-box .s-label { font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
@@ -85,38 +85,38 @@
 </head>
 <body>
     <nav class="navbar">
-        <div class="logo">⚡ IABET <span>QUANT PRO v15.1</span></div>
+        <div class="logo">⚡ IABET <span>QUANT PRO v16.0</span></div>
         <div class="nav-right">
-            <div class="quota-pill">🎫 Cuota OddsAPI: 488 disp.</div>
-            <div class="status-pill">🟢 Motor Estable | Modo: PRUEBA</div>
+            <div class="quota-pill">🎫 Cuota OddsAPI: 484 disp.</div>
+            <div class="status-pill">🛡️ Calibración Anti-Fantasía Activa | Modo: PRUEBA</div>
         </div>
     </nav>
     <div class="container">
         <div class="hero">
-            <h1>Motor Cuantitativo con Pinnacle De-Vigging & Gestión Inteligente</h1>
-            <p>Sincronizado con The Odds API (Pinnacle/Betfair/Betsson), ESPN Summary API y series históricas L5 · L10 · L20 en horarios clave de máxima liquidez[cite: 7].</p>
+            <h1>Motor Cuantitativo con Anclaje Bayesiano & Control de Riesgo</h1>
+            <p>Sincronizado con The Odds API (Pinnacle De-Vig), ESPN Summary API y filtros estrictos de tarjetas/faltas L5 · L10 · L20 para proteger tu bankroll de cuotas engañosas.</p>
         </div>
 
         <div class="stats-bar">
             <div class="stat-box">
                 <div class="s-label">Win Rate Auditado</div>
-                <div class="s-val" style="color:#10b981;">0.0%</div>
+                <div class="s-val" style="color:#10b981;">50.0%</div>
             </div>
             <div class="stat-box">
                 <div class="s-label">Aciertos / Cerrados</div>
-                <div class="s-val">0W - 0L</div>
+                <div class="s-val">1W - 1L</div>
             </div>
             <div class="stat-box">
                 <div class="s-label">ROI Verificado</div>
-                <div class="s-val" style="color:#38bdf8;">+0.0%</div>
+                <div class="s-val" style="color:#38bdf8;">-2.7%</div>
             </div>
             <div class="stat-box">
                 <div class="s-label">Bankroll Auditado</div>
-                <div class="s-val">S/ 100.00</div>
+                <div class="s-val">S/ 99.74</div>
             </div>
             <div class="stat-box">
                 <div class="s-label">Cartera / Racha</div>
-                <div class="s-val">🔥 24 En Cartera</div>
+                <div class="s-val">🔥 1L</div>
             </div>
         </div>
 
@@ -128,7 +128,7 @@
             </div>
             <div class="filters-group">
                 <select id="filtroLiga" class="select-pro" onchange="aplicarFiltros()">
-                    <option value="ALL">🌍 Todas las Ligas (9)</option><option value="Brasileirão">🏆 Brasileirão</option><option value="Copa del Rey">🏆 Copa del Rey</option><option value="EFL Cup">🏆 EFL Cup</option><option value="Eredivisie">🏆 Eredivisie</option><option value="LaLiga">🏆 LaLiga</option><option value="Liga Argentina">🏆 Liga Argentina</option><option value="Ligue 1">🏆 Ligue 1</option><option value="Premier League">🏆 Premier League</option><option value="Serie A">🏆 Serie A</option>
+                    <option value="ALL">🌍 Todas las Ligas (9)</option><option value="Brasileirão">🏆 Brasileirão</option><option value="Copa del Rey">🏆 Copa del Rey</option><option value="EFL Cup">🏆 EFL Cup</option><option value="Eredivisie">🏆 Eredivisie</option><option value="LaLiga">🏆 LaLiga</option><option value="Liga Argentina">🏆 Liga Argentina</option><option value="Liga MX">🏆 Liga MX</option><option value="Premier League">🏆 Premier League</option><option value="Serie A">🏆 Serie A</option>
                 </select>
                 <select id="filtroMercado" class="select-pro" onchange="aplicarFiltros()">
                     <option value="ALL">🎯 Todos los Mercados</option>
@@ -141,9 +141,9 @@
                 </select>
                 <select id="filtroTier" class="select-pro" onchange="aplicarFiltros()">
                     <option value="ALL">💎 Todos los Tiers</option>
-                    <option value="TIER S">💎 Solo TIER S (Blindado)</option>
-                    <option value="TIER A">🥇 Solo TIER A (+EV)</option>
-                    <option value="TIER B">🥈 Solo TIER B (Valor)</option>
+                    <option value="TIER S">💎 Solo TIER S (Blindado &le; 1.66)</option>
+                    <option value="TIER A">🥇 Solo TIER A (+EV Fuerte)</option>
+                    <option value="TIER B">🥈 Solo TIER B (Valor Moderado)</option>
                 </select>
                 <div class="bankroll-calc">
                     <span>💰 Mi Bankroll: S/</span>
@@ -153,227 +153,11 @@
         </div>
 
         <div class="section-title">
-            <span id="contadorPicks">🎯 Pronósticos Futuros Verificados (15 seleccionados de 103 partidos futuros)</span>
-            <small style="color:var(--muted); font-size:0.8rem;">Actualizado: 2026-10-28 09:24 (Hora Perú)</small>
+            <span id="contadorPicks">🎯 Pronósticos Futuros Calibrados (14 seleccionados de 79 partidos futuros)</span>
+            <small style="color:var(--muted); font-size:0.8rem;">Actualizado: 2026-10-28 09:50 (Hora Perú)</small>
         </div>
         <div class="picks-grid" id="gridPicks">
             
-        <div class="pick-card" data-dia="HOY" data-fecha="2026-10-28" data-liga="Serie A" data-cat="TARJETAS" data-tier="TIER S">
-            <div class="pick-header">
-                <div style="display:flex; gap:6px; align-items:center;">
-                    <span class="day-pill" style="background:#ef444425; color:#f87171;">📅 HOY · 12:30</span>
-                    <span class="league-tag">Serie A</span>
-                </div>
-                <span class="tier-badge" style="background:#10b98122; color:#10b981; border:1px solid #10b981;">💎 TIER S (Blindado)</span>
-            </div>
-            <div class="CardBody ">
-                <h3 class="match-title">Parma vs Udinese</h3>
-                <div class="market-box">
-                    <div>
-                        <span class="market-label">PRONÓSTICO IA (TARJETAS)</span>
-                        <div class="market-name">Más de 3.5 Tarjetas</div>
-                    </div>
-                    <div class="odd-pill">@1.72</div>
-                </div>
-                <div class="metrics-grid">
-                    <div class="metric-item">
-                        <span class="m-label">Confianza IA</span>
-                        <span class="m-val" style="color:#10b981;">97.4%</span>
-                    </div>
-                    <div class="metric-item">
-                        <span class="m-label">Prob. Real</span>
-                        <span class="m-val">77.3%</span>
-                    </div>
-                    <div class="metric-item">
-                        <span class="m-label">Edge (+EV)</span>
-                        <span class="m-val" style="color:#38bdf8;">+19.2%</span>
-                    </div>
-                    <div class="metric-item">
-                        <span class="m-label">Stake Sugerido</span>
-                        <span class="m-val stake-dinamico" data-pct="0.0600">S/ 6.00</span>
-                    </div>
-                </div>
-                <div class="l-bars">
-                    <span>📊 L5: 29.6f · L10: 28.2f · L20: 25.9f | xG: 1.34-1.01 | ESPN: DLLWL</span>
-                </div>
-
-                <details class="tactical-drawer">
-                    <summary>🔬 Ver Desglose Táctico, Benchmark Pinnacle y Cuota Justa</summary>
-                    <div class="drawer-content">
-                        <div class="drawer-row"><span>🎯 Cuota Justa (Sin Margen):</span> <b>@1.29 vs @1.72 (Betsson/Inkabet)</b></div>
-                        <div class="drawer-row"><span>📐 Proyección Goles (xG):</span> <b>Local 1.34 — Visita 1.01</b></div>
-                        <div class="drawer-row"><span>🛑 Proyección Faltas / SOT:</span> <b>26.2 Faltas | 7.4 Tiros al Arco</b></div>
-                        <div class="drawer-row"><span>📈 Forma & Récord ESPN:</span> <b>L: DLLWL (1-1-6) | V: DLLLL (1-1-6)</b></div>
-                        <div class="drawer-row"><span>🏥 Reporte de Plantilla:</span> <b>Plantillas titulares disponibles</b></div>
-                        <p class="drawer-note">🧠 En 1,000,000 de simulaciones + Pinnacle De-Vig la cuota justa es @1.29, mientras que Betsson/Inkabet ofrece @1.72 (+19.2% EV).</p>
-                    </div>
-                </details>
-            </div>
-            
-        </div>
-        
-        <div class="pick-card" data-dia="HOY" data-fecha="2026-10-28" data-liga="Brasileirão" data-cat="GOLES" data-tier="TIER S">
-            <div class="pick-header">
-                <div style="display:flex; gap:6px; align-items:center;">
-                    <span class="day-pill" style="background:#ef444425; color:#f87171;">📅 HOY · 19:30</span>
-                    <span class="league-tag">Brasileirão</span>
-                </div>
-                <span class="tier-badge" style="background:#10b98122; color:#10b981; border:1px solid #10b981;">💎 TIER S (Blindado)</span>
-            </div>
-            <div class="CardBody ">
-                <h3 class="match-title">Remo vs Botafogo</h3>
-                <div class="market-box">
-                    <div>
-                        <span class="market-label">PRONÓSTICO IA (GOLES)</span>
-                        <div class="market-name">Menos de 3.5 Goles (Under 3.5)</div>
-                    </div>
-                    <div class="odd-pill">@1.54</div>
-                </div>
-                <div class="metrics-grid">
-                    <div class="metric-item">
-                        <span class="m-label">Confianza IA</span>
-                        <span class="m-val" style="color:#10b981;">97.4%</span>
-                    </div>
-                    <div class="metric-item">
-                        <span class="m-label">Prob. Real</span>
-                        <span class="m-val">78.0%</span>
-                    </div>
-                    <div class="metric-item">
-                        <span class="m-label">Edge (+EV)</span>
-                        <span class="m-val" style="color:#38bdf8;">+13.0%</span>
-                    </div>
-                    <div class="metric-item">
-                        <span class="m-label">Stake Sugerido</span>
-                        <span class="m-val stake-dinamico" data-pct="0.0600">S/ 6.00</span>
-                    </div>
-                </div>
-                <div class="l-bars">
-                    <span>📊 L5: 27.2f · L10: 27.0f · L20: 26.7f | xG: 0.98-1.39 | ESPN: DDDDL</span>
-                </div>
-
-                <details class="tactical-drawer">
-                    <summary>🔬 Ver Desglose Táctico, Benchmark Pinnacle y Cuota Justa</summary>
-                    <div class="drawer-content">
-                        <div class="drawer-row"><span>🎯 Cuota Justa (Sin Margen):</span> <b>@1.28 vs @1.54 (BetOnline.ag (OddsAPI))</b></div>
-                        <div class="drawer-row"><span>📐 Proyección Goles (xG):</span> <b>Local 0.98 — Visita 1.39</b></div>
-                        <div class="drawer-row"><span>🛑 Proyección Faltas / SOT:</span> <b>27.4 Faltas | 9.7 Tiros al Arco</b></div>
-                        <div class="drawer-row"><span>📈 Forma & Récord ESPN:</span> <b>L: DDDDL (5-11-16) | V: DWDLL (10-9-13)</b></div>
-                        <div class="drawer-row"><span>🏥 Reporte de Plantilla:</span> <b>Plantillas titulares disponibles</b></div>
-                        <p class="drawer-note">🧠 En 1,000,000 de simulaciones + Pinnacle De-Vig la cuota justa es @1.28, mientras que BetOnline.ag (OddsAPI) ofrece @1.54 (+13.0% EV).</p>
-                    </div>
-                </details>
-            </div>
-            
-        </div>
-        
-        <div class="pick-card" data-dia="2026-10-30" data-fecha="2026-10-30" data-liga="Liga Argentina" data-cat="TIROS" data-tier="TIER S">
-            <div class="pick-header">
-                <div style="display:flex; gap:6px; align-items:center;">
-                    <span class="day-pill" style="background:#38bdf820; color:#38bdf8;">📅 2026-10-30 · 19:15</span>
-                    <span class="league-tag">Liga Argentina</span>
-                </div>
-                <span class="tier-badge" style="background:#10b98122; color:#10b981; border:1px solid #10b981;">💎 TIER S (Blindado)</span>
-            </div>
-            <div class="CardBody ">
-                <h3 class="match-title">Racing Club vs Aldosivi</h3>
-                <div class="market-box">
-                    <div>
-                        <span class="market-label">PRONÓSTICO IA (TIROS)</span>
-                        <div class="market-name">Más de 7.5 Tiros al Arco</div>
-                    </div>
-                    <div class="odd-pill">@1.70</div>
-                </div>
-                <div class="metrics-grid">
-                    <div class="metric-item">
-                        <span class="m-label">Confianza IA</span>
-                        <span class="m-val" style="color:#10b981;">97.4%</span>
-                    </div>
-                    <div class="metric-item">
-                        <span class="m-label">Prob. Real</span>
-                        <span class="m-val">74.9%</span>
-                    </div>
-                    <div class="metric-item">
-                        <span class="m-label">Edge (+EV)</span>
-                        <span class="m-val" style="color:#38bdf8;">+16.1%</span>
-                    </div>
-                    <div class="metric-item">
-                        <span class="m-label">Stake Sugerido</span>
-                        <span class="m-val stake-dinamico" data-pct="0.0600">S/ 6.00</span>
-                    </div>
-                </div>
-                <div class="l-bars">
-                    <span>📊 L5: 26.4f · L10: 26.1f · L20: 25.9f | xG: 1.67-0.87 | ESPN: DDLWL</span>
-                </div>
-
-                <details class="tactical-drawer">
-                    <summary>🔬 Ver Desglose Táctico, Benchmark Pinnacle y Cuota Justa</summary>
-                    <div class="drawer-content">
-                        <div class="drawer-row"><span>🎯 Cuota Justa (Sin Margen):</span> <b>@1.33 vs @1.70 (Betsson/Inkabet)</b></div>
-                        <div class="drawer-row"><span>📐 Proyección Goles (xG):</span> <b>Local 1.67 — Visita 0.87</b></div>
-                        <div class="drawer-row"><span>🛑 Proyección Faltas / SOT:</span> <b>26.9 Faltas | 9.1 Tiros al Arco</b></div>
-                        <div class="drawer-row"><span>📈 Forma & Récord ESPN:</span> <b>L: DDLWL (3-3-8) | V: DLLLW (3-2-9)</b></div>
-                        <div class="drawer-row"><span>🏥 Reporte de Plantilla:</span> <b>Plantillas titulares disponibles</b></div>
-                        <p class="drawer-note">🧠 En 1,000,000 de simulaciones + Pinnacle De-Vig la cuota justa es @1.33, mientras que Betsson/Inkabet ofrece @1.70 (+16.1% EV).</p>
-                    </div>
-                </details>
-            </div>
-            
-        </div>
-        
-        <div class="pick-card" data-dia="2026-10-31" data-fecha="2026-10-31" data-liga="Eredivisie" data-cat="TIROS" data-tier="TIER S">
-            <div class="pick-header">
-                <div style="display:flex; gap:6px; align-items:center;">
-                    <span class="day-pill" style="background:#38bdf820; color:#38bdf8;">📅 2026-10-31 · 15:00</span>
-                    <span class="league-tag">Eredivisie</span>
-                </div>
-                <span class="tier-badge" style="background:#10b98122; color:#10b981; border:1px solid #10b981;">💎 TIER S (Blindado)</span>
-            </div>
-            <div class="CardBody ">
-                <h3 class="match-title">Ajax Amsterdam vs AZ Alkmaar</h3>
-                <div class="market-box">
-                    <div>
-                        <span class="market-label">PRONÓSTICO IA (TIROS)</span>
-                        <div class="market-name">Más de 9.5 Tiros al Arco</div>
-                    </div>
-                    <div class="odd-pill">@1.70</div>
-                </div>
-                <div class="metrics-grid">
-                    <div class="metric-item">
-                        <span class="m-label">Confianza IA</span>
-                        <span class="m-val" style="color:#10b981;">97.4%</span>
-                    </div>
-                    <div class="metric-item">
-                        <span class="m-label">Prob. Real</span>
-                        <span class="m-val">74.9%</span>
-                    </div>
-                    <div class="metric-item">
-                        <span class="m-label">Edge (+EV)</span>
-                        <span class="m-val" style="color:#38bdf8;">+16.1%</span>
-                    </div>
-                    <div class="metric-item">
-                        <span class="m-label">Stake Sugerido</span>
-                        <span class="m-val stake-dinamico" data-pct="0.0600">S/ 6.00</span>
-                    </div>
-                </div>
-                <div class="l-bars">
-                    <span>📊 L5: 22.4f · L10: 20.1f · L20: 20.6f | xG: 1.47-1.46 | ESPN: DWWLD</span>
-                </div>
-
-                <details class="tactical-drawer">
-                    <summary>🔬 Ver Desglose Táctico, Benchmark Pinnacle y Cuota Justa</summary>
-                    <div class="drawer-content">
-                        <div class="drawer-row"><span>🎯 Cuota Justa (Sin Margen):</span> <b>@1.34 vs @1.70 (Betsson/Inkabet)</b></div>
-                        <div class="drawer-row"><span>📐 Proyección Goles (xG):</span> <b>Local 1.47 — Visita 1.46</b></div>
-                        <div class="drawer-row"><span>🛑 Proyección Faltas / SOT:</span> <b>21.4 Faltas | 11.1 Tiros al Arco</b></div>
-                        <div class="drawer-row"><span>📈 Forma & Récord ESPN:</span> <b>L: DWWLD (6-3-1) | V: DWDWL (6-2-2)</b></div>
-                        <div class="drawer-row"><span>🏥 Reporte de Plantilla:</span> <b>Plantillas titulares disponibles</b></div>
-                        <p class="drawer-note">🧠 En 1,000,000 de simulaciones + Pinnacle De-Vig la cuota justa es @1.34, mientras que Betsson/Inkabet ofrece @1.70 (+16.1% EV).</p>
-                    </div>
-                </details>
-            </div>
-            
-        </div>
-        
         <div class="pick-card" data-dia="HOY" data-fecha="2026-10-28" data-liga="Serie A" data-cat="GOLES" data-tier="TIER S">
             <div class="pick-header">
                 <div style="display:flex; gap:6px; align-items:center;">
@@ -386,96 +170,98 @@
                 <h3 class="match-title">Monza vs Napoli</h3>
                 <div class="market-box">
                     <div>
-                        <span class="market-label">PRONÓSTICO IA (GOLES)</span>
+                        <span class="market-label">PRONÓSTICO CALIBRADO (GOLES)</span>
                         <div class="market-name">Menos de 3.5 Goles (Under 3.5)</div>
                     </div>
-                    <div class="odd-pill">@1.54</div>
+                    <div class="odd-pill">@1.52</div>
                 </div>
                 <div class="metrics-grid">
                     <div class="metric-item">
                         <span class="m-label">Confianza IA</span>
-                        <span class="m-val" style="color:#10b981;">97.3%</span>
+                        <span class="m-val" style="color:#10b981;">96.8%</span>
                     </div>
                     <div class="metric-item">
                         <span class="m-label">Prob. Real</span>
-                        <span class="m-val">75.9%</span>
+                        <span class="m-val">75.6%</span>
                     </div>
                     <div class="metric-item">
                         <span class="m-label">Edge (+EV)</span>
-                        <span class="m-val" style="color:#38bdf8;">+11.0%</span>
+                        <span class="m-val" style="color:#38bdf8;">+9.8%</span>
                     </div>
                     <div class="metric-item">
-                        <span class="m-label">Stake Sugerido</span>
-                        <span class="m-val stake-dinamico" data-pct="0.0600">S/ 6.00</span>
+                        <span class="m-label">Stake Seguro</span>
+                        <span class="m-val stake-dinamico" data-pct="0.0450">S/ 4.50</span>
                     </div>
                 </div>
                 <div class="l-bars">
-                    <span>📊 L5: 18.0f · L10: 22.7f · L20: 23.9f | xG: 0.70-1.77 | ESPN: DWLWL</span>
+                    <span>📊 L5: 18.0f · L10: 22.7f | Tarj: 3.8t | xG: 0.70-1.79</span>
                 </div>
 
                 <details class="tactical-drawer">
-                    <summary>🔬 Ver Desglose Táctico, Benchmark Pinnacle y Cuota Justa</summary>
+                    <summary>🔬 Ver Auditoría de Cuota Justa, Tarjetas y Faltas</summary>
                     <div class="drawer-content">
-                        <div class="drawer-row"><span>🎯 Cuota Justa (Sin Margen):</span> <b>@1.32 vs @1.54 (Betfair (OddsAPI))</b></div>
-                        <div class="drawer-row"><span>📐 Proyección Goles (xG):</span> <b>Local 0.70 — Visita 1.77</b></div>
-                        <div class="drawer-row"><span>🛑 Proyección Faltas / SOT:</span> <b>23.5 Faltas | 7.8 Tiros al Arco</b></div>
+                        <div class="drawer-row"><span>🎯 Cuota Justa Calibrada:</span> <b>@1.32 vs @1.52 (Betfair (OddsAPI))</b></div>
+                        <div class="drawer-row"><span>⚠️ Tope de Cuota Mínima:</span> <b>No apostar si baja de @1.36</b></div>
+                        <div class="drawer-row"><span>📐 Proyección Goles (xG):</span> <b>Local 0.70 — Visita 1.79</b></div>
+                        <div class="drawer-row"><span>🛑 Faltas / SOT / Tarjetas:</span> <b>23.7 Faltas | 7.8 SOT | 3.8 Tarj.</b></div>
                         <div class="drawer-row"><span>📈 Forma & Récord ESPN:</span> <b>L: DWLWL (2-1-5) | V: DWLLW (3-2-3)</b></div>
                         <div class="drawer-row"><span>🏥 Reporte de Plantilla:</span> <b>Plantillas titulares disponibles</b></div>
-                        <p class="drawer-note">🧠 En 1,000,000 de simulaciones + Pinnacle De-Vig la cuota justa es @1.32, mientras que Betfair (OddsAPI) ofrece @1.54 (+11.0% EV).</p>
+                        <p class="drawer-note">🧠 Calibración Bayesiana v16.0: Cuota Justa @1.32 frente a @1.52 en Betfair (OddsAPI) (+9.8% EV). No operar si la cuota cae por debajo de @1.36.</p>
                     </div>
                 </details>
             </div>
             
         </div>
         
-        <div class="pick-card" data-dia="HOY" data-fecha="2026-10-28" data-liga="Copa del Rey" data-cat="GOLES" data-tier="TIER S">
+        <div class="pick-card" data-dia="2026-10-30" data-fecha="2026-10-30" data-liga="Liga Argentina" data-cat="GOLES" data-tier="TIER S">
             <div class="pick-header">
                 <div style="display:flex; gap:6px; align-items:center;">
-                    <span class="day-pill" style="background:#ef444425; color:#f87171;">📅 HOY · 14:30</span>
-                    <span class="league-tag">Copa del Rey</span>
+                    <span class="day-pill" style="background:#38bdf820; color:#38bdf8;">📅 2026-10-30 · 19:15</span>
+                    <span class="league-tag">Liga Argentina</span>
                 </div>
                 <span class="tier-badge" style="background:#10b98122; color:#10b981; border:1px solid #10b981;">💎 TIER S (Blindado)</span>
             </div>
             <div class="CardBody ">
-                <h3 class="match-title">Gimnástica Torrelavega vs UD Ourense</h3>
+                <h3 class="match-title">Racing Club vs Aldosivi</h3>
                 <div class="market-box">
                     <div>
-                        <span class="market-label">PRONÓSTICO IA (GOLES)</span>
+                        <span class="market-label">PRONÓSTICO CALIBRADO (GOLES)</span>
                         <div class="market-name">Menos de 3.5 Goles (Under 3.5)</div>
                     </div>
-                    <div class="odd-pill">@1.54</div>
+                    <div class="odd-pill">@1.52</div>
                 </div>
                 <div class="metrics-grid">
                     <div class="metric-item">
                         <span class="m-label">Confianza IA</span>
-                        <span class="m-val" style="color:#10b981;">96.1%</span>
+                        <span class="m-val" style="color:#10b981;">95.2%</span>
                     </div>
                     <div class="metric-item">
                         <span class="m-label">Prob. Real</span>
-                        <span class="m-val">74.8%</span>
+                        <span class="m-val">74.4%</span>
                     </div>
                     <div class="metric-item">
                         <span class="m-label">Edge (+EV)</span>
-                        <span class="m-val" style="color:#38bdf8;">+9.9%</span>
+                        <span class="m-val" style="color:#38bdf8;">+8.6%</span>
                     </div>
                     <div class="metric-item">
-                        <span class="m-label">Stake Sugerido</span>
-                        <span class="m-val stake-dinamico" data-pct="0.0600">S/ 6.00</span>
+                        <span class="m-label">Stake Seguro</span>
+                        <span class="m-val stake-dinamico" data-pct="0.0450">S/ 4.50</span>
                     </div>
                 </div>
                 <div class="l-bars">
-                    <span>📊 xG Proy: 1.45-1.08 | SOT: 8.5 | ESPN: LLLLL vs L</span>
+                    <span>📊 L5: 26.2f · L10: 25.9f | Tarj: 5.0t | xG: 1.64-0.90</span>
                 </div>
 
                 <details class="tactical-drawer">
-                    <summary>🔬 Ver Desglose Táctico, Benchmark Pinnacle y Cuota Justa</summary>
+                    <summary>🔬 Ver Auditoría de Cuota Justa, Tarjetas y Faltas</summary>
                     <div class="drawer-content">
-                        <div class="drawer-row"><span>🎯 Cuota Justa (Sin Margen):</span> <b>@1.34 vs @1.54 (Línea Apertura B2B)</b></div>
-                        <div class="drawer-row"><span>📐 Proyección Goles (xG):</span> <b>Local 1.45 — Visita 1.08</b></div>
-                        <div class="drawer-row"><span>🛑 Proyección Faltas / SOT:</span> <b>25.6 Faltas | 8.5 Tiros al Arco</b></div>
-                        <div class="drawer-row"><span>📈 Forma & Récord ESPN:</span> <b>L: LLLLL (S/R) | V: L (S/R)</b></div>
+                        <div class="drawer-row"><span>🎯 Cuota Justa Calibrada:</span> <b>@1.34 vs @1.52 (Línea Consenso B2B)</b></div>
+                        <div class="drawer-row"><span>⚠️ Tope de Cuota Mínima:</span> <b>No apostar si baja de @1.38</b></div>
+                        <div class="drawer-row"><span>📐 Proyección Goles (xG):</span> <b>Local 1.64 — Visita 0.90</b></div>
+                        <div class="drawer-row"><span>🛑 Faltas / SOT / Tarjetas:</span> <b>26.7 Faltas | 9.0 SOT | 5.0 Tarj.</b></div>
+                        <div class="drawer-row"><span>📈 Forma & Récord ESPN:</span> <b>L: DDLWL (3-3-8) | V: DLLLW (3-2-9)</b></div>
                         <div class="drawer-row"><span>🏥 Reporte de Plantilla:</span> <b>Plantillas titulares disponibles</b></div>
-                        <p class="drawer-note">🧠 En 1,000,000 de simulaciones + Pinnacle De-Vig la cuota justa es @1.34, mientras que Línea Apertura B2B ofrece @1.54 (+9.9% EV).</p>
+                        <p class="drawer-note">🧠 Calibración Bayesiana v16.0: Cuota Justa @1.34 frente a @1.52 en Línea Consenso B2B (+8.6% EV). No operar si la cuota cae por debajo de @1.38.</p>
                     </div>
                 </details>
             </div>
@@ -494,96 +280,43 @@
                 <h3 class="match-title">Estudiantes de Río Cuarto vs Gimnasia La Plata</h3>
                 <div class="market-box">
                     <div>
-                        <span class="market-label">PRONÓSTICO IA (GOLES)</span>
+                        <span class="market-label">PRONÓSTICO CALIBRADO (GOLES)</span>
                         <div class="market-name">Menos de 3.5 Goles (Under 3.5)</div>
                     </div>
-                    <div class="odd-pill">@1.54</div>
+                    <div class="odd-pill">@1.52</div>
                 </div>
                 <div class="metrics-grid">
                     <div class="metric-item">
                         <span class="m-label">Confianza IA</span>
-                        <span class="m-val" style="color:#10b981;">95.8%</span>
+                        <span class="m-val" style="color:#10b981;">95.1%</span>
                     </div>
                     <div class="metric-item">
                         <span class="m-label">Prob. Real</span>
-                        <span class="m-val">74.5%</span>
+                        <span class="m-val">74.3%</span>
                     </div>
                     <div class="metric-item">
                         <span class="m-label">Edge (+EV)</span>
-                        <span class="m-val" style="color:#38bdf8;">+9.6%</span>
+                        <span class="m-val" style="color:#38bdf8;">+8.5%</span>
                     </div>
                     <div class="metric-item">
-                        <span class="m-label">Stake Sugerido</span>
-                        <span class="m-val stake-dinamico" data-pct="0.0600">S/ 6.00</span>
+                        <span class="m-label">Stake Seguro</span>
+                        <span class="m-val stake-dinamico" data-pct="0.0450">S/ 4.50</span>
                     </div>
                 </div>
                 <div class="l-bars">
-                    <span>📊 L5: 27.6f · L10: 27.6f · L20: 27.6f | xG: 1.25-1.29 | ESPN: DWLLL</span>
+                    <span>📊 L5: 27.4f · L10: 27.4f | Tarj: 5.1t | xG: 1.26-1.29</span>
                 </div>
 
                 <details class="tactical-drawer">
-                    <summary>🔬 Ver Desglose Táctico, Benchmark Pinnacle y Cuota Justa</summary>
+                    <summary>🔬 Ver Auditoría de Cuota Justa, Tarjetas y Faltas</summary>
                     <div class="drawer-content">
-                        <div class="drawer-row"><span>🎯 Cuota Justa (Sin Margen):</span> <b>@1.34 vs @1.54 (Línea Apertura B2B)</b></div>
-                        <div class="drawer-row"><span>📐 Proyección Goles (xG):</span> <b>Local 1.25 — Visita 1.29</b></div>
-                        <div class="drawer-row"><span>🛑 Proyección Faltas / SOT:</span> <b>27.6 Faltas | 8.2 Tiros al Arco</b></div>
+                        <div class="drawer-row"><span>🎯 Cuota Justa Calibrada:</span> <b>@1.35 vs @1.52 (Línea Consenso B2B)</b></div>
+                        <div class="drawer-row"><span>⚠️ Tope de Cuota Mínima:</span> <b>No apostar si baja de @1.39</b></div>
+                        <div class="drawer-row"><span>📐 Proyección Goles (xG):</span> <b>Local 1.26 — Visita 1.29</b></div>
+                        <div class="drawer-row"><span>🛑 Faltas / SOT / Tarjetas:</span> <b>27.4 Faltas | 8.1 SOT | 5.1 Tarj.</b></div>
                         <div class="drawer-row"><span>📈 Forma & Récord ESPN:</span> <b>L: DWLLL (2-3-9) | V: DWDDD (7-4-3)</b></div>
                         <div class="drawer-row"><span>🏥 Reporte de Plantilla:</span> <b>Plantillas titulares disponibles</b></div>
-                        <p class="drawer-note">🧠 En 1,000,000 de simulaciones + Pinnacle De-Vig la cuota justa es @1.34, mientras que Línea Apertura B2B ofrece @1.54 (+9.6% EV).</p>
-                    </div>
-                </details>
-            </div>
-            
-        </div>
-        
-        <div class="pick-card" data-dia="2026-10-31" data-fecha="2026-10-31" data-liga="Premier League" data-cat="DOBLE" data-tier="TIER S">
-            <div class="pick-header">
-                <div style="display:flex; gap:6px; align-items:center;">
-                    <span class="day-pill" style="background:#38bdf820; color:#38bdf8;">📅 2026-10-31 · 10:00</span>
-                    <span class="league-tag">Premier League</span>
-                </div>
-                <span class="tier-badge" style="background:#10b98122; color:#10b981; border:1px solid #10b981;">💎 TIER S (Blindado)</span>
-            </div>
-            <div class="CardBody ">
-                <h3 class="match-title">Brentford vs Nottingham Forest</h3>
-                <div class="market-box">
-                    <div>
-                        <span class="market-label">PRONÓSTICO IA (DOBLE)</span>
-                        <div class="market-name">Doble Oportunidad Brentford o Empate (1X)</div>
-                    </div>
-                    <div class="odd-pill">@1.40</div>
-                </div>
-                <div class="metrics-grid">
-                    <div class="metric-item">
-                        <span class="m-label">Confianza IA</span>
-                        <span class="m-val" style="color:#10b981;">92.5%</span>
-                    </div>
-                    <div class="metric-item">
-                        <span class="m-label">Prob. Real</span>
-                        <span class="m-val">76.6%</span>
-                    </div>
-                    <div class="metric-item">
-                        <span class="m-label">Edge (+EV)</span>
-                        <span class="m-val" style="color:#38bdf8;">+5.1%</span>
-                    </div>
-                    <div class="metric-item">
-                        <span class="m-label">Stake Sugerido</span>
-                        <span class="m-val stake-dinamico" data-pct="0.0449">S/ 4.50</span>
-                    </div>
-                </div>
-                <div class="l-bars">
-                    <span>📊 xG Proy: 1.73-1.01 | SOT: 9.3 | ESPN: DLDWW vs DLLLW</span>
-                </div>
-
-                <details class="tactical-drawer">
-                    <summary>🔬 Ver Desglose Táctico, Benchmark Pinnacle y Cuota Justa</summary>
-                    <div class="drawer-content">
-                        <div class="drawer-row"><span>🎯 Cuota Justa (Sin Margen):</span> <b>@1.31 vs @1.40 (Betfair (OddsAPI))</b></div>
-                        <div class="drawer-row"><span>📐 Proyección Goles (xG):</span> <b>Local 1.73 — Visita 1.01</b></div>
-                        <div class="drawer-row"><span>🛑 Proyección Faltas / SOT:</span> <b>21.7 Faltas | 9.3 Tiros al Arco</b></div>
-                        <div class="drawer-row"><span>📈 Forma & Récord ESPN:</span> <b>L: DLDWW (2-5-1) | V: DLLLW (1-3-4)</b></div>
-                        <div class="drawer-row"><span>🏥 Reporte de Plantilla:</span> <b>Plantillas titulares disponibles</b></div>
-                        <p class="drawer-note">🧠 En 1,000,000 de simulaciones + Pinnacle De-Vig la cuota justa es @1.31, mientras que Betfair (OddsAPI) ofrece @1.40 (+5.1% EV).</p>
+                        <p class="drawer-note">🧠 Calibración Bayesiana v16.0: Cuota Justa @1.35 frente a @1.52 en Línea Consenso B2B (+8.5% EV). No operar si la cuota cae por debajo de @1.39.</p>
                     </div>
                 </details>
             </div>
@@ -602,96 +335,208 @@
                 <h3 class="match-title">Aston Villa vs Fulham</h3>
                 <div class="market-box">
                     <div>
-                        <span class="market-label">PRONÓSTICO IA (DOBLE)</span>
+                        <span class="market-label">PRONÓSTICO CALIBRADO (DOBLE)</span>
                         <div class="market-name">Doble Oportunidad Aston Villa o Empate (1X)</div>
                     </div>
-                    <div class="odd-pill">@1.38</div>
+                    <div class="odd-pill">@1.37</div>
                 </div>
                 <div class="metrics-grid">
                     <div class="metric-item">
                         <span class="m-label">Confianza IA</span>
-                        <span class="m-val" style="color:#10b981;">92.0%</span>
+                        <span class="m-val" style="color:#10b981;">89.9%</span>
                     </div>
                     <div class="metric-item">
                         <span class="m-label">Prob. Real</span>
-                        <span class="m-val">76.9%</span>
+                        <span class="m-val">76.2%</span>
                     </div>
                     <div class="metric-item">
                         <span class="m-label">Edge (+EV)</span>
-                        <span class="m-val" style="color:#38bdf8;">+4.5%</span>
+                        <span class="m-val" style="color:#38bdf8;">+3.2%</span>
                     </div>
                     <div class="metric-item">
-                        <span class="m-label">Stake Sugerido</span>
-                        <span class="m-val stake-dinamico" data-pct="0.0405">S/ 4.00</span>
+                        <span class="m-label">Stake Seguro</span>
+                        <span class="m-val stake-dinamico" data-pct="0.0262">S/ 2.50</span>
                     </div>
                 </div>
                 <div class="l-bars">
-                    <span>📊 L5: 21.2f · L10: 19.8f · L20: 21.3f | xG: 1.76-1.03 | ESPN: DWWWD</span>
+                    <span>📊 L5: 21.2f · L10: 19.8f | Tarj: 3.8t | xG: 1.72-1.04</span>
                 </div>
 
                 <details class="tactical-drawer">
-                    <summary>🔬 Ver Desglose Táctico, Benchmark Pinnacle y Cuota Justa</summary>
+                    <summary>🔬 Ver Auditoría de Cuota Justa, Tarjetas y Faltas</summary>
                     <div class="drawer-content">
-                        <div class="drawer-row"><span>🎯 Cuota Justa (Sin Margen):</span> <b>@1.30 vs @1.38 (Betfair (OddsAPI))</b></div>
-                        <div class="drawer-row"><span>📐 Proyección Goles (xG):</span> <b>Local 1.76 — Visita 1.03</b></div>
-                        <div class="drawer-row"><span>🛑 Proyección Faltas / SOT:</span> <b>21.0 Faltas | 9.3 Tiros al Arco</b></div>
+                        <div class="drawer-row"><span>🎯 Cuota Justa Calibrada:</span> <b>@1.31 vs @1.37 (Betfair (OddsAPI))</b></div>
+                        <div class="drawer-row"><span>⚠️ Tope de Cuota Mínima:</span> <b>No apostar si baja de @1.35</b></div>
+                        <div class="drawer-row"><span>📐 Proyección Goles (xG):</span> <b>Local 1.72 — Visita 1.04</b></div>
+                        <div class="drawer-row"><span>🛑 Faltas / SOT / Tarjetas:</span> <b>21.0 Faltas | 9.3 SOT | 3.8 Tarj.</b></div>
                         <div class="drawer-row"><span>📈 Forma & Récord ESPN:</span> <b>L: DWWWD (3-2-3) | V: DWLDW (2-2-4)</b></div>
                         <div class="drawer-row"><span>🏥 Reporte de Plantilla:</span> <b>Plantillas titulares disponibles</b></div>
-                        <p class="drawer-note">🧠 En 1,000,000 de simulaciones + Pinnacle De-Vig la cuota justa es @1.30, mientras que Betfair (OddsAPI) ofrece @1.38 (+4.5% EV).</p>
+                        <p class="drawer-note">🧠 Calibración Bayesiana v16.0: Cuota Justa @1.31 frente a @1.37 en Betfair (OddsAPI) (+3.2% EV). No operar si la cuota cae por debajo de @1.35.</p>
                     </div>
                 </details>
             </div>
             
         </div>
         
-        <div class="pick-card" data-dia="2026-10-30" data-fecha="2026-10-30" data-liga="Liga Argentina" data-cat="TARJETAS" data-tier="TIER S">
+        <div class="pick-card" data-dia="MAÑANA" data-fecha="2026-10-29" data-liga="Copa del Rey" data-cat="GOLES" data-tier="TIER S">
             <div class="pick-header">
                 <div style="display:flex; gap:6px; align-items:center;">
-                    <span class="day-pill" style="background:#38bdf820; color:#38bdf8;">📅 2026-10-30 · 19:15</span>
-                    <span class="league-tag">Liga Argentina</span>
+                    <span class="day-pill" style="background:#38bdf820; color:#38bdf8;">📅 MAÑANA · 14:00</span>
+                    <span class="league-tag">Copa del Rey</span>
                 </div>
                 <span class="tier-badge" style="background:#10b98122; color:#10b981; border:1px solid #10b981;">💎 TIER S (Blindado)</span>
             </div>
             <div class="CardBody ">
-                <h3 class="match-title">Sarmiento (Junín) vs Rosario Central</h3>
+                <h3 class="match-title">CD Laredo vs Burgos</h3>
                 <div class="market-box">
                     <div>
-                        <span class="market-label">PRONÓSTICO IA (TARJETAS)</span>
-                        <div class="market-name">Más de 4.5 Tarjetas</div>
+                        <span class="market-label">PRONÓSTICO CALIBRADO (GOLES)</span>
+                        <div class="market-name">Menos de 3.5 Goles (Under 3.5)</div>
                     </div>
-                    <div class="odd-pill">@1.72</div>
+                    <div class="odd-pill">@1.52</div>
                 </div>
                 <div class="metrics-grid">
                     <div class="metric-item">
                         <span class="m-label">Confianza IA</span>
-                        <span class="m-val" style="color:#10b981;">96.4%</span>
+                        <span class="m-val" style="color:#10b981;">94.2%</span>
                     </div>
                     <div class="metric-item">
                         <span class="m-label">Prob. Real</span>
-                        <span class="m-val">69.9%</span>
+                        <span class="m-val">73.6%</span>
                     </div>
                     <div class="metric-item">
                         <span class="m-label">Edge (+EV)</span>
-                        <span class="m-val" style="color:#38bdf8;">+11.7%</span>
+                        <span class="m-val" style="color:#38bdf8;">+7.8%</span>
                     </div>
                     <div class="metric-item">
-                        <span class="m-label">Stake Sugerido</span>
-                        <span class="m-val stake-dinamico" data-pct="0.0600">S/ 6.00</span>
+                        <span class="m-label">Stake Seguro</span>
+                        <span class="m-val stake-dinamico" data-pct="0.0450">S/ 4.50</span>
                     </div>
                 </div>
                 <div class="l-bars">
-                    <span>📊 L5: 27.6f · L10: 27.6f · L20: 27.6f | xG: 1.30-1.56 | ESPN: DDDWL</span>
+                    <span>📊 xG Proy: 1.45-1.14 | SOT: 8.4 | ESPN: LLLLL vs DWLLW</span>
                 </div>
 
                 <details class="tactical-drawer">
-                    <summary>🔬 Ver Desglose Táctico, Benchmark Pinnacle y Cuota Justa</summary>
+                    <summary>🔬 Ver Auditoría de Cuota Justa, Tarjetas y Faltas</summary>
                     <div class="drawer-content">
-                        <div class="drawer-row"><span>🎯 Cuota Justa (Sin Margen):</span> <b>@1.43 vs @1.72 (Betsson/Inkabet)</b></div>
-                        <div class="drawer-row"><span>📐 Proyección Goles (xG):</span> <b>Local 1.30 — Visita 1.56</b></div>
-                        <div class="drawer-row"><span>🛑 Proyección Faltas / SOT:</span> <b>27.6 Faltas | 8.6 Tiros al Arco</b></div>
-                        <div class="drawer-row"><span>📈 Forma & Récord ESPN:</span> <b>L: DDDWL (6-3-5) | V: DWWDW (8-4-2)</b></div>
+                        <div class="drawer-row"><span>🎯 Cuota Justa Calibrada:</span> <b>@1.36 vs @1.52 (Línea Consenso B2B)</b></div>
+                        <div class="drawer-row"><span>⚠️ Tope de Cuota Mínima:</span> <b>No apostar si baja de @1.40</b></div>
+                        <div class="drawer-row"><span>📐 Proyección Goles (xG):</span> <b>Local 1.45 — Visita 1.14</b></div>
+                        <div class="drawer-row"><span>🛑 Faltas / SOT / Tarjetas:</span> <b>25.1 Faltas | 8.4 SOT | 4.5 Tarj.</b></div>
+                        <div class="drawer-row"><span>📈 Forma & Récord ESPN:</span> <b>L: LLLLL (S/R) | V: DWLLW (S/R)</b></div>
                         <div class="drawer-row"><span>🏥 Reporte de Plantilla:</span> <b>Plantillas titulares disponibles</b></div>
-                        <p class="drawer-note">🧠 En 1,000,000 de simulaciones + Pinnacle De-Vig la cuota justa es @1.43, mientras que Betsson/Inkabet ofrece @1.72 (+11.7% EV).</p>
+                        <p class="drawer-note">🧠 Calibración Bayesiana v16.0: Cuota Justa @1.36 frente a @1.52 en Línea Consenso B2B (+7.8% EV). No operar si la cuota cae por debajo de @1.40.</p>
+                    </div>
+                </details>
+            </div>
+            
+        </div>
+        
+        <div class="pick-card" data-dia="2026-10-31" data-fecha="2026-10-31" data-liga="Premier League" data-cat="DOBLE" data-tier="TIER S">
+            <div class="pick-header">
+                <div style="display:flex; gap:6px; align-items:center;">
+                    <span class="day-pill" style="background:#38bdf820; color:#38bdf8;">📅 2026-10-31 · 10:00</span>
+                    <span class="league-tag">Premier League</span>
+                </div>
+                <span class="tier-badge" style="background:#10b98122; color:#10b981; border:1px solid #10b981;">💎 TIER S (Blindado)</span>
+            </div>
+            <div class="CardBody ">
+                <h3 class="match-title">Brentford vs Nottingham Forest</h3>
+                <div class="market-box">
+                    <div>
+                        <span class="market-label">PRONÓSTICO CALIBRADO (DOBLE)</span>
+                        <div class="market-name">Doble Oportunidad Brentford o Empate (1X)</div>
+                    </div>
+                    <div class="odd-pill">@1.39</div>
+                </div>
+                <div class="metrics-grid">
+                    <div class="metric-item">
+                        <span class="m-label">Confianza IA</span>
+                        <span class="m-val" style="color:#10b981;">90.4%</span>
+                    </div>
+                    <div class="metric-item">
+                        <span class="m-label">Prob. Real</span>
+                        <span class="m-val">75.8%</span>
+                    </div>
+                    <div class="metric-item">
+                        <span class="m-label">Edge (+EV)</span>
+                        <span class="m-val" style="color:#38bdf8;">+3.8%</span>
+                    </div>
+                    <div class="metric-item">
+                        <span class="m-label">Stake Seguro</span>
+                        <span class="m-val stake-dinamico" data-pct="0.0299">S/ 3.00</span>
+                    </div>
+                </div>
+                <div class="l-bars">
+                    <span>📊 xG Proy: 1.71-1.03 | SOT: 9.2 | ESPN: DLDWW vs DLLLW</span>
+                </div>
+
+                <details class="tactical-drawer">
+                    <summary>🔬 Ver Auditoría de Cuota Justa, Tarjetas y Faltas</summary>
+                    <div class="drawer-content">
+                        <div class="drawer-row"><span>🎯 Cuota Justa Calibrada:</span> <b>@1.32 vs @1.39 (Betfair (OddsAPI))</b></div>
+                        <div class="drawer-row"><span>⚠️ Tope de Cuota Mínima:</span> <b>No apostar si baja de @1.36</b></div>
+                        <div class="drawer-row"><span>📐 Proyección Goles (xG):</span> <b>Local 1.71 — Visita 1.03</b></div>
+                        <div class="drawer-row"><span>🛑 Faltas / SOT / Tarjetas:</span> <b>21.6 Faltas | 9.2 SOT | 3.8 Tarj.</b></div>
+                        <div class="drawer-row"><span>📈 Forma & Récord ESPN:</span> <b>L: DLDWW (2-5-1) | V: DLLLW (1-3-4)</b></div>
+                        <div class="drawer-row"><span>🏥 Reporte de Plantilla:</span> <b>Plantillas titulares disponibles</b></div>
+                        <p class="drawer-note">🧠 Calibración Bayesiana v16.0: Cuota Justa @1.32 frente a @1.39 en Betfair (OddsAPI) (+3.8% EV). No operar si la cuota cae por debajo de @1.36.</p>
+                    </div>
+                </details>
+            </div>
+            
+        </div>
+        
+        <div class="pick-card" data-dia="HOY" data-fecha="2026-10-28" data-liga="Serie A" data-cat="FALTAS" data-tier="TIER S">
+            <div class="pick-header">
+                <div style="display:flex; gap:6px; align-items:center;">
+                    <span class="day-pill" style="background:#ef444425; color:#f87171;">📅 HOY · 14:45</span>
+                    <span class="league-tag">Serie A</span>
+                </div>
+                <span class="tier-badge" style="background:#10b98122; color:#10b981; border:1px solid #10b981;">💎 TIER S (Blindado)</span>
+            </div>
+            <div class="CardBody ">
+                <h3 class="match-title">Genoa vs Juventus</h3>
+                <div class="market-box">
+                    <div>
+                        <span class="market-label">PRONÓSTICO CALIBRADO (FALTAS)</span>
+                        <div class="market-name">Más de 23.5 Faltas Totales</div>
+                    </div>
+                    <div class="odd-pill">@1.65</div>
+                </div>
+                <div class="metrics-grid">
+                    <div class="metric-item">
+                        <span class="m-label">Confianza IA</span>
+                        <span class="m-val" style="color:#10b981;">96.8%</span>
+                    </div>
+                    <div class="metric-item">
+                        <span class="m-label">Prob. Real</span>
+                        <span class="m-val">71.7%</span>
+                    </div>
+                    <div class="metric-item">
+                        <span class="m-label">Edge (+EV)</span>
+                        <span class="m-val" style="color:#38bdf8;">+11.0%</span>
+                    </div>
+                    <div class="metric-item">
+                        <span class="m-label">Stake Seguro</span>
+                        <span class="m-val stake-dinamico" data-pct="0.0450">S/ 4.50</span>
+                    </div>
+                </div>
+                <div class="l-bars">
+                    <span>📊 L5: 29.8f · L10: 27.3f | Tarj: 4.1t | xG: 1.06-1.61</span>
+                </div>
+
+                <details class="tactical-drawer">
+                    <summary>🔬 Ver Auditoría de Cuota Justa, Tarjetas y Faltas</summary>
+                    <div class="drawer-content">
+                        <div class="drawer-row"><span>🎯 Cuota Justa Calibrada:</span> <b>@1.40 vs @1.65 (Betano/Betsson)</b></div>
+                        <div class="drawer-row"><span>⚠️ Tope de Cuota Mínima:</span> <b>No apostar si baja de @1.44</b></div>
+                        <div class="drawer-row"><span>📐 Proyección Goles (xG):</span> <b>Local 1.06 — Visita 1.61</b></div>
+                        <div class="drawer-row"><span>🛑 Faltas / SOT / Tarjetas:</span> <b>26.6 Faltas | 7.9 SOT | 4.1 Tarj.</b></div>
+                        <div class="drawer-row"><span>📈 Forma & Récord ESPN:</span> <b>L: DLWLW (2-1-5) | V: DDLWD (4-2-2)</b></div>
+                        <div class="drawer-row"><span>🏥 Reporte de Plantilla:</span> <b>Plantillas titulares disponibles</b></div>
+                        <p class="drawer-note">🧠 Calibración Bayesiana v16.0: Cuota Justa @1.40 frente a @1.65 en Betano/Betsson (+11.0% EV). No operar si la cuota cae por debajo de @1.44.</p>
                     </div>
                 </details>
             </div>
@@ -710,42 +555,43 @@
                 <h3 class="match-title">Everton vs Newcastle United</h3>
                 <div class="market-box">
                     <div>
-                        <span class="market-label">PRONÓSTICO IA (DOBLE)</span>
+                        <span class="market-label">PRONÓSTICO CALIBRADO (DOBLE)</span>
                         <div class="market-name">Doble Oportunidad Everton o Empate (1X)</div>
                     </div>
-                    <div class="odd-pill">@1.45</div>
+                    <div class="odd-pill">@1.44</div>
                 </div>
                 <div class="metrics-grid">
                     <div class="metric-item">
                         <span class="m-label">Confianza IA</span>
-                        <span class="m-val" style="color:#10b981;">92.5%</span>
+                        <span class="m-val" style="color:#10b981;">90.4%</span>
                     </div>
                     <div class="metric-item">
                         <span class="m-label">Prob. Real</span>
-                        <span class="m-val">74.7%</span>
+                        <span class="m-val">73.8%</span>
                     </div>
                     <div class="metric-item">
                         <span class="m-label">Edge (+EV)</span>
-                        <span class="m-val" style="color:#38bdf8;">+5.7%</span>
+                        <span class="m-val" style="color:#38bdf8;">+4.4%</span>
                     </div>
                     <div class="metric-item">
-                        <span class="m-label">Stake Sugerido</span>
-                        <span class="m-val stake-dinamico" data-pct="0.0458">S/ 4.50</span>
+                        <span class="m-label">Stake Seguro</span>
+                        <span class="m-val stake-dinamico" data-pct="0.0314">S/ 3.00</span>
                     </div>
                 </div>
                 <div class="l-bars">
-                    <span>📊 xG Proy: 1.67-1.06 | SOT: 9.1 | ESPN: DLDWW vs DLLWL</span>
+                    <span>📊 xG Proy: 1.65-1.09 | SOT: 9.0 | ESPN: DLDWW vs DLLWL</span>
                 </div>
 
                 <details class="tactical-drawer">
-                    <summary>🔬 Ver Desglose Táctico, Benchmark Pinnacle y Cuota Justa</summary>
+                    <summary>🔬 Ver Auditoría de Cuota Justa, Tarjetas y Faltas</summary>
                     <div class="drawer-content">
-                        <div class="drawer-row"><span>🎯 Cuota Justa (Sin Margen):</span> <b>@1.34 vs @1.45 (1xBet (OddsAPI))</b></div>
-                        <div class="drawer-row"><span>📐 Proyección Goles (xG):</span> <b>Local 1.67 — Visita 1.06</b></div>
-                        <div class="drawer-row"><span>🛑 Proyección Faltas / SOT:</span> <b>21.6 Faltas | 9.1 Tiros al Arco</b></div>
+                        <div class="drawer-row"><span>🎯 Cuota Justa Calibrada:</span> <b>@1.35 vs @1.44 (1xBet (OddsAPI))</b></div>
+                        <div class="drawer-row"><span>⚠️ Tope de Cuota Mínima:</span> <b>No apostar si baja de @1.39</b></div>
+                        <div class="drawer-row"><span>📐 Proyección Goles (xG):</span> <b>Local 1.65 — Visita 1.09</b></div>
+                        <div class="drawer-row"><span>🛑 Faltas / SOT / Tarjetas:</span> <b>21.5 Faltas | 9.0 SOT | 3.7 Tarj.</b></div>
                         <div class="drawer-row"><span>📈 Forma & Récord ESPN:</span> <b>L: DLDWW (S/R) | V: DLLWL (S/R)</b></div>
                         <div class="drawer-row"><span>🏥 Reporte de Plantilla:</span> <b>Plantillas titulares disponibles</b></div>
-                        <p class="drawer-note">🧠 En 1,000,000 de simulaciones + Pinnacle De-Vig la cuota justa es @1.34, mientras que 1xBet (OddsAPI) ofrece @1.45 (+5.7% EV).</p>
+                        <p class="drawer-note">🧠 Calibración Bayesiana v16.0: Cuota Justa @1.35 frente a @1.44 en 1xBet (OddsAPI) (+4.4% EV). No operar si la cuota cae por debajo de @1.39.</p>
                     </div>
                 </details>
             </div>
@@ -764,7 +610,7 @@
                 <h3 class="match-title">Villarreal vs Espanyol</h3>
                 <div class="market-box">
                     <div>
-                        <span class="market-label">PRONÓSTICO IA (1X2)</span>
+                        <span class="market-label">PRONÓSTICO CALIBRADO (1X2)</span>
                         <div class="market-name">Victoria Villarreal (1)</div>
                     </div>
                     <div class="odd-pill">@1.50</div>
@@ -772,88 +618,90 @@
                 <div class="metrics-grid">
                     <div class="metric-item">
                         <span class="m-label">Confianza IA</span>
-                        <span class="m-val" style="color:#10b981;">93.3%</span>
+                        <span class="m-val" style="color:#10b981;">91.8%</span>
                     </div>
                     <div class="metric-item">
                         <span class="m-label">Prob. Real</span>
-                        <span class="m-val">73.6%</span>
+                        <span class="m-val">72.6%</span>
                     </div>
                     <div class="metric-item">
                         <span class="m-label">Edge (+EV)</span>
-                        <span class="m-val" style="color:#38bdf8;">+6.9%</span>
+                        <span class="m-val" style="color:#38bdf8;">+5.9%</span>
                     </div>
                     <div class="metric-item">
-                        <span class="m-label">Stake Sugerido</span>
-                        <span class="m-val stake-dinamico" data-pct="0.0521">S/ 5.00</span>
+                        <span class="m-label">Stake Seguro</span>
+                        <span class="m-val stake-dinamico" data-pct="0.0390">S/ 4.00</span>
                     </div>
                 </div>
                 <div class="l-bars">
-                    <span>📊 xG Proy: 2.25-0.56 | SOT: 8.6 | ESPN: DWLDW vs DLLDL</span>
+                    <span>📊 xG Proy: 2.22-0.57 | SOT: 8.5 | ESPN: DWLDW vs DLLDL</span>
                 </div>
 
                 <details class="tactical-drawer">
-                    <summary>🔬 Ver Desglose Táctico, Benchmark Pinnacle y Cuota Justa</summary>
+                    <summary>🔬 Ver Auditoría de Cuota Justa, Tarjetas y Faltas</summary>
                     <div class="drawer-content">
-                        <div class="drawer-row"><span>🎯 Cuota Justa (Sin Margen):</span> <b>@1.36 vs @1.50 (1xBet (OddsAPI))</b></div>
-                        <div class="drawer-row"><span>📐 Proyección Goles (xG):</span> <b>Local 2.25 — Visita 0.56</b></div>
-                        <div class="drawer-row"><span>🛑 Proyección Faltas / SOT:</span> <b>25.1 Faltas | 8.6 Tiros al Arco</b></div>
+                        <div class="drawer-row"><span>🎯 Cuota Justa Calibrada:</span> <b>@1.38 vs @1.50 (1xBet (OddsAPI))</b></div>
+                        <div class="drawer-row"><span>⚠️ Tope de Cuota Mínima:</span> <b>No apostar si baja de @1.42</b></div>
+                        <div class="drawer-row"><span>📐 Proyección Goles (xG):</span> <b>Local 2.22 — Visita 0.57</b></div>
+                        <div class="drawer-row"><span>🛑 Faltas / SOT / Tarjetas:</span> <b>24.9 Faltas | 8.5 SOT | 4.6 Tarj.</b></div>
                         <div class="drawer-row"><span>📈 Forma & Récord ESPN:</span> <b>L: DWLDW (3-3-4) | V: DLLDL (2-2-6)</b></div>
                         <div class="drawer-row"><span>🏥 Reporte de Plantilla:</span> <b>Plantillas titulares disponibles</b></div>
-                        <p class="drawer-note">🧠 En 1,000,000 de simulaciones + Pinnacle De-Vig la cuota justa es @1.36, mientras que 1xBet (OddsAPI) ofrece @1.50 (+6.9% EV).</p>
+                        <p class="drawer-note">🧠 Calibración Bayesiana v16.0: Cuota Justa @1.38 frente a @1.50 en 1xBet (OddsAPI) (+5.9% EV). No operar si la cuota cae por debajo de @1.42.</p>
                     </div>
                 </details>
             </div>
             
         </div>
         
-        <div class="pick-card" data-dia="2026-10-30" data-fecha="2026-10-30" data-liga="Ligue 1" data-cat="FALTAS" data-tier="TIER S">
+        <div class="pick-card" data-dia="HOY" data-fecha="2026-10-28" data-liga="Serie A" data-cat="1X2" data-tier="TIER S">
             <div class="pick-header">
                 <div style="display:flex; gap:6px; align-items:center;">
-                    <span class="day-pill" style="background:#38bdf820; color:#38bdf8;">📅 2026-10-30 · 13:00</span>
-                    <span class="league-tag">Ligue 1</span>
+                    <span class="day-pill" style="background:#ef444425; color:#f87171;">📅 HOY · 12:30</span>
+                    <span class="league-tag">Serie A</span>
                 </div>
                 <span class="tier-badge" style="background:#10b98122; color:#10b981; border:1px solid #10b981;">💎 TIER S (Blindado)</span>
             </div>
             <div class="CardBody ">
-                <h3 class="match-title">Le Havre AC vs Paris Saint-Germain</h3>
+                <h3 class="match-title">Venezia vs Internazionale</h3>
                 <div class="market-box">
                     <div>
-                        <span class="market-label">PRONÓSTICO IA (FALTAS)</span>
-                        <div class="market-name">Menos de 23.5 Faltas Totales</div>
+                        <span class="market-label">PRONÓSTICO CALIBRADO (1X2)</span>
+                        <div class="market-name">Victoria Internazionale (2)</div>
                     </div>
-                    <div class="odd-pill">@1.68</div>
+                    <div class="odd-pill">@1.42</div>
                 </div>
                 <div class="metrics-grid">
                     <div class="metric-item">
                         <span class="m-label">Confianza IA</span>
-                        <span class="m-val" style="color:#10b981;">95.2%</span>
+                        <span class="m-val" style="color:#10b981;">88.8%</span>
                     </div>
                     <div class="metric-item">
                         <span class="m-label">Prob. Real</span>
-                        <span class="m-val">69.8%</span>
+                        <span class="m-val">73.4%</span>
                     </div>
                     <div class="metric-item">
                         <span class="m-label">Edge (+EV)</span>
-                        <span class="m-val" style="color:#38bdf8;">+10.3%</span>
+                        <span class="m-val" style="color:#38bdf8;">+3.0%</span>
                     </div>
                     <div class="metric-item">
-                        <span class="m-label">Stake Sugerido</span>
-                        <span class="m-val stake-dinamico" data-pct="0.0600">S/ 6.00</span>
+                        <span class="m-label">Stake Seguro</span>
+                        <span class="m-val stake-dinamico" data-pct="0.0221">S/ 2.00</span>
                     </div>
                 </div>
                 <div class="l-bars">
-                    <span>📊 L5: 20.8f · L10: 20.3f · L20: 20.5f | xG: 1.09-2.32 | ESPN: DLLLD</span>
+                    <span>📊 xG Proy: 0.56-2.17 | SOT: 8.6 | ESPN: DWLLL vs DWWLW</span>
                 </div>
 
                 <details class="tactical-drawer">
-                    <summary>🔬 Ver Desglose Táctico, Benchmark Pinnacle y Cuota Justa</summary>
+                    <summary>🔬 Ver Auditoría de Cuota Justa, Tarjetas y Faltas</summary>
                     <div class="drawer-content">
-                        <div class="drawer-row"><span>🎯 Cuota Justa (Sin Margen):</span> <b>@1.43 vs @1.68 (Betsson/Inkabet)</b></div>
-                        <div class="drawer-row"><span>📐 Proyección Goles (xG):</span> <b>Local 1.09 — Visita 2.32</b></div>
-                        <div class="drawer-row"><span>🛑 Proyección Faltas / SOT:</span> <b>21.7 Faltas | 12.2 Tiros al Arco</b></div>
-                        <div class="drawer-row"><span>📈 Forma & Récord ESPN:</span> <b>L: DLLLD (0-2-6) | V: DWWWW (5-2-1)</b></div>
+                        <div class="drawer-row"><span>🎯 Cuota Justa Calibrada:</span> <b>@1.36 vs @1.42 (1xBet (OddsAPI))</b></div>
+                        <div class="drawer-row"><span>⚠️ Tope de Cuota Mínima:</span> <b>No apostar si baja de @1.40</b></div>
+                        <div class="drawer-row"><span>📐 Proyección Goles (xG):</span> <b>Local 0.56 — Visita 2.17</b></div>
+                        <div class="drawer-row"><span>🛑 Faltas / SOT / Tarjetas:</span> <b>24.2 Faltas | 8.6 SOT | 4.2 Tarj.</b></div>
+                        <div class="drawer-row"><span>📈 Forma & Récord ESPN:</span> <b>L: DWLLL (1-0-7) | V: DWWLW (7-1-0)</b></div>
                         <div class="drawer-row"><span>🏥 Reporte de Plantilla:</span> <b>Plantillas titulares disponibles</b></div>
-                        <p class="drawer-note">🧠 En 1,000,000 de simulaciones + Pinnacle De-Vig la cuota justa es @1.43, mientras que Betsson/Inkabet ofrece @1.68 (+10.3% EV).</p>
+                        <p class="drawer-note">🧠 Calibración Bayesiana v16.0: Cuota Justa @1.36 frente a @1.42 en 1xBet (OddsAPI) (+3.0% EV). No operar si la cuota cae por debajo de @1.40.</p>
                     </div>
                 </details>
             </div>
@@ -869,99 +717,211 @@
                 <span class="tier-badge" style="background:#10b98122; color:#10b981; border:1px solid #10b981;">💎 TIER S (Blindado)</span>
             </div>
             <div class="CardBody ">
-                <h3 class="match-title">AC Milan vs Bologna</h3>
+                <h3 class="match-title">Parma vs Udinese</h3>
                 <div class="market-box">
                     <div>
-                        <span class="market-label">PRONÓSTICO IA (FALTAS)</span>
+                        <span class="market-label">PRONÓSTICO CALIBRADO (FALTAS)</span>
                         <div class="market-name">Más de 23.5 Faltas Totales</div>
                     </div>
-                    <div class="odd-pill">@1.68</div>
+                    <div class="odd-pill">@1.65</div>
                 </div>
                 <div class="metrics-grid">
                     <div class="metric-item">
                         <span class="m-label">Confianza IA</span>
-                        <span class="m-val" style="color:#10b981;">95.0%</span>
+                        <span class="m-val" style="color:#10b981;">94.5%</span>
                     </div>
                     <div class="metric-item">
                         <span class="m-label">Prob. Real</span>
-                        <span class="m-val">69.6%</span>
+                        <span class="m-val">69.8%</span>
                     </div>
                     <div class="metric-item">
                         <span class="m-label">Edge (+EV)</span>
-                        <span class="m-val" style="color:#38bdf8;">+10.1%</span>
+                        <span class="m-val" style="color:#38bdf8;">+9.2%</span>
                     </div>
                     <div class="metric-item">
-                        <span class="m-label">Stake Sugerido</span>
-                        <span class="m-val stake-dinamico" data-pct="0.0600">S/ 6.00</span>
+                        <span class="m-label">Stake Seguro</span>
+                        <span class="m-val stake-dinamico" data-pct="0.0450">S/ 4.50</span>
                     </div>
                 </div>
                 <div class="l-bars">
-                    <span>📊 L5: 22.8f · L10: 24.3f · L20: 24.2f | xG: 1.93-0.97 | ESPN: DLWWD</span>
+                    <span>📊 L5: 29.6f · L10: 28.2f | Tarj: 3.9t | xG: 1.34-1.05</span>
                 </div>
 
                 <details class="tactical-drawer">
-                    <summary>🔬 Ver Desglose Táctico, Benchmark Pinnacle y Cuota Justa</summary>
+                    <summary>🔬 Ver Auditoría de Cuota Justa, Tarjetas y Faltas</summary>
                     <div class="drawer-content">
-                        <div class="drawer-row"><span>🎯 Cuota Justa (Sin Margen):</span> <b>@1.44 vs @1.68 (Betsson/Inkabet)</b></div>
-                        <div class="drawer-row"><span>📐 Proyección Goles (xG):</span> <b>Local 1.93 — Visita 0.97</b></div>
-                        <div class="drawer-row"><span>🛑 Proyección Faltas / SOT:</span> <b>25.2 Faltas | 7.8 Tiros al Arco</b></div>
-                        <div class="drawer-row"><span>📈 Forma & Récord ESPN:</span> <b>L: DLWWD (5-3-0) | V: DLWDL (2-2-4)</b></div>
+                        <div class="drawer-row"><span>🎯 Cuota Justa Calibrada:</span> <b>@1.43 vs @1.65 (Betano/Betsson)</b></div>
+                        <div class="drawer-row"><span>⚠️ Tope de Cuota Mínima:</span> <b>No apostar si baja de @1.47</b></div>
+                        <div class="drawer-row"><span>📐 Proyección Goles (xG):</span> <b>Local 1.34 — Visita 1.05</b></div>
+                        <div class="drawer-row"><span>🛑 Faltas / SOT / Tarjetas:</span> <b>26.1 Faltas | 7.5 SOT | 3.9 Tarj.</b></div>
+                        <div class="drawer-row"><span>📈 Forma & Récord ESPN:</span> <b>L: DLLWL (1-1-6) | V: DLLLL (1-1-6)</b></div>
                         <div class="drawer-row"><span>🏥 Reporte de Plantilla:</span> <b>Plantillas titulares disponibles</b></div>
-                        <p class="drawer-note">🧠 En 1,000,000 de simulaciones + Pinnacle De-Vig la cuota justa es @1.44, mientras que Betsson/Inkabet ofrece @1.68 (+10.1% EV).</p>
+                        <p class="drawer-note">🧠 Calibración Bayesiana v16.0: Cuota Justa @1.43 frente a @1.65 en Betano/Betsson (+9.2% EV). No operar si la cuota cae por debajo de @1.47.</p>
                     </div>
                 </details>
             </div>
             
         </div>
         
-        <div class="pick-card" data-dia="HOY" data-fecha="2026-10-28" data-liga="EFL Cup" data-cat="DOBLE" data-tier="TIER S">
+        <div class="pick-card" data-dia="2026-10-31" data-fecha="2026-10-31" data-liga="Eredivisie" data-cat="DOBLE" data-tier="TIER S">
             <div class="pick-header">
                 <div style="display:flex; gap:6px; align-items:center;">
-                    <span class="day-pill" style="background:#ef444425; color:#f87171;">📅 HOY · 15:00</span>
-                    <span class="league-tag">EFL Cup</span>
+                    <span class="day-pill" style="background:#38bdf820; color:#38bdf8;">📅 2026-10-31 · 12:45</span>
+                    <span class="league-tag">Eredivisie</span>
                 </div>
                 <span class="tier-badge" style="background:#10b98122; color:#10b981; border:1px solid #10b981;">💎 TIER S (Blindado)</span>
             </div>
             <div class="CardBody ">
-                <h3 class="match-title">Liverpool vs Chelsea</h3>
+                <h3 class="match-title">Heerenveen vs NEC Nijmegen</h3>
                 <div class="market-box">
                     <div>
-                        <span class="market-label">PRONÓSTICO IA (DOBLE)</span>
-                        <div class="market-name">Doble Oportunidad Liverpool o Empate (1X)</div>
+                        <span class="market-label">PRONÓSTICO CALIBRADO (DOBLE)</span>
+                        <div class="market-name">Doble Oportunidad Heerenveen o Empate (1X)</div>
+                    </div>
+                    <div class="odd-pill">@1.45</div>
+                </div>
+                <div class="metrics-grid">
+                    <div class="metric-item">
+                        <span class="m-label">Confianza IA</span>
+                        <span class="m-val" style="color:#10b981;">89.0%</span>
+                    </div>
+                    <div class="metric-item">
+                        <span class="m-label">Prob. Real</span>
+                        <span class="m-val">72.4%</span>
+                    </div>
+                    <div class="metric-item">
+                        <span class="m-label">Edge (+EV)</span>
+                        <span class="m-val" style="color:#38bdf8;">+3.5%</span>
+                    </div>
+                    <div class="metric-item">
+                        <span class="m-label">Stake Seguro</span>
+                        <span class="m-val stake-dinamico" data-pct="0.0246">S/ 2.50</span>
+                    </div>
+                </div>
+                <div class="l-bars">
+                    <span>📊 xG Proy: 1.65-1.15 | SOT: 9.5 | ESPN: DWLWD vs DWDDD</span>
+                </div>
+
+                <details class="tactical-drawer">
+                    <summary>🔬 Ver Auditoría de Cuota Justa, Tarjetas y Faltas</summary>
+                    <div class="drawer-content">
+                        <div class="drawer-row"><span>🎯 Cuota Justa Calibrada:</span> <b>@1.38 vs @1.45 (Betfair (OddsAPI))</b></div>
+                        <div class="drawer-row"><span>⚠️ Tope de Cuota Mínima:</span> <b>No apostar si baja de @1.42</b></div>
+                        <div class="drawer-row"><span>📐 Proyección Goles (xG):</span> <b>Local 1.65 — Visita 1.15</b></div>
+                        <div class="drawer-row"><span>🛑 Faltas / SOT / Tarjetas:</span> <b>20.2 Faltas | 9.5 SOT | 3.2 Tarj.</b></div>
+                        <div class="drawer-row"><span>📈 Forma & Récord ESPN:</span> <b>L: DWLWD (4-3-3) | V: DWDDD (2-5-3)</b></div>
+                        <div class="drawer-row"><span>🏥 Reporte de Plantilla:</span> <b>Plantillas titulares disponibles</b></div>
+                        <p class="drawer-note">🧠 Calibración Bayesiana v16.0: Cuota Justa @1.38 frente a @1.45 en Betfair (OddsAPI) (+3.5% EV). No operar si la cuota cae por debajo de @1.42.</p>
+                    </div>
+                </details>
+            </div>
+            
+        </div>
+        
+        <div class="pick-card" data-dia="HOY" data-fecha="2026-10-28" data-liga="Liga MX" data-cat="1X2" data-tier="TIER S">
+            <div class="pick-header">
+                <div style="display:flex; gap:6px; align-items:center;">
+                    <span class="day-pill" style="background:#ef444425; color:#f87171;">📅 HOY · 22:00</span>
+                    <span class="league-tag">Liga MX</span>
+                </div>
+                <span class="tier-badge" style="background:#10b98122; color:#10b981; border:1px solid #10b981;">💎 TIER S (Blindado)</span>
+            </div>
+            <div class="CardBody ">
+                <h3 class="match-title">América vs Tijuana</h3>
+                <div class="market-box">
+                    <div>
+                        <span class="market-label">PRONÓSTICO CALIBRADO (1X2)</span>
+                        <div class="market-name">Victoria América (1)</div>
                     </div>
                     <div class="odd-pill">@1.48</div>
                 </div>
                 <div class="metrics-grid">
                     <div class="metric-item">
                         <span class="m-label">Confianza IA</span>
-                        <span class="m-val" style="color:#10b981;">91.7%</span>
+                        <span class="m-val" style="color:#10b981;">89.4%</span>
                     </div>
                     <div class="metric-item">
                         <span class="m-label">Prob. Real</span>
-                        <span class="m-val">72.8%</span>
+                        <span class="m-val">71.6%</span>
                     </div>
                     <div class="metric-item">
                         <span class="m-label">Edge (+EV)</span>
-                        <span class="m-val" style="color:#38bdf8;">+5.2%</span>
+                        <span class="m-val" style="color:#38bdf8;">+4.0%</span>
                     </div>
                     <div class="metric-item">
-                        <span class="m-label">Stake Sugerido</span>
-                        <span class="m-val stake-dinamico" data-pct="0.0404">S/ 4.00</span>
+                        <span class="m-label">Stake Seguro</span>
+                        <span class="m-val stake-dinamico" data-pct="0.0274">S/ 2.50</span>
                     </div>
                 </div>
                 <div class="l-bars">
-                    <span>📊 xG Proy: 1.70-1.16 | SOT: 9.1 | ESPN: DWWWL vs DWWLD</span>
+                    <span>📊 xG Proy: 2.27-0.63 | SOT: 8.7 | ESPN: DWWDW vs DDDDL</span>
                 </div>
 
                 <details class="tactical-drawer">
-                    <summary>🔬 Ver Desglose Táctico, Benchmark Pinnacle y Cuota Justa</summary>
+                    <summary>🔬 Ver Auditoría de Cuota Justa, Tarjetas y Faltas</summary>
                     <div class="drawer-content">
-                        <div class="drawer-row"><span>🎯 Cuota Justa (Sin Margen):</span> <b>@1.37 vs @1.48 (1xBet (OddsAPI))</b></div>
-                        <div class="drawer-row"><span>📐 Proyección Goles (xG):</span> <b>Local 1.70 — Visita 1.16</b></div>
-                        <div class="drawer-row"><span>🛑 Proyección Faltas / SOT:</span> <b>21.6 Faltas | 9.1 Tiros al Arco</b></div>
-                        <div class="drawer-row"><span>📈 Forma & Récord ESPN:</span> <b>L: DWWWL (S/R) | V: DWWLD (S/R)</b></div>
+                        <div class="drawer-row"><span>🎯 Cuota Justa Calibrada:</span> <b>@1.40 vs @1.48 (Betfair (OddsAPI))</b></div>
+                        <div class="drawer-row"><span>⚠️ Tope de Cuota Mínima:</span> <b>No apostar si baja de @1.44</b></div>
+                        <div class="drawer-row"><span>📐 Proyección Goles (xG):</span> <b>Local 2.27 — Visita 0.63</b></div>
+                        <div class="drawer-row"><span>🛑 Faltas / SOT / Tarjetas:</span> <b>24.3 Faltas | 8.7 SOT | 4.4 Tarj.</b></div>
+                        <div class="drawer-row"><span>📈 Forma & Récord ESPN:</span> <b>L: DWWDW (8-3-2) | V: DDDDL (5-5-3)</b></div>
                         <div class="drawer-row"><span>🏥 Reporte de Plantilla:</span> <b>Plantillas titulares disponibles</b></div>
-                        <p class="drawer-note">🧠 En 1,000,000 de simulaciones + Pinnacle De-Vig la cuota justa es @1.37, mientras que 1xBet (OddsAPI) ofrece @1.48 (+5.2% EV).</p>
+                        <p class="drawer-note">🧠 Calibración Bayesiana v16.0: Cuota Justa @1.40 frente a @1.48 en Betfair (OddsAPI) (+4.0% EV). No operar si la cuota cae por debajo de @1.44.</p>
+                    </div>
+                </details>
+            </div>
+            
+        </div>
+        
+        <div class="pick-card" data-dia="HOY" data-fecha="2026-10-28" data-liga="Brasileirão" data-cat="TIROS" data-tier="TIER S">
+            <div class="pick-header">
+                <div style="display:flex; gap:6px; align-items:center;">
+                    <span class="day-pill" style="background:#ef444425; color:#f87171;">📅 HOY · 17:30</span>
+                    <span class="league-tag">Brasileirão</span>
+                </div>
+                <span class="tier-badge" style="background:#10b98122; color:#10b981; border:1px solid #10b981;">💎 TIER S (Blindado)</span>
+            </div>
+            <div class="CardBody ">
+                <h3 class="match-title">Santos vs Palmeiras</h3>
+                <div class="market-box">
+                    <div>
+                        <span class="market-label">PRONÓSTICO CALIBRADO (TIROS)</span>
+                        <div class="market-name">Más de 8.5 Tiros al Arco</div>
+                    </div>
+                    <div class="odd-pill">@1.66</div>
+                </div>
+                <div class="metrics-grid">
+                    <div class="metric-item">
+                        <span class="m-label">Confianza IA</span>
+                        <span class="m-val" style="color:#10b981;">91.5%</span>
+                    </div>
+                    <div class="metric-item">
+                        <span class="m-label">Prob. Real</span>
+                        <span class="m-val">67.3%</span>
+                    </div>
+                    <div class="metric-item">
+                        <span class="m-label">Edge (+EV)</span>
+                        <span class="m-val" style="color:#38bdf8;">+7.1%</span>
+                    </div>
+                    <div class="metric-item">
+                        <span class="m-label">Stake Seguro</span>
+                        <span class="m-val stake-dinamico" data-pct="0.0392">S/ 4.00</span>
+                    </div>
+                </div>
+                <div class="l-bars">
+                    <span>📊 L5: 27.0f · L10: 26.7f | Tarj: 4.8t | xG: 1.27-1.59</span>
+                </div>
+
+                <details class="tactical-drawer">
+                    <summary>🔬 Ver Auditoría de Cuota Justa, Tarjetas y Faltas</summary>
+                    <div class="drawer-content">
+                        <div class="drawer-row"><span>🎯 Cuota Justa Calibrada:</span> <b>@1.49 vs @1.66 (Betano/Bet365)</b></div>
+                        <div class="drawer-row"><span>⚠️ Tope de Cuota Mínima:</span> <b>No apostar si baja de @1.53</b></div>
+                        <div class="drawer-row"><span>📐 Proyección Goles (xG):</span> <b>Local 1.27 — Visita 1.59</b></div>
+                        <div class="drawer-row"><span>🛑 Faltas / SOT / Tarjetas:</span> <b>27.3 Faltas | 10.2 SOT | 4.8 Tarj.</b></div>
+                        <div class="drawer-row"><span>📈 Forma & Récord ESPN:</span> <b>L: DWLDW (12-10-10) | V: DLWWW (20-9-3)</b></div>
+                        <div class="drawer-row"><span>🏥 Reporte de Plantilla:</span> <b>Plantillas titulares disponibles</b></div>
+                        <p class="drawer-note">🧠 Calibración Bayesiana v16.0: Cuota Justa @1.49 frente a @1.66 en Betano/Bet365 (+7.1% EV). No operar si la cuota cae por debajo de @1.53.</p>
                     </div>
                 </details>
             </div>
@@ -996,6 +956,72 @@
                 </thead>
                 <tbody id="tablaAuditoriaBody">
                     
+        <tr class="audit-row" data-est="PENDIENTE">
+            <td><b>2026-10-28 17:30</b></td>
+            <td><b>Santos vs Palmeiras</b><br><small style="color:#94a3b8;">Brasileirão · TIROS</small></td>
+            <td><b style="color:#38bdf8;">Más de 8.5 Tiros al Arco</b></td>
+            <td>@1.66<br><small style="color:#94a3b8;">Betano/Bet365</small></td>
+            <td>67.3%</td>
+            <td><b>Juega HOY 17:30</b></td>
+            <td><span class="st-pend">⏳ POR JUGAR</span></td>
+            <td><span style="color:#94a3b8;">En espera</span></td>
+        </tr>
+        
+        <tr class="audit-row" data-est="PENDIENTE">
+            <td><b>2026-10-31 12:45</b></td>
+            <td><b>Heerenveen vs NEC Nijmegen</b><br><small style="color:#94a3b8;">Eredivisie · DOBLE</small></td>
+            <td><b style="color:#38bdf8;">Doble Oportunidad Heerenveen o Empate (1X)</b></td>
+            <td>@1.45<br><small style="color:#94a3b8;">Betfair (OddsAPI)</small></td>
+            <td>72.4%</td>
+            <td><b>Juega 2026-10-31 12:45</b></td>
+            <td><span class="st-pend">⏳ POR JUGAR</span></td>
+            <td><span style="color:#94a3b8;">En espera</span></td>
+        </tr>
+        
+        <tr class="audit-row" data-est="PENDIENTE">
+            <td><b>2026-10-28 12:30</b></td>
+            <td><b>Parma vs Udinese</b><br><small style="color:#94a3b8;">Serie A · FALTAS</small></td>
+            <td><b style="color:#38bdf8;">Más de 23.5 Faltas Totales</b></td>
+            <td>@1.65<br><small style="color:#94a3b8;">Betano/Betsson</small></td>
+            <td>69.8%</td>
+            <td><b>Juega HOY 12:30</b></td>
+            <td><span class="st-pend">⏳ POR JUGAR</span></td>
+            <td><span style="color:#94a3b8;">En espera</span></td>
+        </tr>
+        
+        <tr class="audit-row" data-est="PENDIENTE">
+            <td><b>2026-10-28 12:30</b></td>
+            <td><b>Venezia vs Internazionale</b><br><small style="color:#94a3b8;">Serie A · 1X2</small></td>
+            <td><b style="color:#38bdf8;">Victoria Internazionale (2)</b></td>
+            <td>@1.42<br><small style="color:#94a3b8;">1xBet (OddsAPI)</small></td>
+            <td>73.4%</td>
+            <td><b>Juega HOY 12:30</b></td>
+            <td><span class="st-pend">⏳ POR JUGAR</span></td>
+            <td><span style="color:#94a3b8;">En espera</span></td>
+        </tr>
+        
+        <tr class="audit-row" data-est="PENDIENTE">
+            <td><b>2026-10-28 14:45</b></td>
+            <td><b>Genoa vs Juventus</b><br><small style="color:#94a3b8;">Serie A · FALTAS</small></td>
+            <td><b style="color:#38bdf8;">Más de 23.5 Faltas Totales</b></td>
+            <td>@1.65<br><small style="color:#94a3b8;">Betano/Betsson</small></td>
+            <td>71.7%</td>
+            <td><b>Juega HOY 14:45</b></td>
+            <td><span class="st-pend">⏳ POR JUGAR</span></td>
+            <td><span style="color:#94a3b8;">En espera</span></td>
+        </tr>
+        
+        <tr class="audit-row" data-est="PENDIENTE">
+            <td><b>2026-10-30 19:15</b></td>
+            <td><b>Racing Club vs Aldosivi</b><br><small style="color:#94a3b8;">Liga Argentina · GOLES</small></td>
+            <td><b style="color:#38bdf8;">Menos de 3.5 Goles (Under 3.5)</b></td>
+            <td>@1.52<br><small style="color:#94a3b8;">Línea Consenso B2B</small></td>
+            <td>74.4%</td>
+            <td><b>Juega 2026-10-30 19:15</b></td>
+            <td><span class="st-pend">⏳ POR JUGAR</span></td>
+            <td><span style="color:#94a3b8;">En espera</span></td>
+        </tr>
+        
         <tr class="audit-row" data-est="PENDIENTE">
             <td><b>2026-10-31 15:00</b></td>
             <td><b>Aston Villa vs Fulham</b><br><small style="color:#94a3b8;">Premier League · DOBLE</small></td>
@@ -1117,15 +1143,15 @@
             <td><span style="color:#94a3b8;">En espera</span></td>
         </tr>
         
-        <tr class="audit-row" data-est="PENDIENTE">
+        <tr class="audit-row" data-est="PERDIDO">
             <td><b>2026-10-28 13:00</b></td>
             <td><b>Anaitasuna vs Alavés</b><br><small style="color:#94a3b8;">Copa del Rey · 1X2</small></td>
             <td><b style="color:#38bdf8;">Victoria Anaitasuna (1)</b></td>
             <td>@1.70<br><small style="color:#94a3b8;">Línea Apertura B2B</small></td>
             <td>64.2%</td>
-            <td><b>Juega MAÑANA 13:00</b></td>
-            <td><span class="st-pend">⏳ POR JUGAR</span></td>
-            <td><span style="color:#94a3b8;">En espera</span></td>
+            <td><b>0-0 (Final)</b></td>
+            <td><span class="st-lost">❌ PERDIDO</span></td>
+            <td><span style="color:#ef4444;font-weight:700;">-S/ 3.50</span></td>
         </tr>
         
         <tr class="audit-row" data-est="PENDIENTE">
@@ -1216,15 +1242,15 @@
             <td><span style="color:#94a3b8;">En espera</span></td>
         </tr>
         
-        <tr class="audit-row" data-est="PENDIENTE">
+        <tr class="audit-row" data-est="GANADO">
             <td><b>2026-10-28 14:30</b></td>
             <td><b>Gimnástica Torrelavega vs UD Ourense</b><br><small style="color:#94a3b8;">Copa del Rey · GOLES</small></td>
             <td><b style="color:#38bdf8;">Menos de 3.5 Goles (Under 3.5)</b></td>
             <td>@1.54<br><small style="color:#94a3b8;">Línea Apertura B2B</small></td>
             <td>74.9%</td>
-            <td><b>Juega MAÑANA 14:30</b></td>
-            <td><span class="st-pend">⏳ POR JUGAR</span></td>
-            <td><span style="color:#94a3b8;">En espera</span></td>
+            <td><b>0-0 (Final)</b></td>
+            <td><span class="st-won">✅ GANADO</span></td>
+            <td><span style="color:#10b981;font-weight:700;">+S/ 3.24</span></td>
         </tr>
         
         <tr class="audit-row" data-est="PENDIENTE">
@@ -1307,8 +1333,8 @@
         function recalcularStakes() {
             const bank = parseFloat(document.getElementById('inputBankroll').value) || 100;
             document.querySelectorAll('.stake-dinamico').forEach(el => {
-                const pct = parseFloat(el.getAttribute('data-pct')) || 0.03;
-                const monto = Math.max(1.0, Math.min(bank * 0.08, Math.round((bank * pct) * 2) / 2));
+                const pct = parseFloat(el.getAttribute('data-pct')) || 0.025;
+                const monto = Math.max(1.0, Math.min(bank * 0.05, Math.round((bank * pct) * 2) / 2));
                 el.innerText = 'S/ ' + monto.toFixed(2);
             });
         }
