@@ -20,17 +20,16 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: 3. Instalar Dependencias de Alto Rendimiento
+      - name: 3. Instalar Dependencias
         run: pip install numba numpy pandas requests
 
-      - name: 4. Ejecutar Motor Cuantitativo v19.0 y Generar Web
+      - name: 4. Ejecutar Pipeline v19.1
         run: python iabet_cloud.py
 
-      - name: 5. Auto-Guardar Auditoria, Cache y Publicar Web Dashboard
+      - name: 5. Publicar Cambios al Dashboard
         run: |
-          git config --global user.name "IABET Quant Bot"
+          git config --global user.name "IABET Bot"
           git config --global user.email "bot@iabet.cloud"
-          git add auditoria_iabet.json index.html cache_odds_api.json || true
-          git diff --staged --quiet || git commit -m "Auto-update: IABET v19.0 Ultra-Safe Dashboard"
+          git add index.html auditoria_iabet.json cache_odds_api.json || true
+          git diff --staged --quiet || git commit -m "Auto-update: Dashboard v19.1"
           git push
-          
