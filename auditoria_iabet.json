@@ -1,12 +1,12 @@
 {
   "bankroll_inicial": 100.0,
-  "bankroll_actual": 99.74,
-  "ganancia_neta": -0.26,
-  "roi_pct": -2.7,
-  "win_rate": 50.0,
-  "ganados": 1,
+  "bankroll_actual": 100.73,
+  "ganancia_neta": 0.73,
+  "roi_pct": 5.8,
+  "win_rate": 66.7,
+  "ganados": 2,
   "perdidos": 1,
-  "racha": 0,
+  "racha": 1,
   "historial": [
     {
       "event_id": "401928517",
@@ -95,9 +95,9 @@
       "cuota": 1.33,
       "stake": 3.0,
       "tier": "TIER S",
-      "estado": "PENDIENTE",
-      "marcador_final": "EN VIVO 2-1 (88')",
-      "profit": 0.0,
+      "estado": "GANADO",
+      "marcador_final": "2-1 (Final)",
+      "profit": 0.99,
       "version": "Pro2.1"
     },
     {
@@ -167,6 +167,34 @@
       "tier": "TIER A",
       "estado": "PENDIENTE",
       "marcador_final": "2026-10-30 · 13:00",
+      "profit": 0.0,
+      "version": "Pro2.1"
+    },
+    {
+      "event_id": "401876421",
+      "clave_partido": "le ha_paris",
+      "liga": "Ligue 1",
+      "partido": "Le Havre AC vs Paris Saint-Germain",
+      "mercado": "Más de 1.5 Goles (Over 1.5)",
+      "cuota": 1.3,
+      "stake": 3.5,
+      "tier": "TIER S",
+      "estado": "PENDIENTE",
+      "marcador_final": "2026-10-30 · 13:00",
+      "profit": 0.0,
+      "version": "Pro2.1"
+    },
+    {
+      "event_id": "401876918",
+      "clave_partido": "juare_quere",
+      "liga": "Liga MX",
+      "partido": "FC Juárez vs Querétaro",
+      "mercado": "Más de 1.5 Goles (Over 1.5)",
+      "cuota": 1.4,
+      "stake": 2.5,
+      "tier": "TIER S",
+      "estado": "PENDIENTE",
+      "marcador_final": "2026-10-30 · 20:00",
       "profit": 0.0,
       "version": "Pro2.1"
     }
