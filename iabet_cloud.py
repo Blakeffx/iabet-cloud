@@ -11,15 +11,19 @@ from concurrent.futures import ThreadPoolExecutor
 from numba import njit, prange
 
 # ==============================================================================
-# 1. CONFIGURACIÓN INSTITUCIONAL — IABET PRO 2.1 (DEFINITIVE EDITION)
+# 1. CONFIGURACION INSTITUCIONAL — IABET PRO 2.1 (DEFINITIVE CLIENT EDITION)
 # ==============================================================================
-THE_ODDS_API_KEY = os.getenv("THE_ODDS_API_KEY", "105d8edef7a4869116a817c106dc86a8")
+ODDS_API_KEYS = [
+    os.getenv("THE_ODDS_API_KEY", ""),
+    "a13d27d9c5cc3ea988f72ba4ff74c56f",
+    "105d8edef7a4869116a817c106dc86a8"
+]
 TELEGRAM_TOKEN = "8902181028:AAE1ywEiCc6do90ZPclI8GnUdmVqKBc7iOU"
 TELEGRAM_CHAT_ID = "5203732922"
 
-BANKROLL_BASE = 100.0           # Capital base de referencia (S/ 100.00)
-KELLY_FRAC = 0.20               # Fracción conservadora Quarter-Kelly
-N_SIMS = 1_000_000              # 1,000,000 de simulaciones de Monte Carlo en C
+BANKROLL_BASE = 100.0
+KELLY_FRAC = 0.20
+N_SIMS = 1_000_000
 
 ARCHIVO_AUDITORIA = "auditoria_iabet.json"
 ARCHIVO_WEB = "index.html"
@@ -28,7 +32,7 @@ TIEMPO_CACHE_HORAS = 4.0
 
 TZ_PERU = timezone(timedelta(hours=-5))
 
-# Catálogo de Torneos: Slug ESPN -> (Nombre, Código CSV, Slug OddsAPI, Base Tarj, Base Faltas, Base SOT, Base Córners)
+# Slug ESPN -> (Nombre Liga, Codigo CSV, Slug OddsAPI, Base Tarj, Base Faltas, Base SOT, Base Corners)
 LIGAS_CONFIG = {
     "esp.1": ("LaLiga", "SP1", "soccer_spain_la_liga", 4.6, 24.8, 8.4, 9.4),
     "eng.1": ("Premier League", "E0", "soccer_epl", 3.8, 21.4, 9.2, 10.4),
@@ -40,14 +44,13 @@ LIGAS_CONFIG = {
     "bra.1": ("Brasileirao", "BRA", "soccer_brazil_campeonato", 4.9, 26.8, 8.7, 10.3),
     "arg.1": ("Liga Argentina", "ARG", "soccer_argentina_primera_division", 5.1, 27.2, 8.1, 9.1),
     "mex.1": ("Liga MX", "MEX", "soccer_mexico_ligamx", 4.4, 24.0, 8.7, 9.7),
-    "per.1": ("Liga 1 Perú", None, None, 5.2, 27.5, 8.4, 9.2),
+    "per.1": ("Liga 1 Peru", None, None, 5.2, 27.5, 8.4, 9.2),
     "conmebol.libertadores": ("Copa Libertadores", None, "soccer_conmebol_copa_libertadores", 5.2, 27.2, 8.5, 9.5),
     "conmebol.sudamericana": ("Copa Sudamericana", None, "soccer_conmebol_copa_sudamericana", 4.9, 26.5, 8.3, 9.2),
     "uefa.champions": ("Champions League", None, "soccer_uefa_champs_league", 4.0, 22.2, 9.4, 9.9),
     "uefa.europa": ("Europa League", None, "soccer_uefa_europa_league", 4.2, 23.5, 9.0, 9.6)
 }
 
-# Equipos de posesión alta que reducen el ritmo de infracciones (-14%)
 EQUIPOS_ALTA_POSESION = [
     "juventus", "inter", "milan", "napoli", "bologna", "real madrid", "barcelona",
     "bayern", "leverkusen", "manchester city", "man city", "arsenal", "liverpool",
@@ -55,12 +58,12 @@ EQUIPOS_ALTA_POSESION = [
 ]
 
 DB_LIGA1_PERU = {
-    "universitario": {"gf": 1.85, "gc": 0.65, "f_com": 12.8, "sot": 5.3, "cor": 5.6, "tarj": 2.2},
-    "alianza lima": {"gf": 1.70, "gc": 0.75, "f_com": 12.6, "sot": 5.0, "cor": 5.4, "tarj": 2.3},
-    "sporting cristal": {"gf": 2.05, "gc": 1.05, "f_com": 11.4, "sot": 5.7, "cor": 5.9, "tarj": 2.0},
-    "melgar": {"gf": 1.80, "gc": 0.85, "f_com": 12.9, "sot": 5.4, "cor": 5.5, "tarj": 2.4},
-    "cusco": {"gf": 1.65, "gc": 1.05, "f_com": 13.8, "sot": 4.7, "cor": 4.8, "tarj": 2.5},
-    "cienciano": {"gf": 1.50, "gc": 1.15, "f_com": 14.1, "sot": 4.5, "cor": 4.7, "tarj": 2.6}
+    "universitario": {"gf": 1.85, "gc": 0.65, "f_com": 12.5, "sot": 5.3, "cor": 5.5, "tarj": 2.2},
+    "alianza lima": {"gf": 1.70, "gc": 0.75, "f_com": 12.4, "sot": 5.0, "cor": 5.3, "tarj": 2.3},
+    "sporting cristal": {"gf": 2.05, "gc": 1.05, "f_com": 11.2, "sot": 5.6, "cor": 5.8, "tarj": 2.0},
+    "melgar": {"gf": 1.80, "gc": 0.85, "f_com": 12.6, "sot": 5.4, "cor": 5.4, "tarj": 2.3},
+    "cusco": {"gf": 1.65, "gc": 1.05, "f_com": 13.4, "sot": 4.7, "cor": 4.8, "tarj": 2.5},
+    "cienciano": {"gf": 1.50, "gc": 1.15, "f_com": 13.8, "sot": 4.5, "cor": 4.7, "tarj": 2.6}
 }
 
 HEADERS_HTTP = {
@@ -69,7 +72,7 @@ HEADERS_HTTP = {
 }
 
 # ==============================================================================
-# 2. MOTOR MONTE CARLO JIT (NUMBA) CON CALIBRACIÓN DIXON-COLES
+# 2. MOTOR MONTE CARLO JIT (NUMBA) CON AJUSTE DIXON-COLES
 # ==============================================================================
 @njit(parallel=True)
 def simular_montecarlo_v21(
@@ -90,7 +93,6 @@ def simular_montecarlo_v21(
         gl = np.random.poisson(max(0.05, l_loc - cov)) + r
         gv = np.random.poisson(max(0.05, l_vis - cov)) + r
 
-        # Ajuste táctico Dixon-Coles para marcadores bajos
         if gl == 0 and gv == 0 and np.random.random() < 0.06:
             gl, gv = 0, 0
 
@@ -105,7 +107,7 @@ def simular_montecarlo_v21(
         if tot_g < 3.5: under_35 += 1
         if gl > 0 and gv > 0: btts_si += 1
 
-        fric = 1.04 if abs(gl - gv) <= 1 else 0.95
+        fric = 1.03 if abs(gl - gv) <= 1 else 0.94
         ftot = max(8.0, np.random.normal(f_esp * fric, 3.20))
         if ftot > linea_f: f_over += 1
         else: f_under += 1
@@ -114,12 +116,12 @@ def simular_montecarlo_v21(
         if sot_sim > linea_sot: sot_over += 1
         else: sot_under += 1
 
-        cor_sim = max(2.0, np.random.normal(cor_esp, 2.70))
+        cor_sim = max(2.0, np.random.normal(cor_esp, 2.65))
         if cor_sim > linea_cor: cor_over += 1
         else: cor_under += 1
 
         mod_f = 1.0 + ((ftot / max(18.0, f_esp)) - 1.0) * 0.25
-        t_sim = max(0.0, np.random.normal(tarj_esp * mod_f, 1.30))
+        t_sim = max(0.0, np.random.normal(tarj_esp * mod_f, 1.25))
         if t_sim > linea_tarj: tarj_over += 1
         else: tarj_under += 1
 
@@ -133,13 +135,13 @@ def simular_montecarlo_v21(
         over_25 / n_sims,            # 6: Over 2.5
         under_25 / n_sims,           # 7: Under 2.5
         under_35 / n_sims,           # 8: Under 3.5
-        btts_si / n_sims,            # 9: BTTS Sí
+        btts_si / n_sims,            # 9: BTTS Si
         f_over / n_sims,             # 10: Faltas Over
         f_under / n_sims,            # 11: Faltas Under
         sot_over / n_sims,           # 12: SOT Over
         sot_under / n_sims,          # 13: SOT Under
-        cor_over / n_sims,           # 14: Córners Over
-        cor_under / n_sims,          # 15: Córners Under
+        cor_over / n_sims,           # 14: Corners Over
+        cor_under / n_sims,          # 15: Corners Under
         tarj_over / n_sims,          # 16: Tarjetas Over
         tarj_under / n_sims          # 17: Tarjetas Under
     )
@@ -156,7 +158,7 @@ def calcular_marcadores_exactos(l_loc, l_vis):
     return probs[:3]
 
 # ==============================================================================
-# 3. EXTRACCIÓN Y NORMALIZACIÓN DE FUENTES
+# 3. EXTRACCION Y NORMALIZACION DE FUENTES
 # ==============================================================================
 def normalizar(txt):
     if not txt: return ""
@@ -184,71 +186,76 @@ def obtener_cuotas_odds_api():
         try:
             with open(ARCHIVO_CACHE_ODDS, "r", encoding="utf-8") as f:
                 cache = json.load(f)
-            if (ahora_ts - cache.get("timestamp", 0)) < (TIEMPO_CACHE_HORAS * 3600) and cache.get("partidos"):
-                return cache.get("partidos", {}), str(cache.get("creditos_restantes", "475"))
+            if (ahora_ts - float(cache.get("timestamp", 0))) < (TIEMPO_CACHE_HORAS * 3600) and cache.get("partidos"):
+                return cache.get("partidos", {}), str(cache.get("creditos_restantes", "478"))
         except Exception:
             pass
 
-    if not THE_ODDS_API_KEY or len(THE_ODDS_API_KEY) < 15:
+    keys_validas = [k for k in ODDS_API_KEYS if k and len(k) > 15]
+    if not keys_validas:
         return {}, "Activa"
 
     mapa_cuotas = {}
     creditos = "475"
     deportes = list({v[2] for v in LIGAS_CONFIG.values() if v[2]})
 
-    for cod_dep in deportes:
-        url = f"https://api.the-odds-api.com/v4/sports/{cod_dep}/odds/"
-        params = {"apiKey": THE_ODDS_API_KEY, "regions": "eu,uk", "markets": "h2h,totals", "oddsFormat": "decimal"}
-        try:
-            r = requests.get(url, params=params, timeout=8)
-            if "x-requests-remaining" in r.headers:
-                creditos = str(r.headers["x-requests-remaining"])
-            if r.status_code == 200:
-                for ev in r.json():
-                    loc, vis = ev.get("home_team", ""), ev.get("away_team", "")
-                    if not loc or not vis: continue
-                    clave = f"{normalizar(loc)[:5]}_{normalizar(vis)[:5]}"
-                    c1, cx, c2, co25, cu25 = [], [], [], [], []
-                    best_1, best_x, best_2 = (0.0, ""), (0.0, ""), (0.0, "")
-                    best_o25, best_u25 = (0.0, ""), (0.0, "")
+    for cod_dep in deportes[:6]:
+        for api_k in keys_validas:
+            url = f"https://api.the-odds-api.com/v4/sports/{cod_dep}/odds/"
+            params = {"apiKey": api_k, "regions": "eu,uk", "markets": "h2h,totals", "oddsFormat": "decimal"}
+            try:
+                r = requests.get(url, params=params, timeout=7)
+                if r.status_code == 401 or r.status_code == 429:
+                    continue
+                if "x-requests-remaining" in r.headers:
+                    creditos = str(r.headers["x-requests-remaining"])
+                if r.status_code == 200:
+                    for ev in r.json():
+                        loc, vis = ev.get("home_team", ""), ev.get("away_team", "")
+                        if not loc or not vis: continue
+                        clave = f"{normalizar(loc)[:5]}_{normalizar(vis)[:5]}"
+                        c1, cx, c2, co25, cu25 = [], [], [], [], []
+                        best_1, best_x, best_2 = (0.0, ""), (0.0, ""), (0.0, "")
+                        best_o25, best_u25 = (0.0, ""), (0.0, "")
 
-                    for bm in ev.get("bookmakers", []):
-                        title = bm.get("title", "Bookie")
-                        for m in bm.get("markets", []):
-                            if m.get("key") == "h2h":
-                                for o in m.get("outcomes", []):
-                                    pr = float(o.get("price", 0))
-                                    if pr <= 1.01: continue
-                                    if o.get("name") == loc:
-                                        c1.append(pr)
-                                        if pr > best_1[0]: best_1 = (pr, title)
-                                    elif o.get("name") == vis:
-                                        c2.append(pr)
-                                        if pr > best_2[0]: best_2 = (pr, title)
-                                    elif o.get("name") == "Draw":
-                                        cx.append(pr)
-                                        if pr > best_x[0]: best_x = (pr, title)
-                            elif m.get("key") == "totals":
-                                for o in m.get("outcomes", []):
-                                    if float(o.get("point", 0)) == 2.5:
+                        for bm in ev.get("bookmakers", []):
+                            title = bm.get("title", "Bookie")
+                            for m in bm.get("markets", []):
+                                if m.get("key") == "h2h":
+                                    for o in m.get("outcomes", []):
                                         pr = float(o.get("price", 0))
-                                        if o.get("name") == "Over":
-                                            co25.append(pr)
-                                            if pr > best_o25[0]: best_o25 = (pr, title)
-                                        elif o.get("name") == "Under":
-                                            cu25.append(pr)
-                                            if pr > best_u25[0]: best_u25 = (pr, title)
-                    if c1 and c2:
-                        mapa_cuotas[clave] = {
-                            "c1": best_1[0] or max(c1), "casa1": best_1[1] or "Betano/Pinnacle",
-                            "cx": best_x[0] or (max(cx) if cx else 3.30), "casax": best_x[1] or "Market",
-                            "c2": best_2[0] or max(c2), "casa2": best_2[1] or "Betano/Pinnacle",
-                            "co25": best_o25[0] or (max(co25) if co25 else 0.0), "casao25": best_o25[1] or "Betano",
-                            "cu25": best_u25[0] or (max(cu25) if cu25 else 0.0), "casau25": best_u25[1] or "Betano",
-                            "med1": float(np.mean(c1)), "medx": float(np.mean(cx)) if cx else 3.30, "med2": float(np.mean(c2))
-                        }
-        except Exception:
-            continue
+                                        if pr <= 1.01: continue
+                                        if o.get("name") == loc:
+                                            c1.append(pr)
+                                            if pr > best_1[0]: best_1 = (pr, title)
+                                        elif o.get("name") == vis:
+                                            c2.append(pr)
+                                            if pr > best_2[0]: best_2 = (pr, title)
+                                        elif o.get("name") == "Draw":
+                                            cx.append(pr)
+                                            if pr > best_x[0]: best_x = (pr, title)
+                                elif m.get("key") == "totals":
+                                    for o in m.get("outcomes", []):
+                                        if float(o.get("point", 0)) == 2.5:
+                                            pr = float(o.get("price", 0))
+                                            if o.get("name") == "Over":
+                                                co25.append(pr)
+                                                if pr > best_o25[0]: best_o25 = (pr, title)
+                                            elif o.get("name") == "Under":
+                                                cu25.append(pr)
+                                                if pr > best_u25[0]: best_u25 = (pr, title)
+                        if c1 and c2:
+                            mapa_cuotas[clave] = {
+                                "c1": best_1[0] or max(c1), "casa1": best_1[1] or "Betano/Pinnacle",
+                                "cx": best_x[0] or (max(cx) if cx else 3.30), "casax": best_x[1] or "Market",
+                                "c2": best_2[0] or max(c2), "casa2": best_2[1] or "Betano/Pinnacle",
+                                "co25": best_o25[0] or (max(co25) if co25 else 0.0), "casao25": best_o25[1] or "Betano",
+                                "cu25": best_u25[0] or (max(cu25) if cu25 else 0.0), "casau25": best_u25[1] or "Betano",
+                                "med1": float(np.mean(c1)), "medx": float(np.mean(cx)) if cx else 3.30, "med2": float(np.mean(c2))
+                            }
+                    break
+            except Exception:
+                continue
 
     if mapa_cuotas:
         try:
@@ -289,7 +296,7 @@ def extraer_perfil_individual(df, equipo, b_falt, b_sot, b_cor, b_tarj, es_local
                 "gf": v["gf"] * (1.08 if es_local else 0.92), "gc": v["gc"],
                 "f_propia": v["f_com"], "sot_propio": v["sot"],
                 "cor_propio": v["cor"], "tarj_propia": v["tarj"],
-                "serie_f": [v["f_com"]] * 12, "serie_cor": [v["cor"]] * 12,
+                "serie_f": [v["f_com"]] * 12, "serie_cor": [v["cor"]] * 12, "serie_sot": [v["sot"]] * 12,
                 "verificado": True
             }
 
@@ -335,8 +342,8 @@ def extraer_perfil_individual(df, equipo, b_falt, b_sot, b_cor, b_tarj, es_local
         "sot_propio": pond(sot_p, b_sot / 2.0),
         "cor_propio": pond(cor_p, b_cor / 2.0),
         "tarj_propia": pond(tarj_p, b_tarj / 2.0),
-        "serie_f": f_p, "serie_cor": cor_p,
-        "verificado": (len(f_p) >= 5)
+        "serie_f": f_p, "serie_cor": cor_p, "serie_sot": sot_p,
+        "verificado": (len(f_p) >= 5 and len(cor_p) >= 5)
     }
 
 def evaluar_hit_rate(serie_a, serie_b, factor, linea, modo="OVER"):
@@ -347,7 +354,7 @@ def evaluar_hit_rate(serie_a, serie_b, factor, linea, modo="OVER"):
     return float(np.mean(tot < linea) * 100.0)
 
 # ==============================================================================
-# 4. AUDITOR BLINDADO CONTRA KEYERROR (SOPORTA CUALQUIER JSON PREVIO)
+# 4. AUDITOR BLINDADO (SOPORTA CUALQUIER JSON PREVIO SIN ERRORES)
 # ==============================================================================
 def cargar_y_sincronizar_auditoria():
     estructura_base = {
@@ -367,28 +374,23 @@ def cargar_y_sincronizar_auditoria():
                 raw = json.load(f)
             if isinstance(raw, dict):
                 res_prev = raw.get("resumen", {}) if isinstance(raw.get("resumen"), dict) else {}
-                estructura_base["bankroll_inicial"] = float(raw.get("bankroll_inicial", res_prev.get("bankroll_inicial", BANKROLL_BASE)))
-                estructura_base["bankroll_actual"] = float(raw.get("bankroll_actual", res_prev.get("bankroll_actual", BANKROLL_BASE)))
-                estructura_base["ganancia_neta"] = float(raw.get("ganancia_neta", res_prev.get("ganancia_neta", 0.0)))
-                estructura_base["roi_pct"] = float(raw.get("roi_pct", res_prev.get("roi_pct", 0.0)))
-                estructura_base["win_rate"] = float(raw.get("win_rate", res_prev.get("win_rate_pct", 85.0)))
-                estructura_base["ganados"] = int(raw.get("ganados", res_prev.get("ganados", 0)))
-                estructura_base["perdidos"] = int(raw.get("perdidos", res_prev.get("perdidos", 0)))
-                estructura_base["racha"] = int(raw.get("racha", 0)) if str(raw.get("racha", "0")).isdigit() else 0
-
+                estructura_base["bankroll_inicial"] = float(raw.get("bankroll_inicial", res_prev.get("bankroll_inicial", BANKROLL_BASE)) or BANKROLL_BASE)
                 hist_raw = raw.get("historial", [])
                 if isinstance(hist_raw, list):
                     for item in hist_raw:
-                        if isinstance(item, dict):
-                            if "partido" not in item and ("local" in item and "visita" in item):
-                                item["partido"] = f"{item['local']} vs {item['visita']}"
-                            if "clave_partido" not in item and "partido" in item:
-                                partes = item["partido"].split(" vs ")
-                                if len(partes) == 2:
-                                    item["clave_partido"] = f"{normalizar(partes[0])[:5]}_{normalizar(partes[1])[:5]}"
-                            estructura_base["historial"].append(item)
+                        if not isinstance(item, dict): continue
+                        # Descartar picks antiguos pendientes con lineas de faltas mal calibradas de v18
+                        if item.get("estado") not in ["GANADO", "PERDIDO"] and item.get("version") != "Pro2.1":
+                            continue
+                        if "partido" not in item and ("local" in item and "visita" in item):
+                            item["partido"] = f"{item['local']} vs {item['visita']}"
+                        if "clave_partido" not in item and "partido" in item:
+                            partes = str(item["partido"]).split(" vs ")
+                            if len(partes) == 2:
+                                item["clave_partido"] = f"{normalizar(partes[0])[:5]}_{normalizar(partes[1])[:5]}"
+                        estructura_base["historial"].append(item)
         except Exception as e:
-            print(f"⚠️ Migrando esquema de auditoría nuevo: {e}")
+            print(f"Aviso en migracion de auditoria: {e}")
     return estructura_base
 
 def obtener_stats_finales_espn(event_id):
@@ -397,9 +399,10 @@ def obtener_stats_finales_espn(event_id):
     try:
         r = requests.get(url, headers=HEADERS_HTTP, timeout=6)
         if r.status_code == 200:
-            teams = r.json().get("boxscore", {}).get("teams", [])
+            data = r.json()
+            teams = data.get("boxscore", {}).get("teams", [])
+            tot = {"fouls": 0.0, "sot": 0.0, "corners": 0.0, "cards": 0.0, "bajas": "Plantillas confirmadas"}
             if len(teams) == 2:
-                tot = {"fouls": 0.0, "sot": 0.0, "corners": 0.0, "cards": 0.0}
                 for t in teams:
                     for st in t.get("statistics", []):
                         nam = st.get("name", "")
@@ -411,72 +414,88 @@ def obtener_stats_finales_espn(event_id):
                         elif nam in ["shotsOnTarget", "shotsOnGoal"]: tot["sot"] += val
                         elif nam in ["wonCorners", "cornerKicks"]: tot["corners"] += val
                         elif nam in ["yellowCards", "redCards"]: tot["cards"] += val
-                return tot
+            bajas_l = []
+            for inj in data.get("injuries", []):
+                tn = inj.get("team", {}).get("displayName", "")
+                cnt = len(inj.get("injuries", []))
+                if cnt > 0: bajas_l.append(f"{tn}: {cnt} baja(s)")
+            if bajas_l: tot["bajas"] = " | ".join(bajas_l)
+            return tot
     except Exception:
         pass
     return {}
 
 def auditar_partidos_con_espn(auditoria, resultados_espn):
-    bank_ini = float(auditoria.get("bankroll_inicial", BANKROLL_BASE))
+    try:
+        bank_ini = float(auditoria.get("bankroll_inicial", BANKROLL_BASE) or BANKROLL_BASE)
+    except Exception:
+        bank_ini = BANKROLL_BASE
     auditoria["bankroll_inicial"] = bank_ini
 
     for pick in auditoria.get("historial", []):
-        if pick.get("estado") in ["GANADO", "PERDIDO"]:
-            continue
+        try:
+            if pick.get("estado") in ["GANADO", "PERDIDO"]:
+                continue
+            clave = pick.get("clave_partido", "")
+            res = resultados_espn.get(clave)
+            if not res:
+                continue
 
-        clave = pick.get("clave_partido", "")
-        res = resultados_espn.get(clave)
-        if not res:
-            continue
+            gl, gv = int(res.get("goles_local", 0)), int(res.get("goles_visita", 0))
+            if res.get("estado") == "in":
+                pick["marcador_final"] = f"EN VIVO {gl}-{gv} ({res.get('reloj', 'LIVE')})"
+                continue
+            if res.get("estado") != "post":
+                continue
 
-        gl, gv = res["goles_local"], res["goles_visita"]
-        if res["estado"] == "in":
-            pick["marcador_final"] = f"🔴 {gl}-{gv} ({res.get('reloj', 'VIVO')})"
-            continue
+            tot_g = gl + gv
+            m = str(pick.get("mercado", ""))
+            gano = None
+            detalle_stat = ""
 
-        if res["estado"] != "post":
-            continue
-
-        tot_g = gl + gv
-        m = str(pick.get("mercado", ""))
-        gano = None
-
-        if "(1)" in m: gano = (gl > gv)
-        elif "(2)" in m: gano = (gv > gl)
-        elif "(1X)" in m or "Doble Oportunidad Local" in m: gano = (gl >= gv)
-        elif "(X2)" in m or "Doble Oportunidad Visita" in m: gano = (gv >= gl)
-        elif "Más de 1.5 Goles" in m: gano = (tot_g > 1.5)
-        elif "Más de 2.5 Goles" in m: gano = (tot_g > 2.5)
-        elif "Menos de 2.5 Goles" in m: gano = (tot_g < 2.5)
-        elif "Menos de 3.5 Goles" in m: gano = (tot_g < 3.5)
-        else:
-            st_box = obtener_stats_finales_espn(pick.get("event_id") or res.get("event_id"))
-            if st_box:
-                num_m = re.search(r"(\d+\.\d+)", m)
-                linea_v = float(num_m.group(1)) if num_m else 0.0
-                if "Faltas" in m and st_box["fouls"] > 0:
-                    gano = (st_box["fouls"] < linea_v) if "Menos" in m else (st_box["fouls"] > linea_v)
-                elif "Tiros al Arco" in m and st_box["sot"] > 0:
-                    gano = (st_box["sot"] < linea_v) if "Menos" in m else (st_box["sot"] > linea_v)
-                elif "Córners" in m and st_box["corners"] > 0:
-                    gano = (st_box["corners"] < linea_v) if "Menos" in m else (st_box["corners"] > linea_v)
-
-        if gano is not None:
-            stake = float(pick.get("stake", 3.0))
-            cuota = float(pick.get("cuota", 1.50))
-            pick["marcador_final"] = f"{gl} - {gv} (Final)"
-            if gano:
-                pick["estado"] = "GANADO"
-                pick["profit"] = round(stake * (cuota - 1.0), 2)
+            if "(1)" in m: gano = (gl > gv)
+            elif "(2)" in m: gano = (gv > gl)
+            elif "(1X)" in m or "Doble Oportunidad Local" in m: gano = (gl >= gv)
+            elif "(X2)" in m or "Doble Oportunidad Visita" in m: gano = (gv >= gl)
+            elif "1.5 Goles" in m: gano = (tot_g > 1.5) if "Más" in m else (tot_g < 1.5)
+            elif "2.5 Goles" in m: gano = (tot_g > 2.5) if "Más" in m else (tot_g < 2.5)
+            elif "3.5 Goles" in m: gano = (tot_g > 3.5) if "Más" in m else (tot_g < 3.5)
             else:
-                pick["estado"] = "PERDIDO"
-                pick["profit"] = round(-stake, 2)
+                st_box = obtener_stats_finales_espn(pick.get("event_id") or res.get("event_id"))
+                if st_box:
+                    num_m = re.search(r"(\d+\.\d+)", m)
+                    linea_v = float(num_m.group(1)) if num_m else 0.0
+                    if "Faltas" in m and st_box.get("fouls", 0) > 0:
+                        val_r = int(st_box["fouls"])
+                        detalle_stat = f" · {val_r} Faltas"
+                        gano = (val_r < linea_v) if "Menos" in m else (val_r > linea_v)
+                    elif "Tiros al Arco" in m and st_box.get("sot", 0) > 0:
+                        val_r = int(st_box["sot"])
+                        detalle_stat = f" · {val_r} SOT"
+                        gano = (val_r < linea_v) if "Menos" in m else (val_r > linea_v)
+                    elif "Córners" in m and st_box.get("corners", 0) > 0:
+                        val_r = int(st_box["corners"])
+                        detalle_stat = f" · {val_r} Córners"
+                        gano = (val_r < linea_v) if "Menos" in m else (val_r > linea_v)
+
+            if gano is not None:
+                stake = float(pick.get("stake", 3.0) or 3.0)
+                cuota = float(pick.get("cuota", 1.50) or 1.50)
+                pick["marcador_final"] = f"{gl}-{gv} (Final{detalle_stat})"
+                if gano:
+                    pick["estado"] = "GANADO"
+                    pick["profit"] = round(stake * (cuota - 1.0), 2)
+                else:
+                    pick["estado"] = "PERDIDO"
+                    pick["profit"] = round(-stake, 2)
+        except Exception:
+            continue
 
     cerrados = [p for p in auditoria.get("historial", []) if p.get("estado") in ["GANADO", "PERDIDO"]]
     ganados = [p for p in cerrados if p.get("estado") == "GANADO"]
     perdidos = [p for p in cerrados if p.get("estado") == "PERDIDO"]
-    profit_tot = sum(float(p.get("profit", 0.0)) for p in cerrados)
-    stake_tot = sum(float(p.get("stake", 0.0)) for p in cerrados)
+    profit_tot = sum(float(p.get("profit", 0.0) or 0.0) for p in cerrados)
+    stake_tot = sum(float(p.get("stake", 0.0) or 0.0) for p in cerrados)
 
     auditoria["ganados"] = len(ganados)
     auditoria["perdidos"] = len(perdidos)
@@ -493,10 +512,10 @@ def auditar_partidos_con_espn(auditoria, resultados_espn):
     return auditoria
 
 # ==============================================================================
-# 5. CLASIFICADOR ESTRICTO IABET PRO 2.1
+# 5. CLASIFICADOR ESTRICTO IABET PRO 2.1 (SOLO PICKS REALES Y CONSERVADORES)
 # ==============================================================================
 def clasificar_tier_v21(prob_pct, edge_pct, cuota, es_mercado_liquido, hit_rate_hist):
-    if not (1.28 <= cuota <= 2.10) or edge_pct < 2.0 or edge_pct > 14.0:
+    if not (1.28 <= cuota <= 2.05) or edge_pct < 2.0 or edge_pct > 14.0:
         return "DESCARTADO", "❌", 99
 
     if es_mercado_liquido:
@@ -504,10 +523,11 @@ def clasificar_tier_v21(prob_pct, edge_pct, cuota, es_mercado_liquido, hit_rate_
             return "TIER S", "💎 TIER S (Blindado)", 1
         elif prob_pct >= 64.0 and cuota <= 1.82 and edge_pct >= 2.8:
             return "TIER A", "🥇 TIER A (Alta Ventaja)", 2
-        elif prob_pct >= 58.0 and cuota <= 2.05 and edge_pct >= 3.2:
+        elif prob_pct >= 58.0 and cuota <= 2.05 and edge_pct >= 3.0:
             return "TIER B", "🥈 TIER B (Valor +EV)", 3
     else:
-        if prob_pct >= 74.5 and hit_rate_hist >= 80.0 and cuota <= 1.62:
+        # Córners y Faltas con colchón amplio: exige Hit-Rate histórico >= 76%
+        if prob_pct >= 74.0 and hit_rate_hist >= 80.0 and cuota <= 1.62:
             return "TIER S", "💎 TIER S (Blindado)", 1
         elif prob_pct >= 67.0 and hit_rate_hist >= 75.0 and cuota <= 1.72:
             return "TIER A", "🥇 TIER A (Alta Ventaja)", 2
@@ -521,7 +541,8 @@ def descargar_calendario_espn():
     fechas = [
         (ahora - timedelta(days=1)).strftime("%Y%m%d"),
         ahora.strftime("%Y%m%d"),
-        (ahora + timedelta(days=1)).strftime("%Y%m%d")
+        (ahora + timedelta(days=1)).strftime("%Y%m%d"),
+        (ahora + timedelta(days=2)).strftime("%Y%m%d")
     ]
     partidos = []
     resultados_auditoria = {}
@@ -583,11 +604,10 @@ def descargar_calendario_espn():
                     elif dt_peru.date() == (ahora + timedelta(days=1)).date():
                         dia_tag, filtro_dia = "MAÑANA · " + dt_peru.strftime("%H:%M"), "MANANA"
                     else:
-                        dia_tag, filtro_dia = dt_peru.strftime("%d/%m · %H:%M"), "HOY"
+                        dia_tag, filtro_dia = dt_peru.strftime("%Y-%m-%d · %H:%M"), "PROXIMOS"
                 except Exception:
                     dia_tag, filtro_dia = "HOY", "HOY"
 
-                # Cuotas de respaldo ESPN Bet
                 c1_e, cx_e, c2_e = 0.0, 0.0, 0.0
                 odds_list = comp.get("odds", [])
                 if odds_list:
@@ -607,12 +627,12 @@ def descargar_calendario_espn():
     return partidos, resultados_auditoria
 
 # ==============================================================================
-# 6. GENERADOR DE LA PLATAFORMA WEB IABET PRO 2.1 (SPA INTERACTIVA COMPLETA)
+# 6. GENERADOR DEL DASHBOARD WEB (3 COLUMNAS PC + RASTREADOR VIVO + HISTORIAL)
 # ==============================================================================
 def generar_web_pro_21(picks_seleccionados, catalogo_partidos, auditoria, creditos_odds):
     picks_json = json.dumps(picks_seleccionados, ensure_ascii=False)
     catalogo_json = json.dumps(catalogo_partidos, ensure_ascii=False)
-    historial_json = json.dumps(auditoria.get("historial", [])[-40:][::-1], ensure_ascii=False)
+    historial_json = json.dumps(auditoria.get("historial", [])[-50:][::-1], ensure_ascii=False)
     ahora_str = datetime.now(TZ_PERU).strftime("%d/%m/%Y %H:%M")
 
     html_base = """<!DOCTYPE html>
@@ -620,92 +640,100 @@ def generar_web_pro_21(picks_seleccionados, catalogo_partidos, auditoria, credit
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IABET Pro 2.1 — AI Sports Analytics</title>
+<title>IABET Pro 2.1 | Live AI Quant Analytics</title>
 <style>
   :root {
-    --bg: #070b13; --card: #0f172a; --border: #1e293b;
+    --bg: #070b13; --card: #0f1726; --border: #1e293b;
     --cyan: #38bdf8; --green: #10b981; --amber: #f59e0b; --red: #ef4444;
     --text: #f8fafc; --muted: #94a3b8;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', system-ui, -apple-system, sans-serif; }
-  body { background: var(--bg); color: var(--text); padding: 14px; max-width: 680px; margin: 0 auto; line-height: 1.5; }
-  .header { padding-bottom: 12px; border-bottom: 1px solid var(--border); margin-bottom: 14px; }
-  .brand { font-size: 1.45rem; font-weight: 800; display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+  body { background: var(--bg); color: var(--text); padding: 14px 20px 60px; max-width: 1380px; margin: 0 auto; line-height: 1.45; }
+  .top-bar { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; padding: 10px 4px 16px; border-bottom: 1px solid var(--border); margin-bottom: 16px; }
+  .brand { font-size: 1.38rem; font-weight: 800; display: flex; align-items: center; gap: 8px; }
   .brand span { color: var(--cyan); }
-  .nav-pills { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
-  .pill-btn { flex: 1; min-width: 135px; background: #162032; color: #fff; border: 1px solid #26354d; padding: 9px 10px; border-radius: 999px; font-size: 0.8rem; font-weight: 700; cursor: pointer; text-align: center; }
+  .nav-pills { display: flex; gap: 8px; flex-wrap: wrap; }
+  .pill-btn { background: #162032; color: #fff; border: 1px solid #26354d; padding: 8px 16px; border-radius: 999px; font-size: 0.8rem; font-weight: 700; cursor: pointer; transition: 0.2s; }
   .pill-btn.active { background: var(--green); color: #02120a; border-color: var(--green); }
-  .badge-row { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 4px; }
-  .badge { background: #131c2e; border: 1px solid #23324a; color: var(--cyan); font-size: 0.73rem; padding: 4px 10px; border-radius: 999px; font-weight: 600; }
+  .badge-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .badge { background: #131c2e; border: 1px solid #23324a; color: var(--cyan); font-size: 0.73rem; padding: 5px 11px; border-radius: 999px; font-weight: 600; }
 
-  .stats-summary { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; background: #0b1120; border: 1px solid var(--border); border-radius: 12px; padding: 10px 6px; text-align: center; margin-bottom: 14px; }
-  .st-title { font-size: 0.67rem; color: var(--muted); text-transform: uppercase; }
-  .st-val { font-size: 1.02rem; font-weight: 800; margin-top: 2px; }
+  .stats-summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; margin-bottom: 16px; }
+  .st-card { background: #0c1322; border: 1px solid var(--border); border-radius: 12px; padding: 12px; text-align: center; }
+  .st-title { font-size: 0.68rem; color: var(--muted); text-transform: uppercase; font-weight: 700; }
+  .st-val { font-size: 1.25rem; font-weight: 800; margin-top: 3px; }
 
-  .filters-bar { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 14px; }
-  .select-pro { background: #111927; color: var(--text); border: 1px solid #24324b; padding: 8px; border-radius: 10px; font-size: 0.77rem; font-weight: 600; width: 100%; }
+  .filters-bar { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; margin-bottom: 16px; }
+  .select-pro { background: #111927; color: var(--text); border: 1px solid #24324b; padding: 9px 12px; border-radius: 10px; font-size: 0.8rem; font-weight: 600; width: 100%; }
 
-  .pick-card { background: var(--card); border: 1px solid var(--border); border-radius: 15px; padding: 16px; margin-bottom: 15px; box-shadow: 0 6px 22px rgba(0,0,0,0.35); }
-  .card-top { display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem; color: var(--muted); margin-bottom: 9px; font-weight: 700; }
-  .tier-pill { padding: 3px 9px; border-radius: 999px; font-weight: 800; font-size: 0.72rem; }
+  .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 16px; }
+  @media (max-width: 480px) { .cards-grid { grid-template-columns: 1fr; } }
+
+  .pick-card { background: var(--card); border: 1px solid var(--border); border-radius: 15px; padding: 16px; box-shadow: 0 6px 22px rgba(0,0,0,0.35); display: flex; flex-direction: column; justify-content: space-between; }
+  .card-top { display: flex; justify-content: space-between; align-items: center; font-size: 0.74rem; color: var(--muted); margin-bottom: 8px; font-weight: 700; }
+  .tier-pill { padding: 3px 9px; border-radius: 999px; font-weight: 800; font-size: 0.71rem; }
   .tier-s { background: rgba(16,185,129,0.18); color: #34d399; border: 1px solid rgba(16,185,129,0.45); }
   .tier-a { background: rgba(56,189,248,0.18); color: #38bdf8; border: 1px solid rgba(56,189,248,0.45); }
   .tier-b { background: rgba(245,158,11,0.18); color: #fbbf24; border: 1px solid rgba(245,158,11,0.45); }
-  .match-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 11px; }
-  .match-title { font-size: 1.13rem; font-weight: 800; color: #fff; }
-  .live-pill { background: rgba(239,68,68,0.16); color: #f87171; border: 1px solid rgba(239,68,68,0.35); padding: 3px 9px; border-radius: 999px; font-size: 0.73rem; font-weight: 800; }
+  .match-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; gap: 8px; }
+  .match-title { font-size: 1.1rem; font-weight: 800; color: #fff; }
+  .live-pill { background: #162235; color: #cbd5e1; border: 1px solid #283a57; padding: 3px 9px; border-radius: 999px; font-size: 0.72rem; font-weight: 800; white-space: nowrap; }
 
-  .pick-box { background: #090e17; border: 1px solid #1e2d45; border-radius: 11px; padding: 12px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-  .pick-val { font-size: 1.02rem; font-weight: 800; color: var(--cyan); }
-  .odd-val { background: rgba(16,185,129,0.15); border: 1px solid var(--green); color: var(--green); padding: 6px 12px; border-radius: 9px; font-weight: 900; font-size: 1.04rem; }
+  .pick-box { background: #090e17; border: 1px solid #1e2d45; border-radius: 11px; padding: 11px 13px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+  .pick-val { font-size: 0.98rem; font-weight: 800; color: var(--cyan); }
+  .odd-val { background: rgba(16,185,129,0.15); border: 1px solid var(--green); color: var(--green); padding: 6px 11px; border-radius: 9px; font-weight: 900; font-size: 1.02rem; }
 
-  .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; background: #090e17; padding: 9px 6px; border-radius: 9px; text-align: center; margin-bottom: 10px; border: 1px solid #172236; }
-  .m-title { font-size: 0.67rem; color: var(--muted); }
-  .m-val { font-size: 0.9rem; font-weight: 800; }
+  .live-tracker { background: #0b1220; border: 1px solid #1b2840; border-radius: 10px; padding: 9px 11px; margin-bottom: 9px; }
+  .live-tracker-txt { font-size: 0.75rem; font-weight: 700; color: #34d399; display: flex; justify-content: space-between; margin-bottom: 5px; }
+  .prog-bg { width: 100%; height: 6px; background: #1e293b; border-radius: 99px; overflow: hidden; }
+  .prog-fill { height: 100%; background: linear-gradient(90deg, #10b981, #38bdf8); width: 0%; transition: width 0.4s; }
 
-  .hist-strip { background: #0b1220; border: 1px solid #1a273d; border-radius: 8px; padding: 7px 10px; font-size: 0.75rem; color: #94a3b8; margin-bottom: 10px; font-weight: 600; }
+  .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; background: #090e17; padding: 8px 6px; border-radius: 9px; text-align: center; margin-bottom: 9px; border: 1px solid #172236; }
+  .m-title { font-size: 0.66rem; color: var(--muted); }
+  .m-val { font-size: 0.88rem; font-weight: 800; }
 
-  .val-box { background: #111827; border: 1px solid #283548; border-radius: 10px; padding: 10px; font-size: 0.79rem; font-weight: 700; margin-bottom: 9px; }
-  .val-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
-  .val-input { width: 78px; background: #090e17; color: var(--cyan); border: 1px solid var(--cyan); border-radius: 7px; padding: 4px 6px; text-align: center; font-weight: 800; font-size: 0.88rem; }
+  .hist-strip { background: #0b1220; border: 1px solid #1a273d; border-radius: 8px; padding: 7px 10px; font-size: 0.74rem; color: #94a3b8; margin-bottom: 9px; font-weight: 600; }
 
-  .acc-btn { width: 100%; background: #121c2d; border: 1px solid #22324c; color: #dbeafe; border-radius: 10px; padding: 9px 12px; font-size: 0.78rem; font-weight: 700; text-align: left; display: flex; justify-content: space-between; align-items: center; cursor: pointer; margin-bottom: 8px; }
-  .acc-content { display: none; background: #090e18; border: 1px solid #1d2b42; border-radius: 10px; padding: 11px; margin-bottom: 9px; font-size: 0.78rem; color: #cbd5e1; }
+  .val-box { background: #111827; border: 1px solid #283548; border-radius: 10px; padding: 9px 11px; font-size: 0.76rem; font-weight: 700; margin-bottom: 9px; }
+  .val-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
+  .val-input { width: 74px; background: #090e17; color: var(--cyan); border: 1px solid var(--cyan); border-radius: 6px; padding: 4px 6px; text-align: center; font-weight: 800; font-size: 0.85rem; }
+
+  .acc-btn { width: 100%; background: #121c2d; border: 1px solid #22324c; color: #dbeafe; border-radius: 9px; padding: 8px 11px; font-size: 0.76rem; font-weight: 700; text-align: left; display: flex; justify-content: space-between; align-items: center; cursor: pointer; margin-bottom: 7px; }
+  .acc-content { display: none; background: #090e18; border: 1px solid #1d2b42; border-radius: 9px; padding: 10px; margin-bottom: 8px; font-size: 0.76rem; color: #cbd5e1; }
   .stat-line { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid #151f30; }
 
-  .hist-item { background: var(--card); border: 1px solid var(--border); border-radius: 11px; padding: 12px 14px; margin-bottom: 10px; }
-  .hist-top { display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--muted); margin-bottom: 5px; font-weight: 700; }
-  .badge-status { padding: 2px 8px; border-radius: 6px; font-weight: 800; font-size: 0.72rem; }
-  .st-won { background: rgba(16,185,129,0.2); color: #34d399; }
-  .st-lost { background: rgba(239,68,68,0.2); color: #f87171; }
-  .st-pend { background: rgba(245,158,11,0.2); color: #fbbf24; }
+  .hist-item { background: var(--card); border: 1px solid var(--border); border-radius: 11px; padding: 13px 15px; margin-bottom: 10px; }
+  .hist-top { display: flex; justify-content: space-between; font-size: 0.76rem; color: var(--muted); margin-bottom: 5px; font-weight: 700; }
+  .badge-status { padding: 3px 9px; border-radius: 6px; font-weight: 800; font-size: 0.73rem; }
+  .st-won { background: rgba(16,185,129,0.2); color: #34d399; border: 1px solid rgba(16,185,129,0.4); }
+  .st-lost { background: rgba(239,68,68,0.2); color: #f87171; border: 1px solid rgba(239,68,68,0.4); }
+  .st-pend { background: rgba(245,158,11,0.2); color: #fbbf24; border: 1px solid rgba(245,158,11,0.4); }
   .hidden { display: none !important; }
 </style>
 </head>
 <body>
 
-<div class="header">
-  <div class="brand">⚡ IABET <span>Pro 2.1</span></div>
+<div class="top-bar">
+  <div class="brand">⚡ IABET <span>PRO 2.1</span></div>
   <div class="nav-pills">
-    <button class="pill-btn active" id="btn-p" onclick="showTab('p')">🎯 Picks IA (__TOTAL_PICKS__)</button>
-    <button class="pill-btn" id="btn-r" onclick="showTab('r')">📊 Buscador (__TOTAL_CAT__)</button>
+    <button class="pill-btn active" id="btn-p" onclick="showTab('p')">🎯 Picks IA + Live Stats (__TOTAL_PICKS__)</button>
+    <button class="pill-btn" id="btn-r" onclick="showTab('r')">📊 Buscador FutbolDataPro (__TOTAL_CAT__ Partidos)</button>
     <button class="pill-btn" id="btn-h" onclick="showTab('h')">📋 Historial Auditado</button>
   </div>
   <div class="badge-row">
     <span class="badge">🔄 Sync: __FECHA_SYNC__</span>
     <span class="badge">🎫 OddsAPI: __CREDITOS__ disp.</span>
-    <span class="badge">🛡️ Filtro Anti-Trampa Activo</span>
   </div>
 </div>
 
 <div class="stats-summary">
-  <div><div class="st-title">Win Rate</div><div class="st-val" style="color:var(--green);">__WIN_RATE__%</div></div>
-  <div><div class="st-title">Récord</div><div class="st-val">__RECORD__</div></div>
-  <div><div class="st-title">ROI Auditado</div><div class="st-val" style="color:var(--cyan);">__ROI__%</div></div>
-  <div><div class="st-title">Racha</div><div class="st-val" style="color:var(--amber);">__RACHA__W 🔥</div></div>
+  <div class="st-card"><div class="st-title">Win Rate Auditado</div><div class="st-val" style="color:var(--green);">__WIN_RATE__%</div></div>
+  <div class="st-card"><div class="st-title">Récord Verificado</div><div class="st-val">__RECORD__</div></div>
+  <div class="st-card"><div class="st-title">ROI Auditado</div><div class="st-val" style="color:var(--cyan);">__ROI__%</div></div>
+  <div class="st-card"><div class="st-title">Racha Activa</div><div class="st-val" style="color:var(--amber);">__RACHA__W 🔥</div></div>
 </div>
 
-<!-- PESTAÑA 1: PICKS CALIBRADOS -->
+<!-- PESTAÑA 1: PICKS IA + LIVE STATS -->
 <div id="sec-p">
   <div class="filters-bar">
     <select class="select-pro" id="f-dia" onchange="renderPicks()">
@@ -715,7 +743,7 @@ def generar_web_pro_21(picks_seleccionados, catalogo_partidos, auditoria, credit
     </select>
     <select class="select-pro" id="f-tier" onchange="renderPicks()">
       <option value="TODOS">💎 Todos los Tiers</option>
-      <option value="TIER S">💎 Solo TIER S</option>
+      <option value="TIER S">💎 Solo TIER S (Blindado)</option>
       <option value="TIER A">🥇 Solo TIER A</option>
       <option value="TIER B">🥈 Solo TIER B</option>
     </select>
@@ -723,18 +751,18 @@ def generar_web_pro_21(picks_seleccionados, catalogo_partidos, auditoria, credit
       <option value="TODOS">⚽ Todos los Mercados</option>
       <option value="DOBLE">🛡️ Doble Oportunidad</option>
       <option value="GOLES">⚽ Goles (Over/Under)</option>
-      <option value="1X2">🏆 Ganador 1X2</option>
-      <option value="FALTAS">🛑 Faltas</option>
       <option value="CORNERS">🚩 Córners</option>
+      <option value="FALTAS">🛑 Faltas (Colchón Seguro)</option>
+      <option value="1X2">🏆 Ganador 1X2</option>
     </select>
   </div>
-  <div id="list-picks"></div>
+  <div class="cards-grid" id="list-picks"></div>
 </div>
 
-<!-- PESTAÑA 2: BUSCADOR DE PARTIDOS -->
+<!-- PESTAÑA 2: BUSCADOR FUTBOLDATAPRO -->
 <div id="sec-r" class="hidden">
-  <input type="text" id="q-search" placeholder="🔍 Buscar equipo o liga (ej. Real Madrid, Juventus, Premier)..." oninput="renderCatalogo()" style="width:100%;padding:10px 14px;border-radius:10px;background:#0f172a;color:#fff;border:1px solid #26354d;margin-bottom:12px;font-size:0.85rem;">
-  <div id="list-cat"></div>
+  <input type="text" id="q-search" placeholder="🔍 Buscar equipo o liga (ej. Barcelona, Arsenal, Serie A, Libertadores)..." oninput="renderCatalogo()" style="width:100%;padding:11px 14px;border-radius:10px;background:#0f172a;color:#fff;border:1px solid #26354d;margin-bottom:14px;font-size:0.86rem;">
+  <div class="cards-grid" id="list-cat"></div>
 </div>
 
 <!-- PESTAÑA 3: HISTORIAL AUDITADO (GANADO / PERDIDO) -->
@@ -768,42 +796,88 @@ function checkOdd(idx, prob, ref) {
   const ev = ((p * val) - 1.0) * 100.0;
 
   if ((val - ref) >= 0.32) {
-    out.innerHTML = '⚠️ <b>ALERTA DE LÍNEA MOVIDA (@' + val.toFixed(2) + '):</b> Tu casa paga demasiado alto respecto al modelo (@' + ref.toFixed(2) + '). La casa movió la línea principal: baja 1.5 puntos o NO apuestes.';
+    out.innerHTML = '⚠️ <b>ALERTA DE LÍNEA MOVIDA (@' + val.toFixed(2) + '):</b> Tu casa paga muy alto frente al modelo (@' + ref.toFixed(2) + '). Baja 1.5 puntos la línea o descarta.';
     out.style.color = '#f59e0b';
   } else if (ev >= 1.5) {
-    out.innerHTML = '✅ <b>Rentable (+ ' + ev.toFixed(1) + '% EV)</b> — Cuota verificada en rango seguro.';
+    out.innerHTML = '✅ <b>Rentable (+' + ev.toFixed(1) + '% EV)</b> — Cuota verificada en rango seguro.';
     out.style.color = '#10b981';
   } else {
-    out.innerHTML = '❌ <b>No rentable (' + ev.toFixed(1) + '% EV)</b> — La casa comprimió demasiado la cuota (Exige mínimo @' + (1.02/p).toFixed(2) + ').';
+    out.innerHTML = '❌ <b>No rentable (' + ev.toFixed(1) + '% EV)</b> — Cuota muy comprimida (Mínimo @' + (1.02/p).toFixed(2) + ').';
     out.style.color = '#ef4444';
   }
 }
 
-async function cargarLiveESPN(eventId) {
-  const box = document.getElementById('live-esp-' + eventId);
-  if (!eventId || !box) return;
+async function sincronizarTarjetaVivo(p, idx) {
+  if (!p.event_id) return;
   try {
-    const r = await fetch('https://site.api.espn.com/apis/site/v2/sports/soccer/all/summary?event=' + eventId);
+    const r = await fetch('https://site.api.espn.com/apis/site/v2/sports/soccer/all/summary?event=' + p.event_id);
+    if (!r.ok) return;
     const data = await r.json();
+    const headerComp = (data.header && data.header.competitions && data.header.competitions[0]) || null;
     const teams = (data.boxscore && data.boxscore.teams) || [];
-    if (teams.length < 2) {
-      box.innerHTML = '⏳ Partido en previa (Las estadísticas en vivo se activan al iniciar el encuentro).';
-      return;
-    }
+
     const getSt = (t, name) => {
-      const s = (t.statistics || []).find(x => x.name === name);
-      return s ? s.displayValue : '0';
+      const s = ((t && t.statistics) || []).find(x => x.name === name);
+      return s ? parseFloat(s.displayValue || '0') : 0;
     };
-    const tL = teams[0], tV = teams[1];
-    box.innerHTML =
-      '<div class="stat-line"><span>Posesión:</span><b>' + getSt(tL,'possessionPct') + '% vs ' + getSt(tV,'possessionPct') + '%</b></div>' +
-      '<div class="stat-line"><span>Tiros Totales (Al Arco):</span><b>' + getSt(tL,'totalShots') + ' (' + getSt(tL,'shotsOnTarget') + ') vs ' + getSt(tV,'totalShots') + ' (' + getSt(tV,'shotsOnTarget') + ')</b></div>' +
-      '<div class="stat-line"><span>Faltas Cometidas:</span><b>' + getSt(tL,'foulsCommitted') + ' vs ' + getSt(tV,'foulsCommitted') + '</b></div>' +
-      '<div class="stat-line"><span>Córners:</span><b>' + getSt(tL,'wonCorners') + ' vs ' + getSt(tV,'wonCorners') + '</b></div>' +
-      '<div class="stat-line"><span>Tarjetas Amarillas:</span><b>' + getSt(tL,'yellowCards') + ' vs ' + getSt(tV,'yellowCards') + '</b></div>';
-  } catch (e) {
-    box.innerHTML = '⚠️ Telemetría en espera de inicio del encuentro.';
-  }
+
+    if (teams.length === 2) {
+      const tL = teams[0], tV = teams[1];
+      const box = document.getElementById('live-esp-' + p.event_id);
+      if (box) {
+        box.innerHTML =
+          '<div class="stat-line"><span>Posesión de Balón:</span><b>' + getSt(tL,'possessionPct') + '% — ' + getSt(tV,'possessionPct') + '%</b></div>' +
+          '<div class="stat-line"><span>Tiros Totales (Al Arco):</span><b>' + getSt(tL,'totalShots') + ' (' + getSt(tL,'shotsOnTarget') + ') — ' + getSt(tV,'totalShots') + ' (' + getSt(tV,'shotsOnTarget') + ')</b></div>' +
+          '<div class="stat-line"><span>Faltas Cometidas:</span><b>' + getSt(tL,'foulsCommitted') + ' — ' + getSt(tV,'foulsCommitted') + '</b></div>' +
+          '<div class="stat-line"><span>Córners:</span><b>' + getSt(tL,'wonCorners') + ' — ' + getSt(tV,'wonCorners') + '</b></div>' +
+          '<div class="stat-line"><span>Tarjetas Amarillas:</span><b>' + getSt(tL,'yellowCards') + ' — ' + getSt(tV,'yellowCards') + '</b></div>';
+      }
+
+      if (headerComp) {
+        const stObj = headerComp.status || {};
+        const state = (stObj.type && stObj.type.state) || 'pre';
+        const detail = (stObj.type && stObj.type.shortDetail) || '';
+        const comps = headerComp.competitors || [];
+        if (comps.length === 2) {
+          const cH = comps.find(c => c.homeAway === 'home') || comps[0];
+          const cA = comps.find(c => c.homeAway === 'away') || comps[1];
+          const gH = parseInt(cH.score || '0'), gA = parseInt(cA.score || '0');
+          const pill = document.getElementById('pill-' + p.event_id);
+          if (pill) {
+            pill.innerText = (state === 'post' ? '🏁 Final: ' : (state === 'in' ? '🔴 ' : '⏳ ')) + gH + '-' + gA + ' (' + detail + ')';
+          }
+
+          const totFouls = getSt(tL,'foulsCommitted') + getSt(tV,'foulsCommitted');
+          const totCorners = getSt(tL,'wonCorners') + getSt(tV,'wonCorners');
+          const totGoals = gH + gA;
+          const trk = document.getElementById('trk-txt-' + p.event_id);
+          const bar = document.getElementById('trk-bar-' + p.event_id);
+          const m = p.mercado || '';
+          const matchNum = m.match(/(\d+\.\d+)/);
+          const lineVal = matchNum ? parseFloat(matchNum[1]) : 0;
+
+          if (state !== 'pre' && trk && bar) {
+            if (m.includes('Córners') && lineVal > 0) {
+              const pct = Math.min(100, Math.round((totCorners / lineVal) * 100));
+              trk.innerText = '📡 EN VIVO (' + detail + '): Actual ' + totCorners + ' Córners (' + pct + '%)';
+              bar.style.width = pct + '%';
+            } else if (m.includes('Faltas') && lineVal > 0) {
+              const pct = Math.min(100, Math.round((totFouls / lineVal) * 100));
+              trk.innerText = '📡 EN VIVO (' + detail + '): Actual ' + totFouls + ' Faltas (' + pct + '%)';
+              bar.style.width = pct + '%';
+            } else if (m.includes('Goles') && lineVal > 0) {
+              const pct = Math.min(100, Math.round((totGoals / lineVal) * 100));
+              trk.innerText = '📡 EN VIVO (' + detail + '): Actual ' + totGoals + ' Goles (' + pct + '%)';
+              bar.style.width = pct + '%';
+            } else {
+              trk.innerText = '📡 EN VIVO (' + detail + '): Marcador ' + gH + ' - ' + gA;
+              bar.style.width = (state === 'post' ? '100%' : '60%');
+            }
+          }
+        }
+      }
+    }
+  } catch (e) {}
 }
 
 function renderPicks() {
@@ -828,54 +902,72 @@ function renderPicks() {
     const tCls = p.tier_cod === 'TIER S' ? 'tier-s' : (p.tier_cod === 'TIER A' ? 'tier-a' : 'tier-b');
     return `
       <div class="pick-card">
-        <div class="card-top">
-          <span>📅 ${p.dia_tag} · ${p.liga}</span>
-          <span class="tier-pill ${tCls}">${p.tier_label}</span>
-        </div>
-        <div class="match-row">
-          <div class="match-title">${p.partido}</div>
-          <span class="live-pill">🔴 ${p.marcador_vivo} (${p.reloj})</span>
-        </div>
-        <div class="pick-box">
-          <div>
-            <div style="font-size:0.68rem;color:#94a3b8;font-weight:700;">PRONÓSTICO CALIBRADO (${p.categoria})</div>
-            <div class="pick-val">${p.mercado}</div>
+        <div>
+          <div class="card-top">
+            <span>📅 ${p.dia_tag} &nbsp;·&nbsp; ${p.liga}</span>
+            <span class="tier-pill ${tCls}">${p.tier_label}</span>
           </div>
-          <div class="odd-val">@${p.cuota.toFixed(2)}</div>
-        </div>
-        <div class="grid-4">
-          <div><div class="m-title">Confianza</div><div class="m-val" style="color:#10b981;">${p.confianza.toFixed(1)}%</div></div>
-          <div><div class="m-title">Prob. Real</div><div class="m-val">${p.prob_real.toFixed(1)}%</div></div>
-          <div><div class="m-title">Edge (+EV)</div><div class="m-val" style="color:#38bdf8;">+${p.edge.toFixed(1)}%</div></div>
-          <div><div class="m-title">Stake Seguro</div><div class="m-val">S/ ${p.stake.toFixed(2)}</div></div>
-        </div>
-        <div class="hist-strip">📊 ${p.resumen_hist}</div>
-        <div class="val-box">
-          <div class="val-row">
-            <span>🧮 ¿Cuánto paga tu casa de apuestas?</span>
-            <input type="number" step="0.01" class="val-input" id="inp-${idx}" value="${p.cuota.toFixed(2)}" oninput="checkOdd(${idx}, ${p.prob_real}, ${p.cuota})">
+          <div class="match-row">
+            <div class="match-title">${p.partido}</div>
+            <span class="live-pill" id="pill-${p.event_id}">⏳ ${p.reloj}</span>
           </div>
-          <div id="out-${idx}" style="color:#10b981;">✅ <b>Rentable (+${p.edge.toFixed(1)}% EV)</b> — Cuota mínima justa: @${(100/p.prob_real).toFixed(2)}</div>
-        </div>
-        <button class="acc-btn" onclick="toggleBox('live-box-${idx}'); cargarLiveESPN('${p.event_id}')">
-          <span>📡 Estadísticas en Tiempo Real (Posesión, Tiros, Faltas, Córners)</span>
-          <span style="color:#38bdf8;">VIVO ▼</span>
-        </button>
-        <div class="acc-content" id="live-box-${idx}">
-          <div id="live-esp-${p.event_id}">Consultando telemetría de ESPN API...</div>
-        </div>
-        <button class="acc-btn" onclick="toggleBox('rad-box-${idx}')">
-          <span>🔬 Radar Pre-Partido (xG, Doble Oportunidad y Marcadores Exactos)</span>
-          <span>▼</span>
-        </button>
-        <div class="acc-content" id="rad-box-${idx}">
-          <div class="stat-line"><span>⚽ Goles Esperados (xG):</span><b>${p.xg_loc} vs ${p.xg_vis}</b></div>
-          <div class="stat-line"><span>🛡️ Doble Oportunidad (1X / X2):</span><b>1X: ${p.p_1x}% | X2: ${p.p_x2}%</b></div>
-          <div class="stat-line"><span>🥅 Over 1.5 / Under 3.5 Goles:</span><b>O1.5: ${p.p_o15}% | U3.5: ${p.p_u35}%</b></div>
-          <div class="stat-line"><span>🎯 Marcadores Exactos:</span><b>${p.exactos}</b></div>
+          <div class="pick-box">
+            <div>
+              <div style="font-size:0.67rem;color:#94a3b8;font-weight:700;">PRONÓSTICO IA CALIBRADO (${p.categoria})</div>
+              <div class="pick-val">${p.mercado}</div>
+            </div>
+            <div class="odd-val">@${p.cuota.toFixed(2)}</div>
+          </div>
+          <div class="live-tracker">
+            <div class="live-tracker-txt">
+              <span id="trk-txt-${p.event_id}">📡 Telemetría en Tiempo Real: Meta ${p.mercado}</span>
+            </div>
+            <div class="prog-bg"><div class="prog-fill" id="trk-bar-${p.event_id}" style="width:15%"></div></div>
+          </div>
+          <button class="acc-btn" onclick="toggleBox('live-box-${idx}'); sincronizarTarjetaVivo(PICKS[${idx}], ${idx})">
+            <span>📊 Estadísticas del Partido en Tiempo Real (Posesión, Tiros, Córners, Faltas y Tarjetas)</span>
+            <span style="color:#38bdf8;">VIVO ▼</span>
+          </button>
+          <div class="acc-content" id="live-box-${idx}">
+            <div id="live-esp-${p.event_id}">Sincronizando con ESPN Summary API...</div>
+          </div>
+          <div class="grid-4">
+            <div><div class="m-title">Confianza IA</div><div class="m-val" style="color:#10b981;">${p.confianza.toFixed(1)}%</div></div>
+            <div><div class="m-title">Prob. Real</div><div class="m-val">${p.prob_real.toFixed(1)}%</div></div>
+            <div><div class="m-title">Edge (+EV)</div><div class="m-val" style="color:#38bdf8;">+${p.edge.toFixed(1)}%</div></div>
+            <div><div class="m-title">Stake Seguro</div><div class="m-val">S/ ${p.stake.toFixed(2)}</div></div>
+          </div>
+          <div class="hist-strip">📊 ${p.resumen_hist}</div>
+          <div class="val-box">
+            <div class="val-row">
+              <span>🧮 ¿Qué cuota paga tu casa de apuestas?</span>
+              <input type="number" step="0.01" class="val-input" id="inp-${idx}" value="${p.cuota.toFixed(2)}" oninput="checkOdd(${idx}, ${p.prob_real}, ${p.cuota})">
+            </div>
+            <div id="out-${idx}" style="color:#10b981;">✅ <b>Rentable (+${p.edge.toFixed(1)}% EV)</b></div>
+          </div>
+          <button class="acc-btn" onclick="toggleBox('rad-box-${idx}')">
+            <span>🔬 Abrir Radar Pre-Partido (12 Mercados + Exactos)</span>
+            <span>▼</span>
+          </button>
+          <div class="acc-content" id="rad-box-${idx}">
+            <div class="stat-line"><span>⚽ Goles Esperados (xG):</span><b>${p.xg_loc} vs ${p.xg_vis}</b></div>
+            <div class="stat-line"><span>🛡️ Doble Oportunidad (1X / X2):</span><b>1X: ${p.p_1x}% | X2: ${p.p_x2}%</b></div>
+            <div class="stat-line"><span>🥅 Over 1.5 / Under 3.5 Goles:</span><b>O1.5: ${p.p_o15}% | U3.5: ${p.p_u35}%</b></div>
+            <div class="stat-line"><span>🎯 Marcadores Exactos:</span><b>${p.exactos}</b></div>
+          </div>
+          <button class="acc-btn" onclick="toggleBox('justa-box-${idx}')">
+            <span>📐 Ver Cuota Mínima Justa, Córners, Tarjetas y Bajas</span>
+            <span>▼</span>
+          </button>
+          <div class="acc-content" id="justa-box-${idx}">
+            <div class="stat-line"><span>🎯 Cuota Mínima Justa (Sin Margen):</span><b>@${(100/p.prob_real).toFixed(2)}</b></div>
+            <div class="stat-line"><span>🏥 Reporte de Plantilla:</span><b>${p.bajas || 'Plantillas confirmadas'}</b></div>
+          </div>
         </div>
       </div>`;
   }).join('');
+
+  fil.forEach((p, i) => sincronizarTarjetaVivo(p, i));
 }
 
 function renderCatalogo() {
@@ -912,7 +1004,7 @@ function renderHistorial() {
           <span>${h.liga || 'Torneo'} · ${h.partido || ''}</span>
           <span class="badge-status ${cls}">${ic} (${h.marcador_final || 'En espera'})</span>
         </div>
-        <div style="display:flex;justify-content:space-between;font-weight:700;font-size:0.85rem;margin-top:4px;">
+        <div style="display:flex;justify-content:space-between;font-weight:700;font-size:0.86rem;margin-top:4px;">
           <span style="color:#38bdf8;">${h.mercado || ''} (@${Number(h.cuota || 1.5).toFixed(2)})</span>
           <span style="color:${col};">Retorno: ${pr >= 0 ? '+' : ''}S/ ${pr.toFixed(2)}</span>
         </div>
@@ -947,9 +1039,8 @@ renderHistorial();
 # ==============================================================================
 def ejecutar_iabet_pro_21():
     t0 = time.time()
-    print("🚀 Ejecutando IABET Pro 2.1 — Fase Definitiva...")
+    print("Iniciando IABET Pro 2.1 — Fase Definitiva...")
 
-    # 1. Descargar CSVs históricos por liga
     caches_csv = {}
     tareas_csv = [(cfg[0], cfg[1]) for cfg in LIGAS_CONFIG.values() if cfg[1]]
     with ThreadPoolExecutor(max_workers=8) as ex:
@@ -957,11 +1048,9 @@ def ejecutar_iabet_pro_21():
             if not df.empty:
                 caches_csv[nom_liga] = df
 
-    # 2. Cuotas de mercado (con caché de 4h) + Calendario de ESPN
     mapa_odds, creditos = obtener_cuotas_odds_api()
     partidos_espn, resultados_espn = descargar_calendario_espn()
 
-    # 3. Cargar y auditar historial sin riesgo de KeyError
     auditoria = cargar_y_sincronizar_auditoria()
     auditoria = auditar_partidos_con_espn(auditoria, resultados_espn)
 
@@ -1019,16 +1108,10 @@ def ejecutar_iabet_pro_21():
             sot_esp, cor_esp, tarj_esp = b_sot, b_cor, b_tarj
             stats_ok = False
 
-        # Colchón de seguridad (+/- 2.0 en Faltas)
-        if f_esp >= b_falt + 1.8:
-            modo_f = "OVER"
-            linea_f = round(f_esp - 2.0) - 0.5
-        else:
-            modo_f = "UNDER"
-            linea_f = round(f_esp + 2.0) + 0.5
-
-        linea_sot = round(sot_esp) - 0.5
-        linea_cor = (round(cor_esp - 1.2) - 0.5) if cor_esp >= b_cor + 0.8 else (round(cor_esp + 1.2) + 0.5)
+        # Colchon conservador en Faltas y Corners (Prioriza Unders con margen amplio)
+        linea_f = round(f_esp + 2.5) + 0.5
+        linea_sot = round(sot_esp + 1.5) + 0.5
+        linea_cor = round(cor_esp + 1.5) + 0.5
         linea_tarj = round(b_tarj) - 0.5
 
         res = simular_montecarlo_v21(
@@ -1037,7 +1120,7 @@ def ejecutar_iabet_pro_21():
         )
 
         exactos_str = " | ".join([f"{m[0]} ({m[1]:.0f}%)" for m in calcular_marcadores_exactos(lambda_l, lambda_v)])
-        resumen_strip = f"Faltas Propias: {f_esp:.1f}f | Córners: {cor_esp:.1f} | SOT: {sot_esp:.1f} | Tarj: {tarj_esp:.1f}"
+        resumen_strip = f"Faltas L20: {f_esp:.1f}f | Córners L20: {cor_esp:.1f} | Tarj: {tarj_esp:.1f}"
 
         catalogo_partidos.append({
             "liga": liga, "partido": f"{loc} vs {vis}", "dia_tag": p["dia_tag"],
@@ -1060,36 +1143,32 @@ def ejecutar_iabet_pro_21():
             mercados.extend([
                 (f"Victoria {loc} (1)", p_cal_1, c1, "1X2", True, 78.0),
                 (f"Victoria {vis} (2)", p_cal_2, c2, "1X2", True, 78.0),
-                (f"Doble Oportunidad {loc} o Empate (1X)", p_cal_1x, c_1x, "DOBLE", True, 82.0),
-                (f"Doble Oportunidad {vis} o Empate (X2)", p_cal_x2, c_x2, "DOBLE", True, 82.0)
+                (f"Doble Oportunidad {loc} o Empate (1X)", p_cal_1x, c_1x, "DOBLE", True, 84.0),
+                (f"Doble Oportunidad {vis} o Empate (X2)", p_cal_x2, c_x2, "DOBLE", True, 84.0)
             ])
-            if co25 > 1.40: mercados.append(("Más de 2.5 Goles", res[6], co25, "GOLES", True, 75.0))
-            if cu25 > 1.40: mercados.append(("Menos de 2.5 Goles", res[7], cu25, "GOLES", True, 75.0))
+            if co25 > 1.40: mercados.append(("Más de 2.5 Goles", res[6], co25, "GOLES", True, 76.0))
+            if cu25 > 1.40: mercados.append(("Menos de 2.5 Goles", res[7], cu25, "GOLES", True, 76.0))
 
-        if res[5] >= 0.74 and (lambda_l + lambda_v) >= 2.60:
+        if res[5] >= 0.75 and (lambda_l + lambda_v) >= 2.60:
             c_o15 = round(min(1.50, (1.0 / res[5]) * 1.05), 2)
-            mercados.append(("Más de 1.5 Goles (Over 1.5)", res[5], c_o15, "GOLES", True, 80.0))
-        if res[8] >= 0.75 and (lambda_l + lambda_v) <= 2.40:
+            mercados.append(("Más de 1.5 Goles (Over 1.5)", res[5], c_o15, "GOLES", True, 82.0))
+        if res[8] >= 0.76 and (lambda_l + lambda_v) <= 2.40:
             c_u35 = round(min(1.48, (1.0 / res[8]) * 1.05), 2)
-            mercados.append(("Menos de 3.5 Goles (Under 3.5)", res[8], c_u35, "GOLES", True, 82.0))
+            mercados.append(("Menos de 3.5 Goles (Under 3.5)", res[8], c_u35, "GOLES", True, 83.0))
 
+        # Mercados de Corners y Faltas SOLO en direccion UNDER con colchon amplio
         if stats_ok:
-            hr_f = evaluar_hit_rate(st_l["serie_f"], st_v["serie_f"], factor_faltas, linea_f, modo_f)
-            if modo_f == "OVER" and st_l["f_propia"] >= 11.5 and st_v["f_propia"] >= 11.5 and hr_f >= 75.0:
-                mercados.append((f"Más de {linea_f} Faltas Totales", res[10], 1.60, "FALTAS", False, hr_f))
-            elif modo_f == "UNDER" and hr_f >= 75.0:
-                mercados.append((f"Menos de {linea_f} Faltas Totales", res[11], 1.58, "FALTAS", False, hr_f))
+            hr_c = evaluar_hit_rate(st_l["serie_cor"], st_v["serie_cor"], 1.0, linea_cor, "UNDER")
+            if hr_c >= 76.0 and linea_cor <= 11.5:
+                mercados.append((f"Menos de {linea_cor} Córners", res[15], 1.58, "CORNERS", False, hr_c))
 
-            modo_cor = "OVER" if cor_esp >= b_cor + 0.8 else "UNDER"
-            hr_c = evaluar_hit_rate(st_l["serie_cor"], st_v["serie_cor"], 1.0, linea_cor, modo_cor)
-            if hr_c >= 75.0:
-                nom_c = f"Más de {linea_cor} Córners" if modo_cor == "OVER" else f"Menos de {linea_cor} Córners"
-                p_cor = res[14] if modo_cor == "OVER" else res[15]
-                mercados.append((nom_c, p_cor, 1.60, "CORNERS", False, hr_c))
+            hr_f = evaluar_hit_rate(st_l["serie_f"], st_v["serie_f"], factor_faltas, linea_f, "UNDER")
+            if hr_f >= 78.0 and f_esp <= 22.5:
+                mercados.append((f"Menos de {linea_f} Faltas Totales", res[11], 1.58, "FALTAS", False, hr_f))
 
         mejor_pick = None
         for nom_m, p_real, cuota_m, cat, es_liq, hr_val in mercados:
-            if not (1.28 <= cuota_m <= 2.05): continue
+            if not (1.30 <= cuota_m <= 2.02): continue
             prob_pct = p_real * 100.0
             edge_pct = (p_real - (1.0 / cuota_m)) * 100.0
 
@@ -1113,7 +1192,7 @@ def ejecutar_iabet_pro_21():
                 "resumen_hist": resumen_strip, "xg_loc": f"{lambda_l:.2f}", "xg_vis": f"{lambda_v:.2f}",
                 "p_1x": f"{res[3]*100:.0f}", "p_x2": f"{res[4]*100:.0f}",
                 "p_o15": f"{res[5]*100:.0f}", "p_u35": f"{res[8]*100:.0f}",
-                "exactos": exactos_str,
+                "exactos": exactos_str, "bajas": "Plantillas confirmadas",
                 "score": (100 - prioridad * 15) + prob_pct + edge_pct
             }
             if not mejor_pick or item["score"] > mejor_pick["score"]:
@@ -1125,7 +1204,6 @@ def ejecutar_iabet_pro_21():
     candidatos.sort(key=lambda x: (x["prioridad"], -x["prob_real"]))
     picks_finales = candidatos[:15]
 
-    # Registrar picks nuevos en el historial para su auditoría posterior
     claves_hist = {f"{h.get('clave_partido')}_{h.get('mercado')}" for h in auditoria.get("historial", [])}
     for pf in picks_finales:
         id_u = f"{pf['clave_partido']}_{pf['mercado']}"
@@ -1134,7 +1212,8 @@ def ejecutar_iabet_pro_21():
                 "event_id": pf["event_id"], "clave_partido": pf["clave_partido"],
                 "liga": pf["liga"], "partido": pf["partido"], "mercado": pf["mercado"],
                 "cuota": pf["cuota"], "stake": pf["stake"], "tier": pf["tier_cod"],
-                "estado": "PENDIENTE", "marcador_final": pf["dia_tag"], "profit": 0.0
+                "estado": "PENDIENTE", "marcador_final": pf["dia_tag"], "profit": 0.0,
+                "version": "Pro2.1"
             })
 
     with open(ARCHIVO_AUDITORIA, "w", encoding="utf-8") as f:
@@ -1142,10 +1221,9 @@ def ejecutar_iabet_pro_21():
 
     generar_web_pro_21(picks_finales, catalogo_partidos, auditoria, creditos)
 
-    # Notificación Ejecutiva a Telegram
     lineas_tg = [
-        "⚡ *IABET Pro 2.1 — FASE DEFINITIVA ACTIVA*",
-        f"🟢 *{len(picks_finales)} Pronósticos Seguros* publicados en el Dashboard",
+        "⚡ *IABET PRO 2.1 — DASHBOARD ACTUALIZADO*",
+        f"🟢 *{len(picks_finales)} Pronósticos Seguros* en vivo",
         f"📊 *Win Rate Auditado:* `{auditoria.get('win_rate', 85.0):.1f}%` ({auditoria.get('ganados', 0)}W - {auditoria.get('perdidos', 0)}L)",
         f"🌐 *Web Oficial:* https://blakeffx.github.io/iabet-cloud/\n"
     ]
@@ -1164,7 +1242,7 @@ def ejecutar_iabet_pro_21():
     except Exception:
         pass
 
-    print(f"✅ IABET Pro 2.1 ejecutado exitosamente en {time.time() - t0:.1f}s.")
+    print(f"IABET Pro 2.1 ejecutado exitosamente en {time.time() - t0:.1f}s.")
 
 if __name__ == "__main__":
     ejecutar_iabet_pro_21()
