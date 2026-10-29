@@ -23,13 +23,13 @@ jobs:
       - name: 3. Instalar Dependencias
         run: pip install numba numpy pandas requests
 
-      - name: 4. Ejecutar Pipeline v19.1
+      - name: 4. Ejecutar Pipeline IABET Pro 2.1
         run: python iabet_cloud.py
 
-      - name: 5. Publicar Cambios al Dashboard
+      - name: 5. Publicar Cambios al Dashboard y Guardar Auditoria
         run: |
           git config --global user.name "IABET Bot"
           git config --global user.email "bot@iabet.cloud"
           git add index.html auditoria_iabet.json cache_odds_api.json || true
-          git diff --staged --quiet || git commit -m "Auto-update: Dashboard v19.1"
+          git diff --staged --quiet || git commit -m "Auto-update: IABET Pro 2.1 Dashboard"
           git push
