@@ -23,8 +23,10 @@ jobs:
       - name: 3. Instalar Dependencias
         run: pip install numba numpy pandas requests
 
-      - name: 4. Ejecutar Pipeline IABET Pro 2.1
-        run: python iabet_cloud.py
+      - name: 4. Limpiar caracteres ocultos y Ejecutar IABET Pro 2.1
+        run: |
+          python -c "p=open('iabet_cloud.py','rb').read().replace(b'\xc2\xa0',b' ').replace(b'\r\n',b'\n'); open('iabet_cloud.py','wb').write(p)"
+          python iabet_cloud.py
 
       - name: 5. Publicar Cambios al Dashboard y Guardar Auditoria
         run: |
