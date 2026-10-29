@@ -1015,6 +1015,23 @@ function renderHistorial() {
 renderPicks();
 renderCatalogo();
 renderHistorial();
+
+// Bucle en vivo: refresca marcadores y telemetría de ESPN cada 30 segundos
+setInterval(() => {
+  const fDia = document.getElementById('f-dia').value;
+  const fTier = document.getElementById('f-tier').value;
+  const fCat = document.getElementById('f-cat').value;
+
+  const fil = PICKS.filter(p => {
+    if (fDia !== 'TODOS' && p.filtro_dia !== fDia) return false;
+    if (fTier !== 'TODOS' && p.tier_cod !== fTier) return false;
+    if (fCat !== 'TODOS' && p.categoria !== fCat) return false;
+    return true;
+  });
+
+  // Re-consulta la API de ESPN para actualizar goles, córners y faltas
+  fil.forEach((p, i) => sincronizarTarjetaVivo(p, i));
+}, 30000);
 </script>
 </body>
 </html>"""
