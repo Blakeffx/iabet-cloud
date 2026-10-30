@@ -533,6 +533,20 @@
       "marcador_final": "01/11 · 16:30",
       "profit": 0.0,
       "version": "Pro2.5-Open"
+    },
+    {
+      "event_id": "401876414",
+      "clave_partido": "strasb_aj aux",
+      "liga": "Ligue 1",
+      "partido": "Strasbourg vs AJ Auxerre",
+      "mercado": "Menos de 9.5 Tiros al Arco",
+      "cuota": 1.56,
+      "stake": 5.0,
+      "tier": "TIER S",
+      "estado": "PENDIENTE",
+      "marcador_final": "01/11 · 09:00",
+      "profit": 0.0,
+      "version": "Pro2.5-Open"
     }
   ]
 }
