@@ -12,7 +12,7 @@ from concurrent.futures import ThreadPoolExecutor
 from numba import njit, prange
 
 # ==============================================================================
-# 1. CONFIGURACION INSTITUCIONAL — IABET PRO 2.5 (B2B + UNDERSTAT xG + SAAS)
+# 1. CONFIGURACION INSTITUCIONAL — IABET PRO 2.5 (B2B + UNDERSTAT xG + OPEN ACCESS)
 # ==============================================================================
 ODDS_API_KEYS = [
     os.getenv("THE_ODDS_API_KEY", ""),
@@ -21,13 +21,6 @@ ODDS_API_KEYS = [
 ]
 TELEGRAM_TOKEN = "8902181028:AAE1ywEiCc6do90ZPclI8GnUdmVqKBc7iOU"
 TELEGRAM_CHAT_ID = "5203732922"
-
-# CONTROL DE MONETIZACION SAAS:
-# "FREE_TRIAL" = Todo desbloqueado (Fase Fidelizacion de clientes)
-# "VIP_PAYWALL" = Bloquea los Picks TIER S y pide Clave VIP / Suscripcion
-MODO_SAAS = "FREE_TRIAL"
-CLAVE_ACCESO_VIP = "IABET2026"
-LINK_SUSCRIPCION_VIP = "https://t.me/+tu_enlace_o_stripe_checkout"
 
 BANKROLL_BASE = 100.0
 KELLY_FRAC = 0.22
@@ -227,7 +220,7 @@ def calcular_marcadores_exactos(l_loc, l_vis):
     return probs[:3]
 
 # ==============================================================================
-# 3. PILAR 1 & 2: SCRAPER B2B DIRECTO (KAMBI CDN) + SCRAPER xG REAL (UNDERSTAT)
+# 3. SCRAPER B2B DIRECTO (KAMBI CDN) + SCRAPER xG REAL (UNDERSTAT)
 # ==============================================================================
 def limpiar_texto(txt):
     if not txt: return ""
@@ -257,10 +250,6 @@ def dec(c):
         return 0.0
 
 def descargar_xg_understat():
-    """
-    PILAR 2: Extrae el xG (Expected Goals) y xGA real desde Understat
-    para detectar equipos con 'mala racha' o sobre-rendimiento.
-    """
     ligas_u = ["La_liga", "EPL", "Serie_A", "Bundesliga", "Ligue_1"]
     temporadas = ["2025", "2024"]
     mapa_xg = {}
@@ -301,10 +290,6 @@ def descargar_xg_understat():
     return mapa_xg
 
 def ingesta_b2b_kambi_directo():
-    """
-    PILAR 1: Scraper Asincrono B2B directo al CDN de Kambi (Proveedor de Betsson / Betsafe / Latam)
-    100% gratuito e ilimitado (Sin gastar creditos de API).
-    """
     rutas_kambi = list({v[3] for v in LIGAS_CONFIG.values() if v[3]})
     cuotas_b2b = {}
 
@@ -366,7 +351,6 @@ def ingesta_b2b_kambi_directo():
 
 def obtener_cuotas_hibridas(deportes_activos_hoy):
     ahora_ts = time.time()
-    # 1. Ingesta B2B Directa (Ilimitada y en vivo)
     mapa_cuotas = ingesta_b2b_kambi_directo()
     creditos = "B2B Direct + API"
 
@@ -559,7 +543,6 @@ def extraer_perfil_con_xg(df, equipo, mapa_understat, b_falt, b_sot, b_cor, b_ta
             if ok_sh and pd.notna(row['HS']) and pd.notna(row['AS']):
                 sh_fav = max(s_fav, float(row['HS'] if fue_local else row['AS']))
                 sh_con = max(s_con, float(row['AS'] if fue_local else row['HS']))
-                # Modelo Shot-Quality xG cuando no es liga Understat
                 xg_synth.append((s_fav * 0.31) + ((sh_fav - s_fav) * 0.07))
                 xga_synth.append((s_con * 0.31) + ((sh_con - s_con) * 0.07))
             else:
@@ -585,7 +568,6 @@ def extraer_perfil_con_xg(df, equipo, mapa_understat, b_falt, b_sot, b_cor, b_ta
         luck_d = gf_val - xg_val
         f_xg = "Shot-Quality xG"
 
-    # Si un equipo tiene mala racha (genera mas xG que goles reales), ponderamos 65% su xG real
     motor_ataque = ((xg_val * 0.65) + (gf_val * 0.35)) * (1.07 if es_local else 0.93)
     motor_defensa = (xga_val * 0.65) + (gc_val * 0.35)
 
@@ -884,9 +866,9 @@ def descargar_calendario_espn():
     return partidos, resultados_auditoria, list(deportes_activos)
 
 # ==============================================================================
-# 6. PILAR 3: PLATAFORMA WEB SAAS (MODO FIDELIZACION + PAYWALL VIP SWITCH)
+# 6. PLATAFORMA WEB ABIERTA (SIN BLOQUEOS NI CODIGOS VIP)
 # ==============================================================================
-def generar_web_saas_v25(picks_seleccionados, catalogo_partidos, auditoria, creditos_odds):
+def generar_web_pro_25(picks_seleccionados, catalogo_partidos, auditoria, creditos_odds):
     picks_json = json.dumps(picks_seleccionados, ensure_ascii=False)
     catalogo_json = json.dumps(catalogo_partidos, ensure_ascii=False)
     historial_json = json.dumps(auditoria.get("historial", [])[-50:][::-1], ensure_ascii=False)
@@ -897,7 +879,7 @@ def generar_web_saas_v25(picks_seleccionados, catalogo_partidos, auditoria, cred
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IABET Pro 2.5 | B2B + Understat xG + SaaS</title>
+<title>IABET Pro 2.5 | Multi-Market AI Quant</title>
 <style>
   :root {
     --bg: #070b13; --card: #0f1726; --border: #1e293b;
@@ -906,9 +888,7 @@ def generar_web_saas_v25(picks_seleccionados, catalogo_partidos, auditoria, cred
   }
   * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', system-ui, -apple-system, sans-serif; }
   body { background: var(--bg); color: var(--text); padding: 14px 20px 60px; max-width: 1380px; margin: 0 auto; line-height: 1.45; }
-  .saas-banner { background: linear-gradient(90deg, rgba(16,185,129,0.16), rgba(56,189,248,0.16)); border: 1px solid rgba(16,185,129,0.4); border-radius: 12px; padding: 9px 14px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; font-size: 0.78rem; font-weight: 700; }
-  .vip-btn { background: linear-gradient(90deg, #f59e0b, #d97706); color: #05080f; border: none; padding: 6px 13px; border-radius: 999px; font-weight: 800; font-size: 0.75rem; cursor: pointer; }
-  .top-bar { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; padding: 8px 4px 16px; border-bottom: 1px solid var(--border); margin-bottom: 16px; }
+  .top-bar { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; padding: 10px 4px 16px; border-bottom: 1px solid var(--border); margin-bottom: 16px; }
   .brand { font-size: 1.38rem; font-weight: 800; display: flex; align-items: center; gap: 8px; }
   .brand span { color: var(--cyan); }
   .nav-pills { display: flex; gap: 8px; flex-wrap: wrap; }
@@ -967,21 +947,13 @@ def generar_web_saas_v25(picks_seleccionados, catalogo_partidos, auditoria, cred
   .st-won { background: rgba(16,185,129,0.2); color: #34d399; border: 1px solid rgba(16,185,129,0.4); }
   .st-lost { background: rgba(239,68,68,0.2); color: #f87171; border: 1px solid rgba(239,68,68,0.4); }
   .st-pend { background: rgba(245,158,11,0.2); color: #fbbf24; border: 1px solid rgba(245,158,11,0.4); }
-
-  .modal-bg { display: none; position: fixed; inset: 0; background: rgba(4,7,14,0.85); z-index: 999; align-items: center; justify-content: center; padding: 16px; }
-  .modal-card { background: #10192b; border: 1px solid #2b3d5c; border-radius: 16px; max-width: 440px; width: 100%; padding: 20px; box-shadow: 0 12px 40px rgba(0,0,0,0.6); }
   .hidden { display: none !important; }
 </style>
 </head>
 <body>
 
-<div class="saas-banner">
-  <span id="saas-status-txt">🔓 <b>MODO CAPTURA DE CLIENTES ACTIVO:</b> Todos los Picks 💎 TIER S y el Motor Understat xG están 100% desbloqueados gratis por tiempo limitado.</span>
-  <button class="vip-btn" onclick="abrirModalVIP()">👑 Membresía VIP Pro</button>
-</div>
-
 <div class="top-bar">
-  <div class="brand">⚡ IABET <span>PRO 2.5 (B2B + xG)</span></div>
+  <div class="brand">⚡ IABET <span>PRO 2.5</span></div>
   <div class="nav-pills">
     <button class="pill-btn active" id="btn-p" onclick="showTab('p')">🎯 Picks Multi-Mercado (__TOTAL_PICKS__)</button>
     <button class="pill-btn" id="btn-r" onclick="showTab('r')">📊 Buscador FutbolDataPro (__TOTAL_CAT__ Partidos)</button>
@@ -1042,61 +1014,10 @@ def generar_web_saas_v25(picks_seleccionados, catalogo_partidos, auditoria, cred
   <div id="list-hist"></div>
 </div>
 
-<!-- MODAL SAAS VIP -->
-<div class="modal-bg" id="modal-vip">
-  <div class="modal-card">
-    <h3 style="font-size:1.15rem;margin-bottom:8px;color:#fbbf24;">👑 IABET QUANT PRO — PASE VIP</h3>
-    <p style="font-size:0.82rem;color:#cbd5e1;margin-bottom:12px;">
-      Actualmente te encuentras en el <b>Periodo de Acceso Abierto</b>. Disfruta de todos los pronósticos <b>💎 TIER S</b>, el motor <b>Understat xG Real</b> y el escáner <b>B2B Kambi/Smarkets</b> sin costo mientras fidelizamos a nuestra comunidad fundadora.
-    </p>
-    <div style="background:#090e17;border:1px solid #1e293b;border-radius:10px;padding:10px;margin-bottom:12px;font-size:0.78rem;">
-      <div>✅ Picks 💎 TIER S con ventaja matemática verificada</div>
-      <div>✅ Telemetría ESPN en Vivo cada 30 segundos</div>
-      <div>✅ Regresión de Goles Esperados (Understat xG)</div>
-      <div>✅ Historial Auditado Transparente</div>
-    </div>
-    <div style="display:flex;gap:8px;margin-bottom:10px;">
-      <input type="password" id="inp-vip-key" placeholder="¿Tienes código VIP fundador?" style="flex:1;background:#070b13;border:1px solid #283548;color:#fff;padding:8px 10px;border-radius:8px;font-size:0.8rem;">
-      <button onclick="activarClaveVIP()" style="background:#10b981;color:#03120b;border:none;padding:8px 12px;border-radius:8px;font-weight:800;cursor:pointer;font-size:0.78rem;">Activar</button>
-    </div>
-    <div style="display:flex;justify-content:space-between;align-items:center;">
-      <a href="__LINK_VIP__" target="_blank" style="color:#38bdf8;font-size:0.8rem;font-weight:700;text-decoration:none;">💬 Unirse al Canal Oficial VIP →</a>
-      <button onclick="cerrarModalVIP()" style="background:#1e293b;color:#fff;border:none;padding:7px 14px;border-radius:8px;cursor:pointer;font-size:0.78rem;font-weight:700;">Cerrar</button>
-    </div>
-  </div>
-</div>
-
 <script>
-const MODO_SAAS = "__MODO_SAAS__";
-const CLAVE_VIP = "__CLAVE_VIP__";
 const PICKS = __PICKS_DATA__;
 const CATALOGO = __CATALOGO_DATA__;
 const HISTORIAL = __HISTORIAL_DATA__;
-
-function usuarioEsVIP() {
-  if (MODO_SAAS === "FREE_TRIAL") return true;
-  return localStorage.getItem("iabet_vip_unlocked") === "true";
-}
-
-function abrirModalVIP() {
-  document.getElementById("modal-vip").style.display = "flex";
-}
-
-function cerrarModalVIP() {
-  document.getElementById("modal-vip").style.display = "none";
-}
-
-function activarClaveVIP() {
-  const val = (document.getElementById("inp-vip-key").value || "").trim();
-  if (val === CLAVE_VIP) {
-    localStorage.setItem("iabet_vip_unlocked", "true");
-    alert("👑 ¡Acceso VIP Pro desbloqueado exitosamente!");
-    cerrarModalVIP();
-    renderPicks();
-  } else {
-    alert("❌ Código inválido. Consulta con el administrador.");
-  }
-}
 
 function showTab(t) {
   ['p', 'r', 'h'].forEach(k => {
@@ -1216,7 +1137,6 @@ function renderPicks() {
   const fTier = document.getElementById('f-tier').value;
   const fCat = document.getElementById('f-cat').value;
   const cp = document.getElementById('list-picks');
-  const esVip = usuarioEsVIP();
 
   const fil = PICKS.filter(p => {
     if (fDia !== 'TODOS' && p.filtro_dia !== fDia) return false;
@@ -1232,10 +1152,6 @@ function renderPicks() {
 
   cp.innerHTML = fil.map((p, idx) => {
     const tCls = p.tier_cod === 'TIER S' ? 'tier-s' : (p.tier_cod === 'TIER A' ? 'tier-a' : 'tier-b');
-    const bloqueado = (!esVip && p.tier_cod === 'TIER S');
-    const textoMercado = bloqueado ? '🔒 Pick VIP Bloqueado (Desbloquear TIER S)' : p.mercado;
-    const textoCuota = bloqueado ? '@VIP' : '@' + p.cuota.toFixed(2);
-
     return `
       <div class="pick-card">
         <div>
@@ -1247,16 +1163,16 @@ function renderPicks() {
             <div class="match-title">${p.partido}</div>
             <span class="live-pill" id="pill-${p.event_id}-${idx}">⏳ ${p.reloj}</span>
           </div>
-          <div class="pick-box" onclick="${bloqueado ? 'abrirModalVIP()' : ''}" style="${bloqueado ? 'cursor:pointer;border-color:#f59e0b;' : ''}">
+          <div class="pick-box">
             <div>
               <div style="font-size:0.67rem;color:#94a3b8;font-weight:700;">PRONÓSTICO CALIBRADO (${p.categoria} · ${p.fuente})</div>
-              <div class="pick-val" style="${bloqueado ? 'color:#fbbf24;' : ''}">${textoMercado}</div>
+              <div class="pick-val">${p.mercado}</div>
             </div>
-            <div class="odd-val">${textoCuota}</div>
+            <div class="odd-val">@${p.cuota.toFixed(2)}</div>
           </div>
           <div class="live-tracker">
             <div class="live-tracker-txt">
-              <span id="trk-txt-${p.event_id}-${idx}">📡 Telemetría en Tiempo Real: ${bloqueado ? 'Exclusivo VIP' : p.mercado}</span>
+              <span id="trk-txt-${p.event_id}-${idx}">📡 Telemetría en Tiempo Real: Meta ${p.mercado}</span>
             </div>
             <div class="prog-bg"><div class="prog-fill" id="trk-bar-${p.event_id}-${idx}" style="width:18%"></div></div>
           </div>
@@ -1362,11 +1278,8 @@ setInterval(() => {
 </body>
 </html>"""
 
-    html = html_base.replace("__MODO_SAAS__", MODO_SAAS)
-    html = html_base.replace("__CLAVE_VIP__", CLAVE_ACCESO_VIP)
-    html = html_base.replace("__LINK_VIP__", LINK_SUSCRIPCION_VIP)
-    html = html.replace("__TOTAL_PICKS__", str(len(picks_seleccionados)))
-    html = html.replace("__TOTAL_CAT__", str(len(catalogo_partidos)))
+    html = html_base.replace("__TOTAL_PICKS__", str(len(picks_seleccionados)))
+    html = html_base.replace("__TOTAL_CAT__", str(len(catalogo_partidos)))
     html = html.replace("__FECHA_SYNC__", ahora_str)
     html = html.replace("__CREDITOS__", str(creditos_odds))
     html = html.replace("__WIN_RATE__", f"{float(auditoria.get('win_rate', 75.0)):.1f}")
@@ -1385,7 +1298,7 @@ setInterval(() => {
 # ==============================================================================
 def ejecutar_iabet_pro_25():
     t0 = time.time()
-    print("Iniciando IABET Pro 2.5 — B2B Kambi + Understat xG + SaaS Engine...")
+    print("Iniciando IABET Pro 2.5 — B2B Kambi + Understat xG (100% Open Access)...")
 
     caches_csv = {}
     tareas_csv = [(cfg[0], cfg[1]) for cfg in LIGAS_CONFIG.values() if cfg[1]]
@@ -1669,13 +1582,13 @@ def ejecutar_iabet_pro_25():
                 "liga": pf["liga"], "partido": pf["partido"], "mercado": pf["mercado"],
                 "cuota": pf["cuota"], "stake": pf["stake"], "tier": pf["tier_cod"],
                 "estado": "PENDIENTE", "marcador_final": pf["dia_tag"], "profit": 0.0,
-                "version": "Pro2.5-SaaS"
+                "version": "Pro2.5-Open"
             })
 
     with open(ARCHIVO_AUDITORIA, "w", encoding="utf-8") as f:
         json.dump(auditoria, f, ensure_ascii=False, indent=2)
 
-    generar_web_saas_v25(picks_finales, catalogo_partidos, auditoria, creditos)
+    generar_web_pro_25(picks_finales, catalogo_partidos, auditoria, creditos)
 
     lineas_tg = [
         "⚡ *IABET PRO 2.5 — B2B KAMBI + UNDERSTAT xG*",
