@@ -1,12 +1,12 @@
 {
   "bankroll_inicial": 100.0,
-  "bankroll_actual": 96.81,
-  "ganancia_neta": -3.19,
-  "roi_pct": -15.6,
-  "win_rate": 60.0,
-  "ganados": 3,
-  "perdidos": 2,
-  "racha": 0,
+  "bankroll_actual": 97.41,
+  "ganancia_neta": -2.59,
+  "roi_pct": -7.3,
+  "win_rate": 62.5,
+  "ganados": 5,
+  "perdidos": 3,
+  "racha": 2,
   "historial": [
     {
       "event_id": "401928517",
@@ -249,9 +249,9 @@
       "cuota": 1.56,
       "stake": 5.0,
       "tier": "TIER S",
-      "estado": "PENDIENTE",
-      "marcador_final": "EN VIVO 0-0 (24')",
-      "profit": 0.0,
+      "estado": "PERDIDO",
+      "marcador_final": "0-1 (Final · 6 Tarj)",
+      "profit": -5.0,
       "version": "Pro2.1-Multi"
     },
     {
@@ -403,9 +403,9 @@
       "cuota": 1.56,
       "stake": 5.0,
       "tier": "TIER S",
-      "estado": "PENDIENTE",
-      "marcador_final": "EN VIVO 0-0 (19')",
-      "profit": 0.0,
+      "estado": "GANADO",
+      "marcador_final": "1-0 (Final · 21 Faltas)",
+      "profit": 2.8,
       "version": "Pro2.1-Multi"
     },
     {
@@ -417,9 +417,9 @@
       "cuota": 1.56,
       "stake": 5.0,
       "tier": "TIER S",
-      "estado": "PENDIENTE",
-      "marcador_final": "EN VIVO 0-0 (24')",
-      "profit": 0.0,
+      "estado": "GANADO",
+      "marcador_final": "0-1 (Final · 7 SOT)",
+      "profit": 2.8,
       "version": "Pro2.1-Multi"
     },
     {
@@ -545,6 +545,20 @@
       "tier": "TIER S",
       "estado": "PENDIENTE",
       "marcador_final": "01/11 · 09:00",
+      "profit": 0.0,
+      "version": "Pro2.5-Open"
+    },
+    {
+      "event_id": "401882820",
+      "clave_partido": "levant_ath ma",
+      "liga": "LaLiga",
+      "partido": "Levante vs Atlético Madrid",
+      "mercado": "Menos de 23.5 Faltas Totales",
+      "cuota": 1.56,
+      "stake": 5.0,
+      "tier": "TIER S",
+      "estado": "PENDIENTE",
+      "marcador_final": "MAÑANA · 08:00",
       "profit": 0.0,
       "version": "Pro2.5-Open"
     }
