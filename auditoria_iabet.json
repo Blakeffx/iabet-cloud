@@ -1,12 +1,12 @@
 {
   "bankroll_inicial": 100.0,
-  "bankroll_actual": 100.11,
-  "ganancia_neta": 0.11,
-  "roi_pct": 0.3,
-  "win_rate": 66.7,
-  "ganados": 6,
+  "bankroll_actual": 103.41,
+  "ganancia_neta": 3.41,
+  "roi_pct": 7.5,
+  "win_rate": 70.0,
+  "ganados": 7,
   "perdidos": 3,
-  "racha": 3,
+  "racha": 4,
   "historial": [
     {
       "event_id": "401928517",
@@ -348,7 +348,7 @@
       "stake": 5.0,
       "tier": "TIER S",
       "estado": "PENDIENTE",
-      "marcador_final": "EN VIVO 0-0 (48')",
+      "marcador_final": "EN VIVO 0-1 (66')",
       "profit": 0.0,
       "version": "Pro2.1-Multi"
     },
@@ -403,9 +403,9 @@
       "cuota": 1.66,
       "stake": 5.0,
       "tier": "TIER S",
-      "estado": "PENDIENTE",
-      "marcador_final": "EN VIVO 1-2 (90'+8')",
-      "profit": 0.0,
+      "estado": "GANADO",
+      "marcador_final": "1-2 (Final)",
+      "profit": 3.3,
       "version": "Pro2.1-Multi"
     },
     {
