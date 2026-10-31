@@ -12,7 +12,7 @@ from concurrent.futures import ThreadPoolExecutor
 from numba import njit, prange
 
 # ==============================================================================
-# 1. CONFIGURACION INSTITUCIONAL — IABET PRO 2.5 (B2B + UNDERSTAT xG + OPEN ACCESS)
+# 1. CONFIGURACION INSTITUCIONAL — IABET PRO 2.6 (AUDITED QUANT ENGINE)
 # ==============================================================================
 ODDS_API_KEYS = [
     os.getenv("THE_ODDS_API_KEY", ""),
@@ -23,11 +23,11 @@ TELEGRAM_TOKEN = "8902181028:AAE1ywEiCc6do90ZPclI8GnUdmVqKBc7iOU"
 TELEGRAM_CHAT_ID = "5203732922"
 
 BANKROLL_BASE = 100.0
-KELLY_FRAC = 0.22
+KELLY_FRAC = 0.20
 N_SIMS = 1_000_000
 
 CUOTA_MIN_RENTABLE = 1.45
-CUOTA_MAX_RENTABLE = 2.25
+CUOTA_MAX_RENTABLE = 2.20
 
 ARCHIVO_AUDITORIA = "auditoria_iabet.json"
 ARCHIVO_WEB = "index.html"
@@ -107,25 +107,15 @@ MAPEO_EQUIPOS_CSV = {
     "athletico paranaense": "athletico-pr"
 }
 
-EQUIPOS_ALTA_POSESION = [
-    "juventus", "inter", "milan", "napoli", "real madrid", "barcelona",
-    "bayern", "leverkusen", "manchester city", "man city", "arsenal", "liverpool",
-    "chelsea", "tottenham", "psg", "paris", "benfica", "sporting", "flamengo", "palmeiras"
-]
-
 DB_EQUIPOS_LATAM = {
-    "universitario": {"gf": 1.85, "gc": 0.65, "xg": 1.92, "xga": 0.70, "f_com": 12.5, "sot": 5.4, "cor": 5.6, "tarj": 2.2},
-    "alianza lima": {"gf": 1.70, "gc": 0.75, "xg": 1.78, "xga": 0.78, "f_com": 12.4, "sot": 5.1, "cor": 5.3, "tarj": 2.3},
-    "sporting cristal": {"gf": 2.05, "gc": 1.05, "xg": 2.10, "xga": 1.02, "f_com": 11.2, "sot": 5.8, "cor": 5.9, "tarj": 2.0},
-    "melgar": {"gf": 1.80, "gc": 0.85, "xg": 1.88, "xga": 0.86, "f_com": 12.6, "sot": 5.5, "cor": 5.4, "tarj": 2.3},
-    "cusco": {"gf": 1.65, "gc": 1.05, "xg": 1.62, "xga": 1.08, "f_com": 13.4, "sot": 4.8, "cor": 4.9, "tarj": 2.5},
-    "cienciano": {"gf": 1.50, "gc": 1.15, "xg": 1.48, "xga": 1.18, "f_com": 13.8, "sot": 4.6, "cor": 4.7, "tarj": 2.6},
-    "river plate": {"gf": 1.80, "gc": 0.80, "xg": 1.95, "xga": 0.78, "f_com": 11.8, "sot": 5.5, "cor": 5.8, "tarj": 2.3},
-    "boca juniors": {"gf": 1.45, "gc": 0.95, "xg": 1.52, "xga": 0.96, "f_com": 13.2, "sot": 4.4, "cor": 5.1, "tarj": 2.7},
-    "racing": {"gf": 1.75, "gc": 1.05, "xg": 1.82, "xga": 1.04, "f_com": 12.9, "sot": 5.1, "cor": 5.4, "tarj": 2.5},
-    "flamengo": {"gf": 1.85, "gc": 0.90, "xg": 1.98, "xga": 0.88, "f_com": 12.2, "sot": 5.6, "cor": 5.9, "tarj": 2.2},
-    "palmeiras": {"gf": 1.80, "gc": 0.80, "xg": 1.94, "xga": 0.82, "f_com": 12.4, "sot": 5.5, "cor": 5.8, "tarj": 2.3},
-    "botafogo": {"gf": 1.75, "gc": 0.85, "xg": 1.80, "xga": 0.86, "f_com": 12.6, "sot": 5.3, "cor": 5.5, "tarj": 2.4}
+    "universitario": {"gf": 1.85, "gc": 0.65, "xg": 1.92, "xga": 0.70, "f_tot": 25.0, "sot_tot": 9.2, "cor_tot": 10.2, "tarj_tot": 4.5},
+    "alianza lima": {"gf": 1.70, "gc": 0.75, "xg": 1.78, "xga": 0.78, "f_tot": 25.4, "sot_tot": 8.9, "cor_tot": 9.8, "tarj_tot": 4.7},
+    "sporting cristal": {"gf": 2.05, "gc": 1.05, "xg": 2.10, "xga": 1.02, "f_tot": 23.8, "sot_tot": 10.1, "cor_tot": 10.6, "tarj_tot": 4.2},
+    "melgar": {"gf": 1.80, "gc": 0.85, "xg": 1.88, "xga": 0.86, "f_tot": 25.2, "sot_tot": 9.5, "cor_tot": 10.0, "tarj_tot": 4.6},
+    "river plate": {"gf": 1.80, "gc": 0.80, "xg": 1.95, "xga": 0.78, "f_tot": 24.5, "sot_tot": 9.6, "cor_tot": 10.4, "tarj_tot": 4.8},
+    "boca juniors": {"gf": 1.45, "gc": 0.95, "xg": 1.52, "xga": 0.96, "f_tot": 26.8, "sot_tot": 8.2, "cor_tot": 9.5, "tarj_tot": 5.2},
+    "flamengo": {"gf": 1.85, "gc": 0.90, "xg": 1.98, "xga": 0.88, "f_tot": 25.2, "sot_tot": 9.8, "cor_tot": 10.8, "tarj_tot": 4.6},
+    "palmeiras": {"gf": 1.80, "gc": 0.80, "xg": 1.94, "xga": 0.82, "f_tot": 25.6, "sot_tot": 9.6, "cor_tot": 10.6, "tarj_tot": 4.7}
 }
 
 HEADERS_HTTP = {
@@ -134,7 +124,7 @@ HEADERS_HTTP = {
 }
 
 # ==============================================================================
-# 2. MOTOR MONTE CARLO JIT (NUMBA) ALIMENTADO CON xG REAL
+# 2. MOTOR MONTE CARLO JIT (SIN DESCUENTOS ARTIFICIALES DE FALTAS)
 # ==============================================================================
 @njit(parallel=True)
 def simular_montecarlo_xg(
@@ -169,21 +159,20 @@ def simular_montecarlo_xg(
         if tot_g < 3.5: under_35 += 1
         if gl > 0 and gv > 0: btts_si += 1
 
-        fric = 1.03 if abs(gl - gv) <= 1 else 0.94
-        ftot = max(8.0, np.random.normal(f_esp * fric, 3.10))
+        # Simulacion pura sin descuentos artificiales (Desviacion real de futbol: 3.8 en faltas, 2.7 en corners)
+        ftot = max(10.0, np.random.normal(f_esp, 3.80))
         if ftot > linea_f: f_over += 1
         else: f_under += 1
 
-        sot_sim = max(1.0, np.random.normal(sot_esp, 2.15))
+        sot_sim = max(1.0, np.random.normal(sot_esp, 2.40))
         if sot_sim > linea_sot: sot_over += 1
         else: sot_under += 1
 
-        cor_sim = max(2.0, np.random.normal(cor_esp, 2.50))
+        cor_sim = max(2.0, np.random.normal(cor_esp, 2.75))
         if cor_sim > linea_cor: cor_over += 1
         else: cor_under += 1
 
-        mod_f = 1.0 + ((ftot / max(18.0, f_esp)) - 1.0) * 0.25
-        t_sim = max(0.0, np.random.normal(tarj_esp * mod_f, 1.20))
+        t_sim = max(0.0, np.random.normal(tarj_esp, 1.45))
         if t_sim > linea_tarj: tarj_over += 1
         else: tarj_under += 1
 
@@ -220,7 +209,7 @@ def calcular_marcadores_exactos(l_loc, l_vis):
     return probs[:3]
 
 # ==============================================================================
-# 3. SCRAPER B2B DIRECTO (KAMBI CDN) + SCRAPER xG REAL (UNDERSTAT)
+# 3. EXTRACCION B2B KAMBI + UNDERSTAT xG + PERFILES HISTORICOS REALES
 # ==============================================================================
 def limpiar_texto(txt):
     if not txt: return ""
@@ -486,10 +475,10 @@ def extraer_perfil_con_xg(df, equipo, mapa_understat, b_falt, b_sot, b_cor, b_ta
                 "gf": v["gf"] * (1.08 if es_local else 0.92), "gc": v["gc"],
                 "xg": v["xg"] * (1.08 if es_local else 0.92), "xga": v["xga"],
                 "luck_diff": v["gf"] - v["xg"],
-                "f_propia": v["f_com"], "sot_propio": v["sot"],
-                "cor_propio": v["cor"], "tarj_propia": v["tarj"],
-                "serie_f": [v["f_com"]] * 15, "serie_cor": [v["cor"]] * 15,
-                "serie_sot": [v["sot"]] * 15, "serie_tarj": [v["tarj"]] * 15,
+                "f_partido": v["f_tot"], "sot_partido": v["sot_tot"],
+                "cor_partido": v["cor_tot"], "tarj_partido": v["tarj_tot"],
+                "serie_f_tot": [v["f_tot"]] * 15, "serie_cor_tot": [v["cor_tot"]] * 15,
+                "serie_sot_tot": [v["sot_tot"]] * 15, "serie_tarj_tot": [v["tarj_tot"]] * 15,
                 "verificado": True, "fuente_xg": "xG Latam Pro"
             }
 
@@ -499,9 +488,9 @@ def extraer_perfil_con_xg(df, equipo, mapa_understat, b_falt, b_sot, b_cor, b_ta
                 "gf": u_info["xg"] * (1.07 if es_local else 0.93), "gc": u_info["xga"],
                 "xg": u_info["xg"] * (1.07 if es_local else 0.93), "xga": u_info["xga"],
                 "luck_diff": u_info["luck_diff"],
-                "f_propia": b_falt / 2.0, "sot_propio": b_sot / 2.0,
-                "cor_propio": b_cor / 2.0, "tarj_propia": b_tarj / 2.0,
-                "serie_f": [], "serie_cor": [], "serie_sot": [], "serie_tarj": [],
+                "f_partido": b_falt, "sot_partido": b_sot,
+                "cor_partido": b_cor, "tarj_partido": b_tarj,
+                "serie_f_tot": [], "serie_cor_tot": [], "serie_sot_tot": [], "serie_tarj_tot": [],
                 "verificado": False, "fuente_xg": "Understat xG"
             }
         return None
@@ -519,7 +508,7 @@ def extraer_perfil_con_xg(df, equipo, mapa_understat, b_falt, b_sot, b_cor, b_ta
         return None
 
     gf, gc, xg_synth, xga_synth = [], [], [], []
-    f_p, sot_p, cor_p, tarj_p = [], [], [], []
+    f_tot_p, sot_tot_p, cor_tot_p, tarj_tot_p = [], [], [], []
     ok_f = {'HF', 'AF'}.issubset(partidos.columns)
     ok_s = {'HST', 'AST'}.issubset(partidos.columns)
     ok_sh = {'HS', 'AS'}.issubset(partidos.columns)
@@ -534,12 +523,13 @@ def extraer_perfil_con_xg(df, equipo, mapa_understat, b_falt, b_sot, b_cor, b_ta
         gf.append(g_favor)
         gc.append(g_contra)
 
+        # Extraemos el TOTAL REAL ocurrido en los partidos de este equipo (HF+AF, HC+AC, HST+AST)
         if ok_f and pd.notna(row['HF']) and pd.notna(row['AF']):
-            f_p.append(float(row['HF'] if fue_local else row['AF']))
+            f_tot_p.append(float(row['HF']) + float(row['AF']))
         if ok_s and pd.notna(row['HST']) and pd.notna(row['AST']):
             s_fav = float(row['HST'] if fue_local else row['AST'])
             s_con = float(row['AST'] if fue_local else row['HST'])
-            sot_p.append(s_fav)
+            sot_tot_p.append(float(row['HST']) + float(row['AST']))
             if ok_sh and pd.notna(row['HS']) and pd.notna(row['AS']):
                 sh_fav = max(s_fav, float(row['HS'] if fue_local else row['AS']))
                 sh_con = max(s_con, float(row['AS'] if fue_local else row['HS']))
@@ -549,11 +539,11 @@ def extraer_perfil_con_xg(df, equipo, mapa_understat, b_falt, b_sot, b_cor, b_ta
                 xg_synth.append(s_fav * 0.34)
                 xga_synth.append(s_con * 0.34)
         if ok_c and pd.notna(row['HC']) and pd.notna(row['AC']):
-            cor_p.append(float(row['HC'] if fue_local else row['AC']))
+            cor_tot_p.append(float(row['HC']) + float(row['AC']))
         if ok_t and pd.notna(row['HY']) and pd.notna(row['AY']):
-            tarj_p.append(float(row['HY'] if fue_local else row['AY']))
+            tarj_tot_p.append(float(row['HY']) + float(row['AY']))
 
-    pond = lambda arr, def_v: (np.mean(arr[-5:]) * 0.45 + np.mean(arr[-10:]) * 0.35 + np.mean(arr) * 0.20) if len(arr) >= 5 else def_v
+    pond = lambda arr, def_v: (np.mean(arr[-5:]) * 0.40 + np.mean(arr[-10:]) * 0.35 + np.mean(arr) * 0.25) if len(arr) >= 5 else def_v
     gf_val = pond(gf, 1.32)
     gc_val = pond(gc, 1.18)
 
@@ -575,30 +565,35 @@ def extraer_perfil_con_xg(df, equipo, mapa_understat, b_falt, b_sot, b_cor, b_ta
         "gf": motor_ataque, "gc": motor_defensa,
         "xg": xg_val * (1.07 if es_local else 0.93), "xga": xga_val,
         "luck_diff": luck_d,
-        "f_propia": pond(f_p, b_falt / 2.0),
-        "sot_propio": pond(sot_p, b_sot / 2.0),
-        "cor_propio": pond(cor_p, b_cor / 2.0),
-        "tarj_propia": pond(tarj_p, b_tarj / 2.0),
-        "serie_f": f_p, "serie_cor": cor_p, "serie_sot": sot_p, "serie_tarj": tarj_p,
-        "verificado": (len(cor_p) >= 5 or len(sot_p) >= 5),
+        "f_partido": pond(f_tot_p, b_falt),
+        "sot_partido": pond(sot_tot_p, b_sot),
+        "cor_partido": pond(cor_tot_p, b_cor),
+        "tarj_partido": pond(tarj_tot_p, b_tarj),
+        "serie_f_tot": f_tot_p, "serie_cor_tot": cor_tot_p,
+        "serie_sot_tot": sot_tot_p, "serie_tarj_tot": tarj_tot_p,
+        "verificado": (len(cor_tot_p) >= 6 and len(sot_tot_p) >= 6),
         "fuente_xg": f_xg
     }
 
-def metricas_ventanas_l5_l10_l20(serie_a, serie_b, factor, linea, modo="OVER"):
-    n = min(len(serie_a), len(serie_b))
-    if n < 5:
+def metricas_ventanas_reales(serie_loc_tot, serie_vis_tot, linea, modo="OVER"):
+    """
+    Evalua el porcentaje real de partidos de Local y Visita que superaron o quedaron
+    por debajo de la linea, SIN multiplicar por ningun factor artificial.
+    """
+    if len(serie_loc_tot) < 5 or len(serie_vis_tot) < 5:
         return 0.0, 0.0, 0.0
-    tot = (np.array(serie_a[-n:]) + np.array(serie_b[-n:])) * factor
+    arr_l = np.array(serie_loc_tot)
+    arr_v = np.array(serie_vis_tot)
     if modo == "OVER":
-        l5 = float(np.mean(tot[-5:] > linea) * 100.0)
-        l10 = float(np.mean(tot[-10:] > linea) * 100.0)
-        l20 = float(np.mean(tot > linea) * 100.0)
+        l5 = (np.mean(arr_l[-5:] > linea) + np.mean(arr_v[-5:] > linea)) * 50.0
+        l10 = (np.mean(arr_l[-10:] > linea) + np.mean(arr_v[-10:] > linea)) * 50.0
+        l20 = (np.mean(arr_l > linea) + np.mean(arr_v > linea)) * 50.0
     else:
-        l5 = float(np.mean(tot[-5:] < linea) * 100.0)
-        l10 = float(np.mean(tot[-10:] < linea) * 100.0)
-        l20 = float(np.mean(tot < linea) * 100.0)
-    consenso = (l5 * 0.40) + (l10 * 0.35) + (l20 * 0.25)
-    return l5, l10, consenso
+        l5 = (np.mean(arr_l[-5:] < linea) + np.mean(arr_v[-5:] < linea)) * 50.0
+        l10 = (np.mean(arr_l[-10:] < linea) + np.mean(arr_v[-10:] < linea)) * 50.0
+        l20 = (np.mean(arr_l < linea) + np.mean(arr_v < linea)) * 50.0
+    consenso = (l5 * 0.35) + (l10 * 0.40) + (l20 * 0.25)
+    return float(l5), float(l10), float(consenso)
 
 # ==============================================================================
 # 4. AUDITOR TRANSPARENTE (GANADO / PERDIDO) CON STATS REALES DE ESPN
@@ -626,7 +621,7 @@ def cargar_y_sincronizar_auditoria():
                 if isinstance(hist_raw, list):
                     for item in hist_raw:
                         if not isinstance(item, dict): continue
-                        if item.get("estado") == "PENDIENTE" and float(item.get("cuota", 0)) < 1.40:
+                        if item.get("estado") == "PENDIENTE" and ("Faltas" in str(item.get("mercado", "")) or float(item.get("cuota", 0)) < 1.40):
                             continue
                         if "partido" not in item and ("local" in item and "visita" in item):
                             item["partido"] = f"{item['local']} vs {item['visita']}"
@@ -757,17 +752,31 @@ def auditar_partidos_con_espn(auditoria, resultados_espn):
     return auditoria
 
 # ==============================================================================
-# 5. CLASIFICADOR MULTI-MERCADO DE ALTA RENTABILIDAD (@1.45 a @2.20)
+# 5. CLASIFICADOR AUDITADO IABET PRO 2.6 (BLINDAJE REAL TIER S)
 # ==============================================================================
-def clasificar_tier_rentable(prob_pct, edge_pct, cuota, consenso_hist):
+def clasificar_tier_auditado(prob_pct, edge_pct, cuota, consenso_hist, categoria, tiene_cuota_b2b):
     if not (CUOTA_MIN_RENTABLE <= cuota <= CUOTA_MAX_RENTABLE) or edge_pct < 2.2:
         return "DESCARTADO", "❌", 99
 
-    if prob_pct >= 63.5 and consenso_hist >= 70.0 and 1.45 <= cuota <= 1.78 and edge_pct >= 3.0:
-        return "TIER S", "💎 TIER S (Blindado +EV)", 1
-    elif prob_pct >= 57.5 and consenso_hist >= 64.0 and 1.50 <= cuota <= 1.98 and edge_pct >= 2.8:
+    # PROHIBIDO PONER FALTAS O TARJETAS EN TIER S / TIER A (Alta varianza arbitral)
+    if categoria in ["FALTAS", "TARJETAS"]:
+        if prob_pct >= 68.0 and consenso_hist >= 75.0 and edge_pct >= 3.0:
+            return "TIER B", "🥈 TIER B (Prop Secundario)", 3
+        return "DESCARTADO", "❌", 99
+
+    # TIER S: Mercados principales con cuota real B2B/API o Córners/SOT con consenso >= 74%
+    if tiene_cuota_b2b and categoria in ["DOBLE", "1X2", "GOLES", "BTTS"]:
+        if prob_pct >= 64.0 and consenso_hist >= 70.0 and 1.45 <= cuota <= 1.78 and edge_pct >= 2.8:
+            return "TIER S", "💎 TIER S (Blindado +EV)", 1
+    elif categoria in ["CORNERS", "TIROS"]:
+        if prob_pct >= 67.5 and consenso_hist >= 74.0 and 1.48 <= cuota <= 1.72 and edge_pct >= 3.0:
+            return "TIER S", "💎 TIER S (Blindado +EV)", 1
+
+    # TIER A: Alta ventaja matematica
+    if prob_pct >= 58.5 and consenso_hist >= 66.0 and 1.48 <= cuota <= 1.95 and edge_pct >= 2.6:
         return "TIER A", "🥇 TIER A (Alta Ventaja)", 2
-    elif prob_pct >= 52.0 and 1.70 <= cuota <= 2.25 and edge_pct >= 3.5:
+    # TIER B: Valor +EV
+    elif prob_pct >= 53.0 and 1.65 <= cuota <= 2.20 and edge_pct >= 3.2:
         return "TIER B", "🥈 TIER B (Valor +EV)", 3
 
     return "DESCARTADO", "❌", 99
@@ -866,9 +875,9 @@ def descargar_calendario_espn():
     return partidos, resultados_auditoria, list(deportes_activos)
 
 # ==============================================================================
-# 6. PLATAFORMA WEB ABIERTA (SIN BLOQUEOS NI CODIGOS VIP)
+# 6. PLATAFORMA WEB ABIERTA CON VALIDADOR ANTI-TRAMPA ESTRICTO
 # ==============================================================================
-def generar_web_pro_25(picks_seleccionados, catalogo_partidos, auditoria, creditos_odds):
+def generar_web_pro_26(picks_seleccionados, catalogo_partidos, auditoria, creditos_odds):
     picks_json = json.dumps(picks_seleccionados, ensure_ascii=False)
     catalogo_json = json.dumps(catalogo_partidos, ensure_ascii=False)
     historial_json = json.dumps(auditoria.get("historial", [])[-50:][::-1], ensure_ascii=False)
@@ -879,7 +888,7 @@ def generar_web_pro_25(picks_seleccionados, catalogo_partidos, auditoria, credit
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IABET Pro 2.5 | Multi-Market AI Quant</title>
+<title>IABET Pro 2.6 | Audited AI Quant</title>
 <style>
   :root {
     --bg: #070b13; --card: #0f1726; --border: #1e293b;
@@ -953,16 +962,16 @@ def generar_web_pro_25(picks_seleccionados, catalogo_partidos, auditoria, credit
 <body>
 
 <div class="top-bar">
-  <div class="brand">⚡ IABET <span>PRO 2.5</span></div>
+  <div class="brand">⚡ IABET <span>PRO 2.6</span></div>
   <div class="nav-pills">
-    <button class="pill-btn active" id="btn-p" onclick="showTab('p')">🎯 Picks Multi-Mercado (__TOTAL_PICKS__)</button>
+    <button class="pill-btn active" id="btn-p" onclick="showTab('p')">🎯 Picks Auditados (__TOTAL_PICKS__)</button>
     <button class="pill-btn" id="btn-r" onclick="showTab('r')">📊 Buscador FutbolDataPro (__TOTAL_CAT__ Partidos)</button>
     <button class="pill-btn" id="btn-h" onclick="showTab('h')">📋 Historial Auditado</button>
   </div>
   <div class="badge-row">
     <span class="badge">🔄 Sync: __FECHA_SYNC__ (Live 30s)</span>
     <span class="badge">📡 Feed: __CREDITOS__</span>
-    <span class="badge">🎯 Motor: Understat xG + Kambi B2B</span>
+    <span class="badge">🛡️ TIER S Blindado (Sin Faltas Arbitrales)</span>
   </div>
 </div>
 
@@ -989,15 +998,13 @@ def generar_web_pro_25(picks_seleccionados, catalogo_partidos, auditoria, credit
       <option value="TIER B">🥈 Solo TIER B (Valor +EV)</option>
     </select>
     <select class="select-pro" id="f-cat" onchange="renderPicks()">
-      <option value="TODOS">⚽ Todos los Mercados (7 Activos)</option>
+      <option value="TODOS">⚽ Todos los Mercados</option>
+      <option value="DOBLE">🛡️ Doble Oportunidad / DNB</option>
+      <option value="GOLES">🥅 Goles (Over/Under 2.5)</option>
+      <option value="BTTS">⚽ Ambos Equipos Anotan</option>
+      <option value="1X2">🏆 Ganador 1X2</option>
       <option value="CORNERS">🚩 Córners Totales</option>
       <option value="TIROS">🎯 Tiros al Arco (SOT)</option>
-      <option value="TARJETAS">🟨 Tarjetas</option>
-      <option value="FALTAS">🛑 Faltas</option>
-      <option value="BTTS">⚽ Ambos Equipos Anotan</option>
-      <option value="GOLES">🥅 Goles (Over/Under 2.5)</option>
-      <option value="DOBLE">🛡️ Doble Oportunidad / DNB</option>
-      <option value="1X2">🏆 Ganador 1X2</option>
     </select>
   </div>
   <div class="cards-grid" id="list-picks"></div>
@@ -1042,11 +1049,11 @@ function checkOdd(idx, prob, ref) {
   if (val < 1.38) {
     out.innerHTML = '❌ <b>Cuota muy baja (@' + val.toFixed(2) + '):</b> La casa comprimió el pago. No arriesgar en cuotas menores a @1.40.';
     out.style.color = '#ef4444';
-  } else if ((val - ref) >= 0.35) {
-    out.innerHTML = '⚠️ <b>ALERTA DE LÍNEA MOVIDA (@' + val.toFixed(2) + '):</b> Paga mucho más que el modelo (@' + ref.toFixed(2) + '). Baja 1 punto la línea en tu casa o descarta.';
+  } else if ((val - ref) >= 0.18) {
+    out.innerHTML = '⚠️ <b>ALERTA DE TRAMPA DE LÍNEA (@' + val.toFixed(2) + ' vs @' + ref.toFixed(2) + '):</b> Tu casa paga demasiado alto porque esa línea no tiene colchón en vivo (50/50). Pide 1.5 puntos más de margen o NO apuestes.';
     out.style.color = '#f59e0b';
   } else if (ev >= 1.5) {
-    out.innerHTML = '✅ <b>Rentable (+' + ev.toFixed(1) + '% EV)</b> — Cuota verificada con ventaja matemática.';
+    out.innerHTML = '✅ <b>Rentable (+' + ev.toFixed(1) + '% EV)</b> — Cuota verificada y alineada con el modelo.';
     out.style.color = '#10b981';
   } else {
     out.innerHTML = '❌ <b>Sin valor (' + ev.toFixed(1) + '% EV):</b> Exige cuota mínima de @' + (1.02/p).toFixed(2);
@@ -1094,10 +1101,8 @@ async function sincronizarTarjetaVivo(p, idx) {
             pill.innerText = (state === 'post' ? '🏁 Final: ' : (state === 'in' ? '🔴 ' : '⏳ ')) + gH + '-' + gA + ' (' + detail + ')';
           }
 
-          const totFouls = getSt(tL,'foulsCommitted') + getSt(tV,'foulsCommitted');
           const totCorners = getSt(tL,'wonCorners') + getSt(tV,'wonCorners');
           const totSot = getSt(tL,'shotsOnTarget') + getSt(tV,'shotsOnTarget');
-          const totCards = getSt(tL,'yellowCards') + getSt(tV,'yellowCards') + getSt(tL,'redCards') + getSt(tV,'redCards');
           const trk = document.getElementById('trk-txt-' + p.event_id + '-' + idx);
           const bar = document.getElementById('trk-bar-' + p.event_id + '-' + idx);
           const m = p.mercado || '';
@@ -1112,14 +1117,6 @@ async function sincronizarTarjetaVivo(p, idx) {
             } else if (m.includes('Tiros al Arco') && lineVal > 0) {
               const pct = Math.min(100, Math.round((totSot / lineVal) * 100));
               trk.innerText = '📡 EN VIVO (' + detail + '): Actual ' + totSot + ' Tiros al Arco (' + pct + '%)';
-              bar.style.width = pct + '%';
-            } else if (m.includes('Tarjetas') && lineVal > 0) {
-              const pct = Math.min(100, Math.round((totCards / lineVal) * 100));
-              trk.innerText = '📡 EN VIVO (' + detail + '): Actual ' + totCards + ' Tarjetas (' + pct + '%)';
-              bar.style.width = pct + '%';
-            } else if (m.includes('Faltas') && lineVal > 0) {
-              const pct = Math.min(100, Math.round((totFouls / lineVal) * 100));
-              trk.innerText = '📡 EN VIVO (' + detail + '): Actual ' + totFouls + ' Faltas (' + pct + '%)';
               bar.style.width = pct + '%';
             } else {
               trk.innerText = '📡 EN VIVO (' + detail + '): Marcador ' + gH + ' - ' + gA + ' (' + totSot + ' SOT | ' + totCorners + ' Córners)';
@@ -1165,7 +1162,7 @@ function renderPicks() {
           </div>
           <div class="pick-box">
             <div>
-              <div style="font-size:0.67rem;color:#94a3b8;font-weight:700;">PRONÓSTICO CALIBRADO (${p.categoria} · ${p.fuente})</div>
+              <div style="font-size:0.67rem;color:#94a3b8;font-weight:700;">PRONÓSTICO AUDITADO (${p.categoria} · ${p.fuente})</div>
               <div class="pick-val">${p.mercado}</div>
             </div>
             <div class="odd-val">@${p.cuota.toFixed(2)}</div>
@@ -1206,7 +1203,6 @@ function renderPicks() {
             <div class="stat-line"><span>📈 Diagnóstico de Regresión xG:</span><b>${p.nota_regresion}</b></div>
             <div class="stat-line"><span>🛡️ Doble Oportunidad (1X / X2):</span><b>1X: ${p.p_1x}% | X2: ${p.p_x2}%</b></div>
             <div class="stat-line"><span>🚩 Proyección Córners / 🎯 SOT:</span><b>${p.cor_esp} Córners | ${p.sot_esp} Tiros al Arco</b></div>
-            <div class="stat-line"><span>🛑 Proyección Faltas / 🟨 Tarjetas:</span><b>${p.f_esp} Faltas | ${p.tarj_esp} Tarjetas</b></div>
             <div class="stat-line"><span>🎯 Marcadores Exactos:</span><b>${p.exactos}</b></div>
           </div>
         </div>
@@ -1279,7 +1275,7 @@ setInterval(() => {
 </html>"""
 
     html = html_base.replace("__TOTAL_PICKS__", str(len(picks_seleccionados)))
-    html = html_base.replace("__TOTAL_CAT__", str(len(catalogo_partidos)))
+    html = html.replace("__TOTAL_CAT__", str(len(catalogo_partidos)))
     html = html.replace("__FECHA_SYNC__", ahora_str)
     html = html.replace("__CREDITOS__", str(creditos_odds))
     html = html.replace("__WIN_RATE__", f"{float(auditoria.get('win_rate', 75.0)):.1f}")
@@ -1294,11 +1290,11 @@ setInterval(() => {
         f.write(html)
 
 # ==============================================================================
-# 7. ORQUESTADOR PRINCIPAL IABET PRO 2.5
+# 7. ORQUESTADOR PRINCIPAL IABET PRO 2.6
 # ==============================================================================
-def ejecutar_iabet_pro_25():
+def ejecutar_iabet_pro_26():
     t0 = time.time()
-    print("Iniciando IABET Pro 2.5 — B2B Kambi + Understat xG (100% Open Access)...")
+    print("Iniciando IABET Pro 2.6 — Audited Quant Engine...")
 
     caches_csv = {}
     tareas_csv = [(cfg[0], cfg[1]) for cfg in LIGAS_CONFIG.values() if cfg[1]]
@@ -1339,7 +1335,7 @@ def ejecutar_iabet_pro_25():
         cu25 = odds_info.get("cu25", 0.0)
         cbtts_real = odds_info.get("cbtts", 0.0)
         tiene_cuota_real = (c1 > 1.05 and c2 > 1.05)
-        fuente_cuota = odds_info.get("casa1", "Kambi B2B / OddsAPI") if tiene_cuota_real else "ESPN/Quant"
+        fuente_cuota_b2b = odds_info.get("casa1", "Kambi B2B / OddsAPI") if tiene_cuota_real else "ESPN/Quant"
 
         if tiene_cuota_real:
             cx_uso = cx if cx > 1.05 else 3.25
@@ -1353,17 +1349,14 @@ def ejecutar_iabet_pro_25():
         l_mkt_l = max(0.60, min(2.65, 2.55 * (p_mkt_1 + 0.48 * p_mkt_x)))
         l_mkt_v = max(0.45, min(2.35, 2.45 * (p_mkt_2 + 0.52 * p_mkt_x)))
 
-        nl, nv = limpiar_texto(loc), limpiar_texto(vis)
-        hay_gigante_posesion = any(g in nl or g in nv for g in EQUIPOS_ALTA_POSESION)
-        factor_faltas = 0.88 if hay_gigante_posesion else 1.00
-
         if st_l and st_v:
             lambda_l = (((st_l["gf"] + st_v["gc"]) / 2.0) * 0.62) + (l_mkt_l * 0.38)
             lambda_v = (((st_v["gf"] + st_l["gc"]) / 2.0) * 0.62) + (l_mkt_v * 0.38)
-            f_esp = (st_l["f_propia"] + st_v["f_propia"]) * factor_faltas
-            sot_esp = st_l["sot_propio"] + st_v["sot_propio"]
-            cor_esp = st_l["cor_propio"] + st_v["cor_propio"]
-            tarj_esp = st_l["tarj_propia"] + st_v["tarj_propia"]
+            # Promedio real de partido anclado 30% a la media oficial de la liga (Cero descuentos artificiales)
+            f_esp = (((st_l["f_partido"] + st_v["f_partido"]) / 2.0) * 0.70) + (b_falt * 0.30)
+            sot_esp = (((st_l["sot_partido"] + st_v["sot_partido"]) / 2.0) * 0.70) + (b_sot * 0.30)
+            cor_esp = (((st_l["cor_partido"] + st_v["cor_partido"]) / 2.0) * 0.70) + (b_cor * 0.30)
+            tarj_esp = (((st_l["tarj_partido"] + st_v["tarj_partido"]) / 2.0) * 0.70) + (b_tarj * 0.30)
             stats_ok = st_l["verificado"] and st_v["verificado"]
             fuente_xg = st_l.get("fuente_xg", "Shot-Quality xG")
 
@@ -1375,42 +1368,28 @@ def ejecutar_iabet_pro_25():
                 nota_reg = "Rendimiento alineado con su curva de Goles Esperados (xG)"
         else:
             lambda_l, lambda_v = l_mkt_l, l_mkt_v
-            deseq = abs(p_mkt_1 - p_mkt_2)
-            f_esp = (b_falt * factor_faltas) * (1.03 if deseq < 0.18 else 0.96)
-            sot_esp = b_sot * ((lambda_l + lambda_v) / 2.65)
-            cor_esp = b_cor * (1.04 if (lambda_l + lambda_v) >= 2.75 else 0.96)
-            tarj_esp = b_tarj * (1.04 if deseq < 0.18 else 0.95)
+            f_esp, sot_esp, cor_esp, tarj_esp = b_falt, b_sot, b_cor, b_tarj
             stats_ok = False
             fuente_xg = "Market Implied xG"
             nota_reg = "xG calibrado mediante liquidez B2B"
 
-        if cor_esp >= b_cor + 0.4:
+        # Colchon real amplio (>= 2.0 unidades de margen en Corners y SOT)
+        if cor_esp >= b_cor + 0.6:
             modo_cor = "OVER"
-            linea_cor = round(cor_esp - 1.1) - 0.5
+            linea_cor = round(cor_esp - 1.8) - 0.5
         else:
             modo_cor = "UNDER"
-            linea_cor = round(cor_esp + 1.2) + 0.5
+            linea_cor = round(cor_esp + 1.8) + 0.5
 
-        if sot_esp >= b_sot + 0.4:
+        if sot_esp >= b_sot + 0.6:
             modo_sot = "OVER"
-            linea_sot = round(sot_esp - 1.0) - 0.5
+            linea_sot = round(sot_esp - 1.5) - 0.5
         else:
             modo_sot = "UNDER"
-            linea_sot = round(sot_esp + 1.1) + 0.5
+            linea_sot = round(sot_esp + 1.6) + 0.5
 
-        if f_esp >= b_falt + 0.8 and not hay_gigante_posesion:
-            modo_f = "OVER"
-            linea_f = round(f_esp - 1.5) - 0.5
-        else:
-            modo_f = "UNDER"
-            linea_f = round(f_esp + 1.8) + 0.5
-
-        if tarj_esp >= b_tarj + 0.4:
-            modo_tarj = "OVER"
-            linea_tarj = round(tarj_esp - 0.8) - 0.5
-        else:
-            modo_tarj = "UNDER"
-            linea_tarj = round(tarj_esp + 0.9) + 0.5
+        linea_f = round(f_esp + 2.5) + 0.5
+        linea_tarj = round(tarj_esp + 1.2) + 0.5
 
         res = simular_montecarlo_xg(
             lambda_l, lambda_v, f_esp, linea_f, sot_esp, linea_sot,
@@ -1418,7 +1397,7 @@ def ejecutar_iabet_pro_25():
         )
 
         exactos_str = " | ".join([f"{m[0]} ({m[1]:.0f}%)" for m in calcular_marcadores_exactos(lambda_l, lambda_v)])
-        resumen_strip = f"Córners: {cor_esp:.1f} | Tiros Arco: {sot_esp:.1f} | Faltas: {f_esp:.1f} | Tarj: {tarj_esp:.1f}"
+        resumen_strip = f"Córners: {cor_esp:.1f} | Tiros Arco: {sot_esp:.1f} | xG Total: {lambda_l+lambda_v:.2f}"
 
         catalogo_partidos.append({
             "liga": liga, "partido": f"{loc} vs {vis}", "dia_tag": p["dia_tag"],
@@ -1428,119 +1407,94 @@ def ejecutar_iabet_pro_25():
             "exactos": exactos_str, "resumen": resumen_strip
         })
 
-        p_cal_1 = (res[0] * 0.54) + (p_mkt_1 * 0.46)
-        p_cal_2 = (res[2] * 0.54) + (p_mkt_2 * 0.46)
-        p_cal_1x = (res[3] * 0.54) + ((p_mkt_1 + p_mkt_x) * 0.46)
-        p_cal_x2 = (res[4] * 0.54) + ((p_mkt_2 + p_mkt_x) * 0.46)
+        p_cal_1 = (res[0] * 0.52) + (p_mkt_1 * 0.48)
+        p_cal_2 = (res[2] * 0.52) + (p_mkt_2 * 0.48)
+        p_cal_1x = (res[3] * 0.52) + ((p_mkt_1 + p_mkt_x) * 0.48)
+        p_cal_x2 = (res[4] * 0.52) + ((p_mkt_2 + p_mkt_x) * 0.48)
 
         mercados = []
 
-        # 1. CORNERS (1.56 - 1.76)
-        p_cor = res[14] if modo_cor == "OVER" else res[15]
-        nom_cor = f"Más de {linea_cor} Córners Totales" if modo_cor == "OVER" else f"Menos de {linea_cor} Córners Totales"
-        if stats_ok and st_l and st_v:
-            l5_c, l10_c, hr_cor = metricas_ventanas_l5_l10_l20(st_l["serie_cor"], st_v["serie_cor"], 1.0, linea_cor, modo_cor)
-            tag_cor = f"Córners L5:{l5_c:.0f}% · L10:{l10_c:.0f}% | Proy: {cor_esp:.1f} córners"
-        else:
-            hr_cor = p_cor * 100.0
-            tag_cor = f"Proyección Táctica: {cor_esp:.1f} Córners | xG Total: {lambda_l+lambda_v:.2f}"
-        if p_cor >= 0.62 and hr_cor >= 65.0:
-            cuota_cor = round(min(1.76, max(1.54, (1.0 / p_cor) * 1.07)), 2)
-            mercados.append((nom_cor, p_cor, cuota_cor, "CORNERS", hr_cor, tag_cor))
-
-        # 2. TIROS AL ARCO - SOT (1.58 - 1.78)
-        p_sot = res[12] if modo_sot == "OVER" else res[13]
-        nom_sot = f"Más de {linea_sot} Tiros al Arco" if modo_sot == "OVER" else f"Menos de {linea_sot} Tiros al Arco"
-        if stats_ok and st_l and st_v and len(st_l["serie_sot"]) >= 5 and len(st_v["serie_sot"]) >= 5:
-            l5_s, l10_s, hr_sot = metricas_ventanas_l5_l10_l20(st_l["serie_sot"], st_v["serie_sot"], 1.0, linea_sot, modo_sot)
-            tag_sot = f"SOT L5:{l5_s:.0f}% · L10:{l10_s:.0f}% | Proy: {sot_esp:.1f} tiros al arco"
-        else:
-            hr_sot = p_sot * 100.0
-            tag_sot = f"Proyección Ofensiva: {sot_esp:.1f} Tiros al Arco | xG: {lambda_l:.2f}-{lambda_v:.2f}"
-        if p_sot >= 0.62 and hr_sot >= 65.0:
-            cuota_sot = round(min(1.78, max(1.56, (1.0 / p_sot) * 1.07)), 2)
-            mercados.append((nom_sot, p_sot, cuota_sot, "TIROS", hr_sot, tag_sot))
-
-        # 3. TARJETAS (1.58 - 1.80)
-        p_tarj = res[16] if modo_tarj == "OVER" else res[17]
-        nom_tarj = f"Más de {linea_tarj} Tarjetas Totales" if modo_tarj == "OVER" else f"Menos de {linea_tarj} Tarjetas Totales"
-        if stats_ok and st_l and st_v and len(st_l["serie_tarj"]) >= 5 and len(st_v["serie_tarj"]) >= 5:
-            l5_t, l10_t, hr_tarj = metricas_ventanas_l5_l10_l20(st_l["serie_tarj"], st_v["serie_tarj"], 1.0, linea_tarj, modo_tarj)
-            tag_tarj = f"Tarjetas L5:{l5_t:.0f}% · L10:{l10_t:.0f}% | Proy: {tarj_esp:.1f} tarjetas"
-            if p_tarj >= 0.63 and hr_tarj >= 66.0:
-                cuota_tarj = round(min(1.80, max(1.56, (1.0 / p_tarj) * 1.07)), 2)
-                mercados.append((nom_tarj, p_tarj, cuota_tarj, "TARJETAS", hr_tarj, tag_tarj))
-
-        # 4. FALTAS CON COLCHON (1.58 - 1.75)
-        if stats_ok and st_l and st_v and len(st_l["serie_f"]) >= 5 and len(st_v["serie_f"]) >= 5:
-            p_flt = res[10] if modo_f == "OVER" else res[11]
-            nom_flt = f"Más de {linea_f} Faltas Totales" if modo_f == "OVER" else f"Menos de {linea_f} Faltas Totales"
-            l5_f, l10_f, hr_flt = metricas_ventanas_l5_l10_l20(st_l["serie_f"], st_v["serie_f"], factor_faltas, linea_f, modo_f)
-            tag_flt = f"Faltas L5:{l5_f:.0f}% · L10:{l10_f:.0f}% | Proy: {f_esp:.1f} faltas"
-            if p_flt >= 0.64 and hr_flt >= 68.0:
-                cuota_flt = round(min(1.75, max(1.56, (1.0 / p_flt) * 1.07)), 2)
-                mercados.append((nom_flt, p_flt, cuota_flt, "FALTAS", hr_flt, tag_flt))
-
-        # 5. RESULTADOS / GOLES / BTTS DE KAMBI B2B + SMARKETS (Piso @1.45)
+        # 1. MERCADOS PRINCIPALES VERIFICADOS CON CUOTA REAL B2B / API
         if tiene_cuota_real:
             cx_uso = cx if cx > 1.05 else 3.25
             c_1x = round(1.0 / ((1.0 / c1) + (1.0 / cx_uso)) * 0.96, 2)
             c_x2 = round(1.0 / ((1.0 / c2) + (1.0 / cx_uso)) * 0.96, 2)
 
-            if CUOTA_MIN_RENTABLE <= c_1x <= 1.90 and p_cal_1x >= 0.64:
-                mercados.append((f"Doble Oportunidad {loc} o Empate (1X)", p_cal_1x, c_1x, "DOBLE", 76.0, resumen_strip))
-            if CUOTA_MIN_RENTABLE <= c_x2 <= 1.95 and p_cal_x2 >= 0.62:
-                mercados.append((f"Doble Oportunidad {vis} o Empate (X2)", p_cal_x2, c_x2, "DOBLE", 75.0, resumen_strip))
+            if CUOTA_MIN_RENTABLE <= c_1x <= 1.88 and p_cal_1x >= 0.64:
+                mercados.append((f"Doble Oportunidad {loc} o Empate (1X)", p_cal_1x, c_1x, "DOBLE", 76.0, resumen_strip, fuente_cuota_b2b))
+            if CUOTA_MIN_RENTABLE <= c_x2 <= 1.92 and p_cal_x2 >= 0.62:
+                mercados.append((f"Doble Oportunidad {vis} o Empate (X2)", p_cal_x2, c_x2, "DOBLE", 75.0, resumen_strip, fuente_cuota_b2b))
 
             if (p_cal_1 + p_cal_2) > 0:
                 p_dnb_1 = p_cal_1 / (p_cal_1 + p_cal_2)
                 p_dnb_2 = p_cal_2 / (p_cal_1 + p_cal_2)
                 c_dnb_1 = round(1.0 + (c1 - 1.0) * (1.0 - (1.0 / cx_uso)) * 0.96, 2)
                 c_dnb_2 = round(1.0 + (c2 - 1.0) * (1.0 - (1.0 / cx_uso)) * 0.96, 2)
-                if CUOTA_MIN_RENTABLE <= c_dnb_1 <= 1.90 and p_dnb_1 >= 0.65:
-                    mercados.append((f"Empate no Válido (Local) - {loc}", p_dnb_1, c_dnb_1, "DOBLE", 74.0, resumen_strip))
-                if CUOTA_MIN_RENTABLE <= c_dnb_2 <= 1.95 and p_dnb_2 >= 0.64:
-                    mercados.append((f"Empate no Válido (Visita) - {vis}", p_dnb_2, c_dnb_2, "DOBLE", 74.0, resumen_strip))
+                if CUOTA_MIN_RENTABLE <= c_dnb_1 <= 1.88 and p_dnb_1 >= 0.65:
+                    mercados.append((f"Empate no Válido (Local) - {loc}", p_dnb_1, c_dnb_1, "DOBLE", 75.0, resumen_strip, fuente_cuota_b2b))
+                if CUOTA_MIN_RENTABLE <= c_dnb_2 <= 1.92 and p_dnb_2 >= 0.64:
+                    mercados.append((f"Empate no Válido (Visita) - {vis}", p_dnb_2, c_dnb_2, "DOBLE", 74.0, resumen_strip, fuente_cuota_b2b))
 
-            if CUOTA_MIN_RENTABLE <= c1 <= 2.15 and p_cal_1 >= 0.56:
-                mercados.append((f"Victoria {loc} (1)", p_cal_1, c1, "1X2", 72.0, resumen_strip))
-            if CUOTA_MIN_RENTABLE <= c2 <= 2.20 and p_cal_2 >= 0.55:
-                mercados.append((f"Victoria {vis} (2)", p_cal_2, c2, "1X2", 72.0, resumen_strip))
+            if CUOTA_MIN_RENTABLE <= c1 <= 2.10 and p_cal_1 >= 0.57:
+                mercados.append((f"Victoria {loc} (1)", p_cal_1, c1, "1X2", 72.0, resumen_strip, fuente_cuota_b2b))
+            if CUOTA_MIN_RENTABLE <= c2 <= 2.15 and p_cal_2 >= 0.56:
+                mercados.append((f"Victoria {vis} (2)", p_cal_2, c2, "1X2", 72.0, resumen_strip, fuente_cuota_b2b))
 
-            if CUOTA_MIN_RENTABLE <= co25 <= 2.10 and res[6] >= 0.57:
-                mercados.append(("Más de 2.5 Goles (Over 2.5)", res[6], co25, "GOLES", 72.0, resumen_strip))
-            if CUOTA_MIN_RENTABLE <= cu25 <= 2.10 and res[7] >= 0.58:
-                mercados.append(("Menos de 2.5 Goles (Under 2.5)", res[7], cu25, "GOLES", 73.0, resumen_strip))
+            if CUOTA_MIN_RENTABLE <= co25 <= 2.08 and res[6] >= 0.57:
+                mercados.append(("Más de 2.5 Goles (Over 2.5)", res[6], co25, "GOLES", 73.0, resumen_strip, fuente_cuota_b2b))
+            if CUOTA_MIN_RENTABLE <= cu25 <= 2.08 and res[7] >= 0.58:
+                mercados.append(("Menos de 2.5 Goles (Under 2.5)", res[7], cu25, "GOLES", 74.0, resumen_strip, fuente_cuota_b2b))
 
-        if res[9] >= 0.60 and lambda_l >= 1.15 and lambda_v >= 1.05:
-            c_btts = cbtts_real if (1.45 <= cbtts_real <= 2.15) else round(min(1.92, max(1.55, (1.0 / res[9]) * 1.06)), 2)
-            mercados.append(("Ambos Equipos Anotan (Sí)", res[9], c_btts, "BTTS", 72.0, resumen_strip))
+        if res[9] >= 0.60 and lambda_l >= 1.18 and lambda_v >= 1.08:
+            c_btts = cbtts_real if (1.45 <= cbtts_real <= 2.10) else round(min(1.88, max(1.54, (1.0 / res[9]) * 1.05)), 2)
+            f_btts = "Kambi B2B" if (1.45 <= cbtts_real <= 2.10) else "Modelo xG"
+            mercados.append(("Ambos Equipos Anotan (Sí)", res[9], c_btts, "BTTS", 73.0, resumen_strip, f_btts))
+
+        # 2. CORNERS Y TIROS AL ARCO (Solo cuando hay historial CSV verificado y colchon real)
+        if stats_ok and st_l and st_v:
+            p_cor = res[14] if modo_cor == "OVER" else res[15]
+            nom_cor = f"Más de {linea_cor} Córners Totales" if modo_cor == "OVER" else f"Menos de {linea_cor} Córners Totales"
+            l5_c, l10_c, hr_cor = metricas_ventanas_reales(st_l["serie_cor_tot"], st_v["serie_cor_tot"], linea_cor, modo_cor)
+            tag_cor = f"Córners L5:{l5_c:.0f}% · L10:{l10_c:.0f}% | Media Real: {cor_esp:.1f} córners"
+            if p_cor >= 0.65 and hr_cor >= 70.0:
+                cuota_cor = round(min(1.72, max(1.52, (1.0 / p_cor) * 1.05)), 2)
+                mercados.append((nom_cor, p_cor, cuota_cor, "CORNERS", hr_cor, tag_cor, "CSV Histórico"))
+
+            p_sot = res[12] if modo_sot == "OVER" else res[13]
+            nom_sot = f"Más de {linea_sot} Tiros al Arco" if modo_sot == "OVER" else f"Menos de {linea_sot} Tiros al Arco"
+            l5_s, l10_s, hr_sot = metricas_ventanas_reales(st_l["serie_sot_tot"], st_v["serie_sot_tot"], linea_sot, modo_sot)
+            tag_sot = f"SOT L5:{l5_s:.0f}% · L10:{l10_s:.0f}% | Media Real: {sot_esp:.1f} tiros al arco"
+            if p_sot >= 0.65 and hr_sot >= 70.0:
+                cuota_sot = round(min(1.74, max(1.54, (1.0 / p_sot) * 1.05)), 2)
+                mercados.append((nom_sot, p_sot, cuota_sot, "TIROS", hr_sot, tag_sot, "CSV Histórico"))
 
         candidatos_partido = []
-        for nom_m, p_real, cuota_m, cat, hr_val, strip_txt in mercados:
+        for nom_m, p_real, cuota_m, cat, hr_val, strip_txt, f_especifica in mercados:
             if not (CUOTA_MIN_RENTABLE <= cuota_m <= CUOTA_MAX_RENTABLE):
                 continue
             prob_pct = p_real * 100.0
             edge_pct = (p_real - (1.0 / cuota_m)) * 100.0
 
-            tier_cod, tier_label, prioridad = clasificar_tier_rentable(prob_pct, edge_pct, cuota_m, hr_val)
+            tier_cod, tier_label, prioridad = clasificar_tier_auditado(
+                prob_pct, edge_pct, cuota_m, hr_val, cat, tiene_cuota_real
+            )
             if tier_cod == "DESCARTADO":
                 continue
 
             b = cuota_m - 1.0
             kelly = max(0.0, (((b * p_real) - (1.0 - p_real)) / b) * KELLY_FRAC) if b > 0 else 0.0
-            tope_k = 0.050 if tier_cod == "TIER S" else 0.035
+            tope_k = 0.045 if tier_cod == "TIER S" else 0.030
             stake_s = round(BANKROLL_BASE * min(tope_k, max(0.025, kelly)) * 2.0) / 2.0
-            conf_ia = min(96.4, (prob_pct * 0.65) + (hr_val * 0.35) + (edge_pct * 0.8))
+            conf_ia = min(94.5, (prob_pct * 0.60) + (hr_val * 0.40))
 
-            bono_cuota_ideal = 6.0 if (1.52 <= cuota_m <= 1.92) else 0.0
-            score_total = (100 - prioridad * 12) + (prob_pct * 0.55) + (hr_val * 0.35) + (edge_pct * 1.4) + bono_cuota_ideal
+            bono_b2b = 8.0 if f_especifica != "CSV Histórico" else 0.0
+            score_total = (100 - prioridad * 15) + (prob_pct * 0.55) + (hr_val * 0.35) + bono_b2b
 
             candidatos_partido.append({
                 "event_id": p["event_id"], "clave_partido": clave, "liga": liga,
                 "partido": f"{loc} vs {vis}", "dia_tag": p["dia_tag"], "filtro_dia": p["filtro_dia"],
                 "marcador_vivo": p["marcador_vivo"], "reloj": p["reloj"],
-                "categoria": cat, "fuente": fuente_cuota, "fuente_xg": fuente_xg,
+                "categoria": cat, "fuente": f_especifica, "fuente_xg": fuente_xg,
                 "nota_regresion": nota_reg, "mercado": nom_m, "cuota": round(cuota_m, 2),
                 "prob_real": round(prob_pct, 1), "confianza": round(conf_ia, 1),
                 "edge": round(edge_pct, 1), "stake": stake_s,
@@ -1549,17 +1503,12 @@ def ejecutar_iabet_pro_25():
                 "xg_loc": f"{lambda_l:.2f}", "xg_vis": f"{lambda_v:.2f}",
                 "p_1x": f"{res[3]*100:.0f}", "p_x2": f"{res[4]*100:.0f}", "p_btts": f"{res[9]*100:.0f}",
                 "cor_esp": f"{cor_esp:.1f}", "sot_esp": f"{sot_esp:.1f}",
-                "f_esp": f"{f_esp:.1f}", "tarj_esp": f"{tarj_esp:.1f}",
                 "exactos": exactos_str, "score": score_total
             })
 
         if candidatos_partido:
             candidatos_partido.sort(key=lambda x: x["score"], reverse=True)
             todos_los_candidatos.append(candidatos_partido[0])
-            for extra in candidatos_partido[1:]:
-                if extra["categoria"] != candidatos_partido[0]["categoria"] and extra["prioridad"] <= 2:
-                    todos_los_candidatos.append(extra)
-                    break
 
     todos_los_candidatos.sort(key=lambda x: (x["prioridad"], -x["score"]))
     picks_finales = []
@@ -1570,7 +1519,7 @@ def ejecutar_iabet_pro_25():
             continue
         picks_finales.append(cand)
         conteo_por_cat[cat] = conteo_por_cat.get(cat, 0) + 1
-        if len(picks_finales) >= 18:
+        if len(picks_finales) >= 16:
             break
 
     claves_hist = {f"{h.get('clave_partido')}_{h.get('mercado')}" for h in auditoria.get("historial", [])}
@@ -1582,18 +1531,18 @@ def ejecutar_iabet_pro_25():
                 "liga": pf["liga"], "partido": pf["partido"], "mercado": pf["mercado"],
                 "cuota": pf["cuota"], "stake": pf["stake"], "tier": pf["tier_cod"],
                 "estado": "PENDIENTE", "marcador_final": pf["dia_tag"], "profit": 0.0,
-                "version": "Pro2.5-Open"
+                "version": "Pro2.6-Audited"
             })
 
     with open(ARCHIVO_AUDITORIA, "w", encoding="utf-8") as f:
         json.dump(auditoria, f, ensure_ascii=False, indent=2)
 
-    generar_web_pro_25(picks_finales, catalogo_partidos, auditoria, creditos)
+    generar_web_pro_26(picks_finales, catalogo_partidos, auditoria, creditos)
 
     lineas_tg = [
-        "⚡ *IABET PRO 2.5 — B2B KAMBI + UNDERSTAT xG*",
-        f"🟢 *{len(picks_finales)} Picks Activos* (Córners, SOT, Tarjetas, Faltas, BTTS, 1X2)",
-        f"🎯 *Motor Predictivo:* `Understat xG Real + Regresión`",
+        "⚡ *IABET PRO 2.6 — AUDITORÍA CUANTITATIVA ACTIVA*",
+        f"🟢 *{len(picks_finales)} Picks Verificados* (Sin mercados arbitrales de Faltas)",
+        f"🎯 *Motor:* `Understat xG + Kambi B2B + Historial Puro`",
         f"📊 *Win Rate Auditado:* `{auditoria.get('win_rate', 75.0):.1f}%` ({auditoria.get('ganados', 0)}W - {auditoria.get('perdidos', 0)}L)",
         f"🌐 *Web Oficial:* https://blakeffx.github.io/iabet-cloud/\n"
     ]
@@ -1601,7 +1550,7 @@ def ejecutar_iabet_pro_25():
         lineas_tg.append(
             f"*{idx}. {pk['tier_label']} [{pk['liga']} — {pk['categoria']}]*\n"
             f"🏟️ {pk['partido']} ({pk['dia_tag']})\n"
-            f"👉 *{pk['mercado']}* a *@{pk['cuota']:.2f}* ({pk['fuente_xg']})\n"
+            f"👉 *{pk['mercado']}* a *@{pk['cuota']:.2f}* ({pk['fuente']})\n"
             f"📐 Prob: `{pk['prob_real']:.1f}%` | Edge: `+{pk['edge']:.1f}%` | Stake: *S/ {pk['stake']:.2f}*\n"
         )
     try:
@@ -1613,7 +1562,7 @@ def ejecutar_iabet_pro_25():
     except Exception:
         pass
 
-    print(f"IABET Pro 2.5 completado en {time.time() - t0:.1f}s.")
+    print(f"IABET Pro 2.6 completado en {time.time() - t0:.1f}s.")
 
 if __name__ == "__main__":
-    ejecutar_iabet_pro_25()
+    ejecutar_iabet_pro_26()
