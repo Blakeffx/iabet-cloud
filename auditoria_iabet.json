@@ -1,12 +1,12 @@
 {
   "bankroll_inicial": 100.0,
-  "bankroll_actual": 131.99,
-  "ganancia_neta": 31.99,
-  "roi_pct": 28.4,
-  "win_rate": 84.0,
-  "ganados": 21,
-  "perdidos": 4,
-  "racha": 10,
+  "bankroll_actual": 127.76,
+  "ganancia_neta": 27.76,
+  "roi_pct": 21.3,
+  "win_rate": 79.3,
+  "ganados": 23,
+  "perdidos": 6,
+  "racha": 0,
   "historial": [
     {
       "event_id": "401928517",
@@ -767,9 +767,9 @@
       "cuota": 1.52,
       "stake": 4.5,
       "tier": "TIER S",
-      "estado": "PENDIENTE",
-      "marcador_final": "EN VIVO 0-0 (14')",
-      "profit": 0.0,
+      "estado": "PERDIDO",
+      "marcador_final": "1-0 (Final · 13 Córners)",
+      "profit": -4.5,
       "version": "Pro2.6-Audited"
     },
     {
@@ -781,9 +781,9 @@
       "cuota": 1.54,
       "stake": 4.5,
       "tier": "TIER S",
-      "estado": "PENDIENTE",
-      "marcador_final": "EN VIVO 0-0 (31')",
-      "profit": 0.0,
+      "estado": "GANADO",
+      "marcador_final": "0-1 (Final · 7 SOT)",
+      "profit": 2.43,
       "version": "Pro2.6-Audited"
     },
     {
@@ -795,9 +795,9 @@
       "cuota": 1.52,
       "stake": 4.5,
       "tier": "TIER S",
-      "estado": "PENDIENTE",
-      "marcador_final": "EN VIVO 0-0 (HT)",
-      "profit": 0.0,
+      "estado": "GANADO",
+      "marcador_final": "0-2 (Final · 10 Córners)",
+      "profit": 2.34,
       "version": "Pro2.6-Audited"
     },
     {
@@ -809,9 +809,9 @@
       "cuota": 1.52,
       "stake": 4.5,
       "tier": "TIER S",
-      "estado": "PENDIENTE",
-      "marcador_final": "EN VIVO 0-1 (45')",
-      "profit": 0.0,
+      "estado": "PERDIDO",
+      "marcador_final": "0-3 (Final · 13 Córners)",
+      "profit": -4.5,
       "version": "Pro2.6-Audited"
     },
     {
@@ -894,7 +894,7 @@
       "stake": 3.0,
       "tier": "TIER A",
       "estado": "PENDIENTE",
-      "marcador_final": "HOY · 17:00",
+      "marcador_final": "EN VIVO 0-0 (26')",
       "profit": 0.0,
       "version": "Pro2.6-Audited"
     }
