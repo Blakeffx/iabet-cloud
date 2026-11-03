@@ -1,12 +1,12 @@
 {
   "bankroll_inicial": 100.0,
-  "bankroll_actual": 127.76,
-  "ganancia_neta": 27.76,
-  "roi_pct": 21.3,
-  "win_rate": 79.3,
-  "ganados": 23,
+  "bankroll_actual": 130.68,
+  "ganancia_neta": 30.68,
+  "roi_pct": 22.8,
+  "win_rate": 80.0,
+  "ganados": 24,
   "perdidos": 6,
-  "racha": 0,
+  "racha": 1,
   "historial": [
     {
       "event_id": "401928517",
@@ -740,7 +740,7 @@
       "stake": 4.5,
       "tier": "TIER S",
       "estado": "PENDIENTE",
-      "marcador_final": "MAÑANA · 15:00",
+      "marcador_final": "EN VIVO 0-4 (30')",
       "profit": 0.0,
       "version": "Pro2.6-Audited"
     },
@@ -838,7 +838,7 @@
       "stake": 4.5,
       "tier": "TIER S",
       "estado": "PENDIENTE",
-      "marcador_final": "MAÑANA · 15:00",
+      "marcador_final": "EN VIVO 0-1 (29')",
       "profit": 0.0,
       "version": "Pro2.6-Audited"
     },
@@ -879,9 +879,9 @@
       "cuota": 1.73,
       "stake": 4.0,
       "tier": "TIER S",
-      "estado": "PENDIENTE",
-      "marcador_final": "EN VIVO 0-0 (45')",
-      "profit": 0.0,
+      "estado": "GANADO",
+      "marcador_final": "0-1 (Final)",
+      "profit": 2.92,
       "version": "Pro2.6-Audited"
     },
     {
@@ -937,6 +937,20 @@
       "tier": "TIER A",
       "estado": "PENDIENTE",
       "marcador_final": "05/11 · 17:15",
+      "profit": 0.0,
+      "version": "Pro2.6-Audited"
+    },
+    {
+      "event_id": "401915308",
+      "clave_partido": "man un_roma",
+      "liga": "Champions League",
+      "partido": "Manchester United vs AS Roma",
+      "mercado": "Empate no Válido (Visita) - AS Roma",
+      "cuota": 1.66,
+      "stake": 4.5,
+      "tier": "TIER S",
+      "estado": "PENDIENTE",
+      "marcador_final": "HOY · 15:00",
       "profit": 0.0,
       "version": "Pro2.6-Audited"
     }
