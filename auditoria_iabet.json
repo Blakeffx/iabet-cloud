@@ -897,6 +897,20 @@
       "marcador_final": "1-1 (Reembolso)",
       "profit": 0.0,
       "version": "Pro2.6-Audited"
+    },
+    {
+      "event_id": "401915530",
+      "clave_partido": "torree_ararat",
+      "liga": "Europa League",
+      "partido": "Torreense vs Ararat-Armenia",
+      "mercado": "Empate no Válido (Local) - Torreense",
+      "cuota": 1.54,
+      "stake": 4.5,
+      "tier": "TIER S",
+      "estado": "PENDIENTE",
+      "marcador_final": "05/11 · 15:00",
+      "profit": 0.0,
+      "version": "Pro2.6-Audited"
     }
   ]
 }
