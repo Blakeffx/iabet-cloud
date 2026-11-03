@@ -880,7 +880,7 @@
       "stake": 4.0,
       "tier": "TIER S",
       "estado": "PENDIENTE",
-      "marcador_final": "MAÑANA · 12:45",
+      "marcador_final": "EN VIVO 0-0 (45')",
       "profit": 0.0,
       "version": "Pro2.6-Audited"
     },
@@ -909,6 +909,34 @@
       "tier": "TIER S",
       "estado": "PENDIENTE",
       "marcador_final": "05/11 · 15:00",
+      "profit": 0.0,
+      "version": "Pro2.6-Audited"
+    },
+    {
+      "event_id": "401915535",
+      "clave_partido": "nec ni_omonia",
+      "liga": "Europa League",
+      "partido": "NEC Nijmegen vs Omonia Nicosia",
+      "mercado": "Empate no Válido (Local) - NEC Nijmegen",
+      "cuota": 1.57,
+      "stake": 4.5,
+      "tier": "TIER S",
+      "estado": "PENDIENTE",
+      "marcador_final": "05/11 · 12:45",
+      "profit": 0.0,
+      "version": "Pro2.6-Audited"
+    },
+    {
+      "event_id": "401841667",
+      "clave_partido": "gimnas_belgra",
+      "liga": "Liga Argentina",
+      "partido": "Gimnasia La Plata vs Belgrano (Córdoba)",
+      "mercado": "Menos de 2.5 Goles (Under 2.5)",
+      "cuota": 1.81,
+      "stake": 2.5,
+      "tier": "TIER A",
+      "estado": "PENDIENTE",
+      "marcador_final": "05/11 · 17:15",
       "profit": 0.0,
       "version": "Pro2.6-Audited"
     }
