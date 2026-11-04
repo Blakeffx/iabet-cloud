@@ -1,37 +1,88 @@
-name: IABET Cloud Scanner
+def extraer_y_dictar_fijas_de_hoy(picks_finales):
+    """
+    Filtra con precisión quirúrgica únicamente los pronósticos de HOY
+    que cumplen el estándar 💎 TIER S (o el Top 2 de máxima probabilidad real
+    y consenso histórico) sin mercados de varianza arbitral.
+    """
+    # 1. Filtrar exclusivamente partidos que se juegan HOY y excluir Faltas/Tarjetas
+    candidatos_hoy = [
+        p for p in picks_finales
+        if p.get("etiqueta_dia") == "HOY"
+        and p.get("categoria") not in ("FALTAS", "TARJETAS")
+        and float(p.get("cuota", 99.0)) < 1.80
+        and float(p.get("edge", 0.0)) >= 2.0
+    ]
 
-on:
-  workflow_dispatch:
-  schedule:
-    - cron: '0 */2 * * *'
+    # 2. Priorizar TIER S estricto; ordenar de mayor a menor Probabilidad Real y Confianza
+    fijas_tier_s = [p for p in candidatos_hoy if p.get("tier_cod") == "TIER S"]
+    fijas_tier_s.sort(key=lambda x: (x.get("prob", 0.0), x.get("confianza", 0.0)), reverse=True)
 
-permissions:
-  contents: write
+    # Si no hay TIER S hoy, tomar solo el mejor TIER A que supere 64% de probabilidad real
+    if not fijas_tier_s:
+        respaldo_seguro = [p for p in candidatos_hoy if float(p.get("prob", 0.0)) >= 64.0]
+        respaldo_seguro.sort(key=lambda x: (x.get("prob", 0.0), x.get("edge", 0.0)), reverse=True)
+        seleccion_fijas = respaldo_seguro[:2]
+    else:
+        seleccion_fijas = fijas_tier_s[:3]
 
-jobs:
-  escanear-partidos:
-    runs-on: ubuntu-latest
-    steps:
-      - name: 1. Descargar codigo IABET
-        uses: actions/checkout@v4
+    if not seleccion_fijas:
+        return (
+            "🛡️ DICTAMEN DE FIJAS IABET (HOY)\n"
+            "━━━━━━━━━━━━━━━━━━━━\n"
+            "⚠️ Ningún partido de HOY supera los 4 candados matemáticos de seguridad.\n"
+            "💰 Recomendación Quant: NO APOSTAR (Stake S/ 0.00). Proteger el bankroll es prioridad."
+        )
 
-      - name: 2. Instalar Python 3.11
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
+    lineas = [
+        "💎 DICTAMEN OFICIAL: LAS FIJAS DE HOY",
+        "✅ Verificadas con 1,000,000 Sims + De-Vigging + Filtro Anti-Trampa",
+        "━━━━━━━━━━━━━━━━━━━━"
+    ]
 
-      - name: 3. Instalar Dependencias
-        run: pip install numba numpy pandas requests
+    for idx, f in enumerate(seleccion_fijas, 1):
+        lineas.append(
+            f"🔥 FIJA #{idx}: {f['local']} vs {f['visita']}\n"
+            f"🏆 Torneo: {f['liga']} | ⏰ Hora Perú: {f['hora_peru']}\n"
+            f"👉 APUESTA DIRECTA: {f['mercado']}\n"
+            f"💵 Cuota Verificada: @{f['cuota']:.2f} ({f['casa']}) | Cuota Justa: @{f['cuota_justa']:.2f}\n"
+            f"📈 Probabilidad Real: {f['prob']:.1f}% | Ventaja (+EV): +{f['edge']:.1f}%\n"
+            f"📊 Respaldo: {f['ventanas']}\n"
+            f"💰 Stake Exacto (Kelly): S/ {f['stake']:.2f}\n"
+        )
 
-      - name: 4. Limpiar sintaxis y Ejecutar Motor Multi-Mercado IABET Pro 2.1
-        run: |
-          python -c "p=open('iabet_cloud.py','rb').read().replace(b'\xc2\xa0',b' ').replace(b'\r\n',b'\n'); open('iabet_cloud.py','wb').write(p)"
-          python iabet_cloud.py
+    # Si hay al menos 2 fijas, calcular la cuota y el stake de la Combinada Doble Blindada
+    if len(seleccion_fijas) >= 2:
+        f1, f2 = seleccion_fijas[0], seleccion_fijas[1]
+        cuota_comb = round(f1["cuota"] * f2["cuota"], 2)
+        prob_comb = ((f1["prob"] / 100.0) * (f2["prob"] / 100.0)) * 100.0
+        lineas.append(
+            "━━━━━━━━━━━━━━━━━━━━\n"
+            f"🔗 COMBINADA DOBLE SUGERIDA (FIJA #1 + FIJA #2):\n"
+            f"• {f1['mercado']} + {f2['mercado']}\n"
+            f"• Cuota Total: @{cuota_comb:.2f} | Prob. Conjunta: {prob_comb:.1f}%\n"
+            f"• Stake Conservador Combinada: S/ 2.00"
+        )
 
-      - name: 5. Publicar Dashboard Actualizado
-        run: |
-          git config --global user.name "IABET Bot"
-          git config --global user.email "bot@iabet.cloud"
-          git add index.html auditoria_iabet.json cache_odds_api.json || true
-          git diff --staged --quiet || git commit -m "Auto-update: IABET Pro 2.1 Multi-Market"
-          git push
+    return "\n".join(lineas)
+
+
+def responder_comando_fija_telegram(picks_finales):
+    """
+    Revisa si enviaste '/fija' o 'fijas' a tu bot de Telegram y te responde
+    directamente con el dictamen de las fijas del día sin costo de servidor.
+    """
+    url_updates = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/getUpdates?limit=5"
+    try:
+        r = requests.get(url_updates, timeout=8)
+        if r.status_code == 200:
+            datos = r.json().get("result", [])
+            for upd in reversed(datos):
+                msg = upd.get("message", {})
+                texto_usr = str(msg.get("text", "")).lower().strip()
+                chat_id_usr = str(msg.get("chat", {}).get("id", ""))
+                if chat_id_usr == str(TELEGRAM_CHAT_ID) and any(k in texto_usr for k in ["/fija", "fija", "fijas"]):
+                    dictamen = extraer_y_dictar_fijas_de_hoy(picks_finales)
+                    enviar_telegram_seguro(dictamen)
+                    break
+    except Exception:
+        pass
