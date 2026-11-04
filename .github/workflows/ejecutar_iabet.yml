@@ -1,79 +1,37 @@
-import requests
+name: IABET Cloud Scanner
 
-def extraer_fijas_del_dia(candidatos_procesados):
-    """
-    Filtro estricto de cero error para 'Las Fijas':
-    - Exclusivo TIER S (Blindado) o TIER A superior.
-    - Prohibido incluir Faltas o Tarjetas por varianza arbitral.
-    - Cuotas controladas (< 1.80) y Edge (+EV) verificado.
-    """
-    fijas = [
-        p for p in candidatos_procesados
-        if p.get("cat") not in ("FALTAS", "TARJETAS")
-        and float(p.get("cuota", 99.0)) < 1.80
-        and float(p.get("edge", 0.0)) >= 2.5
-        and float(p.get("prob", 0.0)) >= 65.0
-    ]
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 */2 * * *'
 
-    fijas.sort(key=lambda x: (x.get("prob", 0.0), x.get("edge", 0.0)), reverse=True)
-    seleccion = fijas[:2]
+permissions:
+  contents: write
 
-    if not seleccion:
-        return (
-            "🛡️ *DICTAMEN QUANT IABET: LAS FIJAS*\n"
-            "━━━━━━━━━━━━━━━━━━━━\n"
-            "⚠️ *Ningún partido de hoy supera los candados de seguridad (Hit-Rate ≥ 65% y Cuota < 1.80).*\n"
-            "💰 *Veredicto:* NO APOSTAR (Stake S/ 0.00). Proteger el capital es prioridad matemática."
-        )
+jobs:
+  escanear-partidos:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 1. Descargar codigo IABET
+        uses: actions/checkout@v4
 
-    lineas = [
-        "💎 *DICTAMEN OFICIAL: LAS FIJAS DE HOY*",
-        "✅ *Filtro Anti-Trampa + Monte Carlo 1M + Sin Varianza Arbitral*",
-        "━━━━━━━━━━━━━━━━━━━━"
-    ]
+      - name: 2. Instalar Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
 
-    for idx, f in enumerate(seleccion, 1):
-        lineas.append(
-            f"🔥 *FIJA #{idx}:* `{f['partido']}`\n"
-            f"🏆 *Torneo:* {f['liga']}\n"
-            f"👉 *MERCADO DIRECTO:* `{f['mercado']}`\n"
-            f"💵 *Cuota:* `@{f['cuota']:.2f}` _({f['casa']})_\n"
-            f"📈 *Probabilidad Real:* `{f['prob']:.1f}%` | *Ventaja (+EV):* `+{f['edge']:.1f}%`\n"
-            f"💰 *Stake Sugerido (Kelly):* *S/ {f['stake']:.2f}*\n"
-        )
+      - name: 3. Instalar Dependencias
+        run: pip install numba numpy pandas requests
 
-    if len(seleccion) == 2:
-        c1, c2 = seleccion[0]["cuota"], seleccion[1]["cuota"]
-        cuota_parlay = round(c1 * c2, 2)
-        prob_parlay = (seleccion[0]["prob"] / 100.0) * (seleccion[1]["prob"] / 100.0) * 100.0
-        lineas.append(
-            "━━━━━━━━━━━━━━━━━━━━\n"
-            f"🔗 *COMBINADA SEGURA (FIJA 1 + FIJA 2):*\n"
-            f"• Cuota Total: `@{cuota_parlay:.2f}` | Prob. Conjunta: `{prob_parlay:.1f}%`\n"
-            f"• Stake Sugerido: *S/ 2.00*"
-        )
+      - name: 4. Limpiar sintaxis y Ejecutar Motor Multi-Mercado IABET Pro 2.1
+        run: |
+          python -c "p=open('iabet_cloud.py','rb').read().replace(b'\xc2\xa0',b' ').replace(b'\r\n',b'\n'); open('iabet_cloud.py','wb').write(p)"
+          python iabet_cloud.py
 
-    return "\n".join(lineas)
-
-
-def atender_comando_fijas(candidatos_procesados):
-    """
-    Inspecciona si enviaste '/fija' o '/fijas' en tu chat privado de Telegram
-    y te envía el reporte directo al instante.
-    """
-    url_updates = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/getUpdates?offset=-5"
-    try:
-        r = requests.get(url_updates, timeout=8)
-        if r.status_code == 200:
-            datos = r.json().get("result", [])
-            for item in reversed(datos):
-                msg = item.get("message", {})
-                chat_id = str(msg.get("chat", {}).get("id", ""))
-                texto = str(msg.get("text", "")).lower().strip()
-
-                if chat_id == str(TELEGRAM_CHAT_ID) and any(cmd in texto for cmd in ["/fija", "/fijas", "fija"]):
-                    mensaje_fijas = extraer_fijas_del_dia(candidatos_procesados)
-                    enviar_telegram(mensaje_fijas)
-                    break
-    except Exception as e:
-        print(f"Error procesando comando: {e}")
+      - name: 5. Publicar Dashboard Actualizado
+        run: |
+          git config --global user.name "IABET Bot"
+          git config --global user.email "bot@iabet.cloud"
+          git add index.html auditoria_iabet.json cache_odds_api.json || true
+          git diff --staged --quiet || git commit -m "Auto-update: IABET Pro 2.1 Multi-Market"
+          git push
