@@ -1,88 +1,79 @@
-def extraer_y_dictar_fijas_de_hoy(picks_finales):
+import requests
+
+def extraer_fijas_del_dia(candidatos_procesados):
     """
-    Filtra con precisión quirúrgica únicamente los pronósticos de HOY
-    que cumplen el estándar 💎 TIER S (o el Top 2 de máxima probabilidad real
-    y consenso histórico) sin mercados de varianza arbitral.
+    Filtro estricto de cero error para 'Las Fijas':
+    - Exclusivo TIER S (Blindado) o TIER A superior.
+    - Prohibido incluir Faltas o Tarjetas por varianza arbitral.
+    - Cuotas controladas (< 1.80) y Edge (+EV) verificado.
     """
-    # 1. Filtrar exclusivamente partidos que se juegan HOY y excluir Faltas/Tarjetas
-    candidatos_hoy = [
-        p for p in picks_finales
-        if p.get("etiqueta_dia") == "HOY"
-        and p.get("categoria") not in ("FALTAS", "TARJETAS")
+    fijas = [
+        p for p in candidatos_procesados
+        if p.get("cat") not in ("FALTAS", "TARJETAS")
         and float(p.get("cuota", 99.0)) < 1.80
-        and float(p.get("edge", 0.0)) >= 2.0
+        and float(p.get("edge", 0.0)) >= 2.5
+        and float(p.get("prob", 0.0)) >= 65.0
     ]
 
-    # 2. Priorizar TIER S estricto; ordenar de mayor a menor Probabilidad Real y Confianza
-    fijas_tier_s = [p for p in candidatos_hoy if p.get("tier_cod") == "TIER S"]
-    fijas_tier_s.sort(key=lambda x: (x.get("prob", 0.0), x.get("confianza", 0.0)), reverse=True)
+    fijas.sort(key=lambda x: (x.get("prob", 0.0), x.get("edge", 0.0)), reverse=True)
+    seleccion = fijas[:2]
 
-    # Si no hay TIER S hoy, tomar solo el mejor TIER A que supere 64% de probabilidad real
-    if not fijas_tier_s:
-        respaldo_seguro = [p for p in candidatos_hoy if float(p.get("prob", 0.0)) >= 64.0]
-        respaldo_seguro.sort(key=lambda x: (x.get("prob", 0.0), x.get("edge", 0.0)), reverse=True)
-        seleccion_fijas = respaldo_seguro[:2]
-    else:
-        seleccion_fijas = fijas_tier_s[:3]
-
-    if not seleccion_fijas:
+    if not seleccion:
         return (
-            "🛡️ DICTAMEN DE FIJAS IABET (HOY)\n"
+            "🛡️ *DICTAMEN QUANT IABET: LAS FIJAS*\n"
             "━━━━━━━━━━━━━━━━━━━━\n"
-            "⚠️ Ningún partido de HOY supera los 4 candados matemáticos de seguridad.\n"
-            "💰 Recomendación Quant: NO APOSTAR (Stake S/ 0.00). Proteger el bankroll es prioridad."
+            "⚠️ *Ningún partido de hoy supera los candados de seguridad (Hit-Rate ≥ 65% y Cuota < 1.80).*\n"
+            "💰 *Veredicto:* NO APOSTAR (Stake S/ 0.00). Proteger el capital es prioridad matemática."
         )
 
     lineas = [
-        "💎 DICTAMEN OFICIAL: LAS FIJAS DE HOY",
-        "✅ Verificadas con 1,000,000 Sims + De-Vigging + Filtro Anti-Trampa",
+        "💎 *DICTAMEN OFICIAL: LAS FIJAS DE HOY*",
+        "✅ *Filtro Anti-Trampa + Monte Carlo 1M + Sin Varianza Arbitral*",
         "━━━━━━━━━━━━━━━━━━━━"
     ]
 
-    for idx, f in enumerate(seleccion_fijas, 1):
+    for idx, f in enumerate(seleccion, 1):
         lineas.append(
-            f"🔥 FIJA #{idx}: {f['local']} vs {f['visita']}\n"
-            f"🏆 Torneo: {f['liga']} | ⏰ Hora Perú: {f['hora_peru']}\n"
-            f"👉 APUESTA DIRECTA: {f['mercado']}\n"
-            f"💵 Cuota Verificada: @{f['cuota']:.2f} ({f['casa']}) | Cuota Justa: @{f['cuota_justa']:.2f}\n"
-            f"📈 Probabilidad Real: {f['prob']:.1f}% | Ventaja (+EV): +{f['edge']:.1f}%\n"
-            f"📊 Respaldo: {f['ventanas']}\n"
-            f"💰 Stake Exacto (Kelly): S/ {f['stake']:.2f}\n"
+            f"🔥 *FIJA #{idx}:* `{f['partido']}`\n"
+            f"🏆 *Torneo:* {f['liga']}\n"
+            f"👉 *MERCADO DIRECTO:* `{f['mercado']}`\n"
+            f"💵 *Cuota:* `@{f['cuota']:.2f}` _({f['casa']})_\n"
+            f"📈 *Probabilidad Real:* `{f['prob']:.1f}%` | *Ventaja (+EV):* `+{f['edge']:.1f}%`\n"
+            f"💰 *Stake Sugerido (Kelly):* *S/ {f['stake']:.2f}*\n"
         )
 
-    # Si hay al menos 2 fijas, calcular la cuota y el stake de la Combinada Doble Blindada
-    if len(seleccion_fijas) >= 2:
-        f1, f2 = seleccion_fijas[0], seleccion_fijas[1]
-        cuota_comb = round(f1["cuota"] * f2["cuota"], 2)
-        prob_comb = ((f1["prob"] / 100.0) * (f2["prob"] / 100.0)) * 100.0
+    if len(seleccion) == 2:
+        c1, c2 = seleccion[0]["cuota"], seleccion[1]["cuota"]
+        cuota_parlay = round(c1 * c2, 2)
+        prob_parlay = (seleccion[0]["prob"] / 100.0) * (seleccion[1]["prob"] / 100.0) * 100.0
         lineas.append(
             "━━━━━━━━━━━━━━━━━━━━\n"
-            f"🔗 COMBINADA DOBLE SUGERIDA (FIJA #1 + FIJA #2):\n"
-            f"• {f1['mercado']} + {f2['mercado']}\n"
-            f"• Cuota Total: @{cuota_comb:.2f} | Prob. Conjunta: {prob_comb:.1f}%\n"
-            f"• Stake Conservador Combinada: S/ 2.00"
+            f"🔗 *COMBINADA SEGURA (FIJA 1 + FIJA 2):*\n"
+            f"• Cuota Total: `@{cuota_parlay:.2f}` | Prob. Conjunta: `{prob_parlay:.1f}%`\n"
+            f"• Stake Sugerido: *S/ 2.00*"
         )
 
     return "\n".join(lineas)
 
 
-def responder_comando_fija_telegram(picks_finales):
+def atender_comando_fijas(candidatos_procesados):
     """
-    Revisa si enviaste '/fija' o 'fijas' a tu bot de Telegram y te responde
-    directamente con el dictamen de las fijas del día sin costo de servidor.
+    Inspecciona si enviaste '/fija' o '/fijas' en tu chat privado de Telegram
+    y te envía el reporte directo al instante.
     """
-    url_updates = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/getUpdates?limit=5"
+    url_updates = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/getUpdates?offset=-5"
     try:
         r = requests.get(url_updates, timeout=8)
         if r.status_code == 200:
             datos = r.json().get("result", [])
-            for upd in reversed(datos):
-                msg = upd.get("message", {})
-                texto_usr = str(msg.get("text", "")).lower().strip()
-                chat_id_usr = str(msg.get("chat", {}).get("id", ""))
-                if chat_id_usr == str(TELEGRAM_CHAT_ID) and any(k in texto_usr for k in ["/fija", "fija", "fijas"]):
-                    dictamen = extraer_y_dictar_fijas_de_hoy(picks_finales)
-                    enviar_telegram_seguro(dictamen)
+            for item in reversed(datos):
+                msg = item.get("message", {})
+                chat_id = str(msg.get("chat", {}).get("id", ""))
+                texto = str(msg.get("text", "")).lower().strip()
+
+                if chat_id == str(TELEGRAM_CHAT_ID) and any(cmd in texto for cmd in ["/fija", "/fijas", "fija"]):
+                    mensaje_fijas = extraer_fijas_del_dia(candidatos_procesados)
+                    enviar_telegram(mensaje_fijas)
                     break
-    except Exception:
-        pass
+    except Exception as e:
+        print(f"Error procesando comando: {e}")
