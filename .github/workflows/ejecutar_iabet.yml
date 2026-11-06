@@ -20,8 +20,10 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: 3. Instalar Dependencias
-        run: pip install numba numpy pandas requests
+      -       - name: 3. Instalar Dependencias y Motor Furtivo Scrapling
+        run: |
+          pip install numba numpy pandas requests "scrapling[fetchers]"
+          scrapling install
 
       - name: 4. Limpiar sintaxis y Ejecutar Motor Multi-Mercado IABET Pro 2.1
         run: |
