@@ -1,11 +1,11 @@
 {
   "bankroll_inicial": 100.0,
-  "bankroll_actual": 152.01,
-  "ganados": 43,
+  "bankroll_actual": 153.48,
+  "ganados": 44,
   "perdidos": 10,
-  "win_rate": 81.1,
-  "roi": 23.5,
-  "racha": "2W 🔥",
+  "win_rate": 81.5,
+  "roi": 23.8,
+  "racha": "3W 🔥",
   "historial": [
     {
       "event_id": "401874808",
@@ -75,9 +75,9 @@
       "mercado": "Ambos Equipos Anotan (Sí)",
       "cuota": 1.49,
       "stake": 3.0,
-      "estado": "PENDIENTE",
-      "resultado_final": "-",
-      "profit": 0.0
+      "estado": "GANADO",
+      "resultado_final": "1-2",
+      "profit": 1.47
     },
     {
       "event_id": "401928517",
