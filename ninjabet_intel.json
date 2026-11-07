@@ -1,14 +1,14 @@
 {
-  "actualizado": "2026-11-06 19:36",
+  "actualizado": "2026-11-06 19:55",
   "motor_scrapling": "ACTIVO (TLS Chrome Impersonation)",
   "surebet_yield_ref": "+2.4% por operación",
   "valuebet_yield_ref": "+5.1% auditado",
   "bonos_activos": [
     {
       "casa": "Betano Perú / Latam",
-      "tipo": "Bono Bienvenida / Freebet",
+      "tipo": "Bono Bienvenida / Freebet SNR",
       "ganancia_est": "S/ 120 - S/ 250",
-      "estrategia": "Usar Oddsmatcher con Rating >= 95%"
+      "estrategia": "Usar Oddsmatcher con Rating >= 95% o Freebet a cuota @3.00+"
     },
     {
       "casa": "Betsson / Inkabet (Kambi)",
@@ -20,7 +20,7 @@
       "casa": "Apuesta Total / DoradoBet",
       "tipo": "Club Freebets Semanal",
       "ganancia_est": "S/ 40 - S/ 80",
-      "estrategia": "Convertir Freebet en cuota alta (@3.00+) vs Exchange"
+      "estrategia": "Activar modo 'Freebet SNR' en la calculadora Ninja de arriba"
     }
   ]
 }

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>⚡ IABET Pro 3.1 — Gestión Dinámica de Banca & Alertas Fijas</title>
+    <title>⚡ IABET Pro 3.3 — Suite Cuantitativa & Arbitraje Ninja</title>
     <style>
         :root { --bg:#0b0f19; --card:#131b2e; --border:#1e293b; --text:#f8fafc; --muted:#94a3b8; --accent:#10b981; --blue:#38bdf8; }
         * { box-sizing:border-box; font-family:'Inter',system-ui,-apple-system,sans-serif; }
@@ -41,7 +41,7 @@
         .pick-odds { font-size:1.15rem; font-weight:800; color:var(--accent); }
         .metrics-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:6px; text-align:center; background:#0b1120; padding:8px; border-radius:8px; margin-bottom:8px; }
         .metrics-grid span { display:block; font-size:0.68rem; color:var(--muted); }
-        .hitrate-bar { font-size:0.76rem; color:#cbd5e1; margin-bottom:10px; text-align:center; background:#1e293b66; padding:6px; border-radius:6px; }
+        .hitrate-bar { font-size:0.75rem; color:#cbd5e1; margin-bottom:10px; text-align:center; background:#1e293b66; padding:6px; border-radius:6px; }
         .calc-box { background:#0f172a; padding:9px; border-radius:8px; border:1px dashed #334155; margin-bottom:8px; font-size:0.76rem; }
         .calc-row { display:flex; align-items:center; gap:8px; margin-top:6px; }
         .calc-row input { width:95px; padding:5px 8px; border-radius:6px; border:1px solid #475569; background:#1e293b; color:#fff; }
@@ -57,8 +57,8 @@
 <div class="container">
     <div class="header">
         <div class="brand">
-            <h1>⚡ IABET Pro 3.1 <span style="font-size:0.78rem; background:#10b98122; color:#10b981; border:1px solid #10b98155; padding:3px 8px; border-radius:6px;">BANCA PERSONALIZABLE</span></h1>
-            <small>Actualizado: 06/11/2026 19:36 (Hora Perú) · Motor: ACTIVO (TLS Chrome Impersonation) · Créditos API: N/A</small>
+            <h1>⚡ IABET Pro 3.3 <span style="font-size:0.78rem; background:#10b98122; color:#10b981; border:1px solid #10b98155; padding:3px 8px; border-radius:6px;">QUANT + NINJA SUITE</span></h1>
+            <small>Actualizado: 06/11/2026 19:55 (Hora Perú) · Motor: ACTIVO (TLS Chrome Impersonation) · Créditos API: Cache Activo</small>
         </div>
         <div class="stats-bar">
             <div class="stat-pill"><span>Win Rate Auditado</span><strong>80.8% (42W-10L)</strong></div>
@@ -68,7 +68,6 @@
         </div>
     </div>
 
-    <!-- PANEL INTERACTIVO DE BANCA PERSONAL DEL CLIENTE (NO AFECTA EL HISTORIAL AUDITADO) -->
     <div class="bankroll-banner">
         <div>
             <strong style="color:#38bdf8; font-size:1rem;">💰 Configura Tu Banca Personal de Operación (S/):</strong>
@@ -87,19 +86,20 @@
         </div>
     </div>
 
+    
+
     <div class="tabs">
         <button class="tab-btn active" onclick="cambiarTab('tab-picks', this)">🎯 Picks IA (+EV & Fijas del Día)</button>
         <button class="tab-btn" onclick="cambiarTab('tab-ninja', this)">🥷 Ninja Dutcher & Bonos (0% Riesgo)</button>
         <button class="tab-btn" onclick="cambiarTab('tab-historial', this)">📋 Historial Auditado Oficial (72)</button>
     </div>
 
-    <!-- PESTAÑA 1: PICKS IA -->
     <div id="tab-picks" class="tab-panel active">
         <div class="filters">
             <button class="filter-btn" onclick="filtrarPicks('TODOS')">Todos (3)</button>
             <button class="filter-btn" onclick="filtrarPicks('HOY')">📅 Juegan Hoy</button>
             <button class="filter-btn" onclick="filtrarPicks('MANANA')">📅 Juegan Mañana</button>
-            <button class="filter-btn" onclick="filtrarPicks('GOLES')">⚽ Goles</button>
+            <button class="filter-btn" onclick="filtrarPicks('GOLES')">⚽ Goles / BTTS</button>
             <button class="filter-btn" onclick="filtrarPicks('CORNERS')">🚩 Córners / Tiros</button>
         </div>
         <div class="grid-3">
@@ -111,7 +111,7 @@
             </div>
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
                 <span class="league-tag">Bundesliga · BTTS</span>
-                <span style="font-size:0.72rem; font-weight:700; color:#38bdf8;">🆕 NUEVA HABILITADA</span>
+                <span style="font-size:0.72rem; font-weight:700; color:#94a3b8;">✅ CONFIRMADA</span>
             </div>
             <h3 class="match-title">Mainz vs Bayern Munich</h3>
             <div class="pick-box">
@@ -128,7 +128,7 @@
                 </div>
             </div>
             <div class="hitrate-bar">
-                Ganancia Neta Estimada con tu Banca: <b class="dynamic-profit" data-stake-pct="3.0" data-cuota="1.49" style="color:#10b981;">+S/ 1.47</b> · Consenso: L5 74% | L20 70%
+                Ganancia Neta con tu Banca: <b class="dynamic-profit" data-stake-pct="3.0" data-cuota="1.49" style="color:#10b981;">+S/ 1.47</b> · Consenso: L5 73% | L10 71% | L20 70%
             </div>
             <div class="calc-box">
                 <label>🧮 Verificador Anti-Trampa + Stake Personalizado (Escribe la cuota de tu casa):</label>
@@ -140,7 +140,7 @@
             <details class="tactical-acc">
                 <summary>🔬 Ver Estado de Alerta y Telemetría ESPN en Vivo</summary>
                 <div class="acc-body">
-                    <p>• <b>Estado del Escáner:</b> Acaba de ingresar al radar en la última actualización de datos.</p>
+                    <p>• <b>Estado del Escáner:</b> Línea firme sin variaciones.</p>
                     <p>• <b>Proyección xG / Lambda:</b> Local 1.5 vs Visita 2.33 (ESPN + OddsAPI + CSV L20)</p>
                     <p>• <b>Cuota Mínima Rentable:</b> No entrar si baja de <b>@1.46</b></p>
                     <div id="live-box-401884740" class="live-telemetry">Sincronizando telemetría con ESPN Summary API...</div>
@@ -155,7 +155,7 @@
             </div>
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
                 <span class="league-tag">Serie A Italia · TIROS AL ARCO</span>
-                <span style="font-size:0.72rem; font-weight:700; color:#38bdf8;">🆕 NUEVA HABILITADA</span>
+                <span style="font-size:0.72rem; font-weight:700; color:#94a3b8;">✅ CONFIRMADA</span>
             </div>
             <h3 class="match-title">Parma vs Bologna</h3>
             <div class="pick-box">
@@ -172,7 +172,7 @@
                 </div>
             </div>
             <div class="hitrate-bar">
-                Ganancia Neta Estimada con tu Banca: <b class="dynamic-profit" data-stake-pct="3.34" data-cuota="1.64" style="color:#10b981;">+S/ 2.14</b> · Consenso: L5 72% | L20 68%
+                Ganancia Neta con tu Banca: <b class="dynamic-profit" data-stake-pct="3.34" data-cuota="1.64" style="color:#10b981;">+S/ 2.14</b> · Consenso: L5 90% | L10 90% | L20 88%
             </div>
             <div class="calc-box">
                 <label>🧮 Verificador Anti-Trampa + Stake Personalizado (Escribe la cuota de tu casa):</label>
@@ -184,7 +184,7 @@
             <details class="tactical-acc">
                 <summary>🔬 Ver Estado de Alerta y Telemetría ESPN en Vivo</summary>
                 <div class="acc-body">
-                    <p>• <b>Estado del Escáner:</b> Acaba de ingresar al radar en la última actualización de datos.</p>
+                    <p>• <b>Estado del Escáner:</b> Línea firme sin variaciones.</p>
                     <p>• <b>Proyección xG / Lambda:</b> Local 1.15 vs Visita 1.16 (ESPN + OddsAPI + CSV L20)</p>
                     <p>• <b>Cuota Mínima Rentable:</b> No entrar si baja de <b>@1.51</b></p>
                     <div id="live-box-401874974" class="live-telemetry">Sincronizando telemetría con ESPN Summary API...</div>
@@ -199,7 +199,7 @@
             </div>
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
                 <span class="league-tag">Bundesliga · TIROS AL ARCO</span>
-                <span style="font-size:0.72rem; font-weight:700; color:#38bdf8;">🆕 NUEVA HABILITADA</span>
+                <span style="font-size:0.72rem; font-weight:700; color:#94a3b8;">✅ CONFIRMADA</span>
             </div>
             <h3 class="match-title">RB Leipzig vs FC Augsburg</h3>
             <div class="pick-box">
@@ -216,7 +216,7 @@
                 </div>
             </div>
             <div class="hitrate-bar">
-                Ganancia Neta Estimada con tu Banca: <b class="dynamic-profit" data-stake-pct="3.2" data-cuota="1.68" style="color:#10b981;">+S/ 2.18</b> · Consenso: L5 70% | L20 66%
+                Ganancia Neta con tu Banca: <b class="dynamic-profit" data-stake-pct="3.2" data-cuota="1.68" style="color:#10b981;">+S/ 2.18</b> · Consenso: L5 90% | L10 75% | L20 62%
             </div>
             <div class="calc-box">
                 <label>🧮 Verificador Anti-Trampa + Stake Personalizado (Escribe la cuota de tu casa):</label>
@@ -228,7 +228,7 @@
             <details class="tactical-acc">
                 <summary>🔬 Ver Estado de Alerta y Telemetría ESPN en Vivo</summary>
                 <div class="acc-body">
-                    <p>• <b>Estado del Escáner:</b> Acaba de ingresar al radar en la última actualización de datos.</p>
+                    <p>• <b>Estado del Escáner:</b> Línea firme sin variaciones.</p>
                     <p>• <b>Proyección xG / Lambda:</b> Local 1.87 vs Visita 1.4 (ESPN + OddsAPI + CSV L20)</p>
                     <p>• <b>Cuota Mínima Rentable:</b> No entrar si baja de <b>@1.55</b></p>
                     <div id="live-box-401884744" class="live-telemetry">Sincronizando telemetría con ESPN Summary API...</div>
@@ -239,16 +239,19 @@
         </div>
     </div>
 
-    <!-- PESTAÑA 2: NINJA DUTCHER & BONOS -->
     <div id="tab-ninja" class="tab-panel">
         <div class="card" style="margin-bottom:16px; border-left:4px solid #10b981;">
-            <h3 style="margin:0 0 8px;">🧮 Calculadora Interactiva "Ninja Dutcher" (Sincronizada con Tu Banca)</h3>
-            <p style="margin:0 0 10px; font-size:0.83rem; color:var(--muted);">Ingresa dos cuotas opuestas para dividir exactamente tu banca personalizada entre dos casas:</p>
+            <h3 style="margin:0 0 8px;">🧮 Calculadora Interactiva "Ninja Dutcher" (SureBets + Conversión de Freebets SNR)</h3>
+            <p style="margin:0 0 10px; font-size:0.83rem; color:var(--muted);">Elige si estás operando con Dinero Real (SureBet) o liberando una Apuesta Gratis (Freebet SNR) y obtén los montos exactos a cubrir:</p>
             <div style="display:flex; flex-wrap:wrap; gap:10px; align-items:center;">
-                <input id="dut-c1" type="number" step="0.01" value="2.10" placeholder="Cuota Casa 1" style="padding:8px; border-radius:8px; background:#0f172a; color:#fff; border:1px solid #334155; width:120px;">
-                <input id="dut-c2" type="number" step="0.01" value="2.02" placeholder="Cuota Casa 2" style="padding:8px; border-radius:8px; background:#0f172a; color:#fff; border:1px solid #334155; width:120px;">
-                <input id="dut-bank" type="number" step="1" value="100" placeholder="Capital S/" style="padding:8px; border-radius:8px; background:#0f172a; color:#fff; border:1px solid #334155; width:120px;">
-                <button class="tab-btn active" onclick="calcularDutcherManual()">Calcular Stakes Exactos</button>
+                <select id="dut-modo" onchange="calcularDutcherManual()" style="padding:8px; border-radius:8px; background:#0f172a; color:#38bdf8; border:1px solid #38bdf8; font-weight:700;">
+                    <option value="REAL">💵 Modo Dinero Real (SureBet / Rollover)</option>
+                    <option value="FREEBET">🎁 Modo Apuesta Gratis (Freebet SNR)</option>
+                </select>
+                <input id="dut-c1" type="number" step="0.01" value="2.10" placeholder="Cuota Casa 1" style="padding:8px; border-radius:8px; background:#0f172a; color:#fff; border:1px solid #334155; width:115px;">
+                <input id="dut-c2" type="number" step="0.01" value="2.02" placeholder="Cuota Casa 2" style="padding:8px; border-radius:8px; background:#0f172a; color:#fff; border:1px solid #334155; width:115px;">
+                <input id="dut-bank" type="number" step="1" value="100" placeholder="Monto S/" style="padding:8px; border-radius:8px; background:#0f172a; color:#fff; border:1px solid #334155; width:115px;">
+                <button class="tab-btn active" onclick="calcularDutcherManual()">Calcular Cobertura</button>
                 <span id="dut-res" style="font-weight:700; color:#10b981;"></span>
             </div>
         </div>
@@ -267,7 +270,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr><td colspan="6" style="text-align:center; padding:18px;">Usa la Calculadora Dutcher superior para repartir tu banca personalizada entre 2 cuotas.</td></tr>
+                    <tr><td colspan="6" style="text-align:center; padding:18px;">Usa la Calculadora Dutcher superior para repartir tu banca o liberar una Freebet entre 2 cuotas.</td></tr>
                 </tbody>
             </table>
         </div>
@@ -276,10 +279,10 @@
         <div class="grid-3">
             
         <div class="card" style="border-left: 4px solid #a855f7;">
-            <div class="league-tag">Bono Bienvenida / Freebet</div>
+            <div class="league-tag">Bono Bienvenida / Freebet SNR</div>
             <h4 style="margin:6px 0; color:#f8fafc;">🎁 Betano Perú / Latam</h4>
             <p style="margin:4px 0; color:#10b981; font-weight:700;">Ganancia Bloqueada: S/ 120 - S/ 250</p>
-            <small style="color:#94a3b8;">📌 Usar Oddsmatcher con Rating >= 95%</small>
+            <small style="color:#94a3b8;">📌 Usar Oddsmatcher con Rating >= 95% o Freebet a cuota @3.00+</small>
         </div>
         
         <div class="card" style="border-left: 4px solid #a855f7;">
@@ -293,13 +296,12 @@
             <div class="league-tag">Club Freebets Semanal</div>
             <h4 style="margin:6px 0; color:#f8fafc;">🎁 Apuesta Total / DoradoBet</h4>
             <p style="margin:4px 0; color:#10b981; font-weight:700;">Ganancia Bloqueada: S/ 40 - S/ 80</p>
-            <small style="color:#94a3b8;">📌 Convertir Freebet en cuota alta (@3.00+) vs Exchange</small>
+            <small style="color:#94a3b8;">📌 Activar modo 'Freebet SNR' en la calculadora Ninja de arriba</small>
         </div>
         
         </div>
     </div>
 
-    <!-- PESTAÑA 3: HISTORIAL AUDITADO OFICIAL -->
     <div id="tab-historial" class="tab-panel">
         <p style="font-size:0.82rem; color:var(--muted); margin-bottom:10px;">
             🔒 <b>Nota de Transparencia:</b> El Historial Auditado se contabiliza sobre una banca estándar inalterable de <b>S/ 100.00</b> verificada automáticamente con los marcadores finales de ESPN API.
@@ -1066,14 +1068,12 @@ function actualizarBancaCliente(nuevoValor) {
 
     try { localStorage.setItem('iabet_banca_cliente', bank); } catch (e) {}
 
-    // 1. Actualizar el Stake sugerido en cada tarjeta de Pick IA
     document.querySelectorAll('.dynamic-stake').forEach(el => {
         const pct = parseFloat(el.getAttribute('data-stake-pct')) || 2.5;
         const montoSoles = (bank * pct) / 100.0;
         el.textContent = 'S/ ' + montoSoles.toFixed(2);
     });
 
-    // 2. Actualizar la Ganancia Neta estimada en cada tarjeta
     document.querySelectorAll('.dynamic-profit').forEach(el => {
         const pct = parseFloat(el.getAttribute('data-stake-pct')) || 2.5;
         const cuota = parseFloat(el.getAttribute('data-cuota')) || 1.60;
@@ -1082,7 +1082,6 @@ function actualizarBancaCliente(nuevoValor) {
         el.textContent = '+S/ ' + gananciaNeta.toFixed(2);
     });
 
-    // 3. Sincronizar el input de la Calculadora Ninja Dutcher y recalcular tabla Ninja
     const dutBankInput = document.getElementById('dut-bank');
     if (dutBankInput) {
         dutBankInput.value = Math.round(bank);
@@ -1119,7 +1118,7 @@ function filtrarPicks(f) {
     document.querySelectorAll('.pick-card').forEach(c => {
         const dia = c.getAttribute('data-dia');
         const cat = c.getAttribute('data-cat');
-        if (f === 'TODOS' || dia === f || cat.includes(f) || (f === 'CORNERS' && (cat === 'CORNERS' || cat === 'TIROS AL ARCO'))) {
+        if (f === 'TODOS' || dia === f || cat.includes(f) || (f === 'GOLES' && (cat === 'GOLES' || cat === 'BTTS')) || (f === 'CORNERS' && (cat === 'CORNERS' || cat === 'TIROS AL ARCO'))) {
             c.style.display = 'block';
         } else {
             c.style.display = 'none';
@@ -1153,22 +1152,34 @@ function verificarCuotaCasa(input, probReal, cuotaJusta, stakePctBase, targetId)
 }
 
 function calcularDutcherManual() {
+    const modo = document.getElementById('dut-modo') ? document.getElementById('dut-modo').value : 'REAL';
     const c1 = parseFloat(document.getElementById('dut-c1').value);
     const c2 = parseFloat(document.getElementById('dut-c2').value);
     const bank = parseFloat(document.getElementById('dut-bank').value) || obtenerBancaActualCliente();
     const res = document.getElementById('dut-res');
     if (!c1 || !c2 || c1 <= 1 || c2 <= 1) return;
-    const inv = (1/c1) + (1/c2);
-    const rating = (1/inv) * 100;
-    const s1 = Math.round(bank * ((1/c1) / inv));
-    const s2 = Math.round(bank - s1);
-    const minRet = Math.min(s1 * c1, s2 * c2);
-    const net = minRet - bank;
-    res.style.color = rating >= 100 ? "#10b981" : "#f59e0b";
-    res.textContent = `Rating: ${rating.toFixed(2)}% | Apostar S/ ${s1} a Casa 1 y S/ ${s2} a Casa 2 | Retorno Neto: S/ ${net.toFixed(2)}`;
+
+    if (modo === 'FREEBET') {
+        // Fórmula NinjaBet SNR (Stake Not Returned): Cubrir en Casa 2 = (Bono * (c1 - 1)) / c2
+        const coberturaS2 = Math.round((bank * (c1 - 1.0)) / c2);
+        const gananciaSiGana1 = (bank * (c1 - 1.0)) - coberturaS2;
+        const gananciaSiGana2 = coberturaS2 * (c2 - 1.0);
+        const netoseguro = Math.min(gananciaSiGana1, gananciaSiGana2);
+        const retencionPct = (netoseguro / bank) * 100.0;
+        res.style.color = "#a855f7";
+        res.textContent = `🎁 Freebet S/ ${bank} en Casa 1 (@${c1}) + Cubrir S/ ${coberturaS2} en Casa 2 (@${c2}) ➡️ Ganancia Limpia: S/ ${netoseguro.toFixed(2)} (Retención: ${retencionPct.toFixed(1)}%)`;
+    } else {
+        const inv = (1/c1) + (1/c2);
+        const rating = (1/inv) * 100;
+        const s1 = Math.round(bank * ((1/c1) / inv));
+        const s2 = Math.round(bank - s1);
+        const minRet = Math.min(s1 * c1, s2 * c2);
+        const net = minRet - bank;
+        res.style.color = rating >= 100 ? "#10b981" : "#f59e0b";
+        res.textContent = `Rating: ${rating.toFixed(2)}% | Apostar S/ ${s1} a Casa 1 y S/ ${s2} a Casa 2 | Retorno Neto: S/ ${net.toFixed(2)}`;
+    }
 }
 
-// Cargar la banca guardada por el cliente al abrir la página
 window.addEventListener('DOMContentLoaded', () => {
     try {
         const guardada = localStorage.getItem('iabet_banca_cliente');
