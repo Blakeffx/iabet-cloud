@@ -26,16 +26,15 @@ jobs:
           pip install numba numpy pandas requests "scrapling[fetchers]"
           scrapling install || true
 
-      - name: 4. Limpiar Sintaxis y Ejecutar IABET Pro 3.0 (Quant + Ninja Edition)
+      - name: 4. Limpiar Sintaxis y Ejecutar IABET Pro 3.1
         run: |
           python -c "p=open('iabet_cloud.py','rb').read().replace(b'\xc2\xa0',b' ').replace(b'\r\n',b'\n'); open('iabet_cloud.py','wb').write(p)"
           python iabet_cloud.py
 
-      - name: 5. Auto-Guardar Auditoria, Inteligencia Ninja y Publicar Web
+      - name: 5. Auto-Guardar Auditoria, Estado de Alertas y Publicar Web
         run: |
           git config --global user.name "IABET Quant Bot"
           git config --global user.email "bot@iabet.cloud"
-          git add index.html auditoria_iabet.json cache_odds_api.json ninjabet_intel.json || true
-          git diff --staged --quiet || git commit -m "Auto-update: IABET Pro 3.0 Quant + Ninja Dutcher"
+          git add index.html auditoria_iabet.json cache_odds_api.json ninjabet_intel.json estado_anterior_picks.json || true
+          git diff --staged --quiet || git commit -m "Auto-update: IABET Pro 3.1 Dynamic Bankroll & Delta Alerts"
           git push
-          
