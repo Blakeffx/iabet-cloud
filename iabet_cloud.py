@@ -3,7 +3,6 @@ import io
 import re
 import json
 import time
-import math
 from datetime import datetime, timezone, timedelta
 from concurrent.futures import ThreadPoolExecutor
 import requests
@@ -11,7 +10,7 @@ import numpy as np
 import pandas as pd
 from numba import njit
 
-# Intentar cargar el motor furtivo Scrapling (Suplantación TLS Chrome Anti-Cloudflare)
+# Motor furtivo Scrapling (Suplantación TLS Chrome Anti-Cloudflare)
 try:
     from scrapling.fetchers import FetcherSession
     SCRAPLING_ACTIVO = True
@@ -19,18 +18,16 @@ except Exception:
     SCRAPLING_ACTIVO = False
 
 # ==============================================================================
-# 1. CREDENCIALES Y CONFIGURACIÓN EMPRESARIAL (IABET PRO 3.0 QUANT + NINJA)
+# 1. CREDENCIALES Y CONFIGURACIÓN EMPRESARIAL (IABET PRO 3.1)
 # ==============================================================================
 TELEGRAM_TOKEN = "8902181028:AAE1ywEiCc6do90ZPclI8GnUdmVqKBc7iOU"
 TELEGRAM_CHAT_ID = "5203732922"
 THE_ODDS_API_KEY = "105d8edef7a4869116a817c106dc86a8"
 
-MODO_COMERCIAL = "PRUEBA"  # Cambiar a "VENTA" cuando desees bloquear picks VIP
-BANKROLL_BASE = 100.0      # Capital base en Soles (S/ 100.00)
-KELLY_FRAC = 0.20          # Fracción conservadora de Kelly
-N_SIMS = 1_000_000         # 1,000,000 de simulaciones de Monte Carlo en C (Numba)
+BANKROLL_AUDITORIA_BASE = 100.0  # Base fija inalterable para el Historial Auditado (S/ 100.00)
+KELLY_FRAC = 0.20                # Fracción conservadora de Kelly (20%)
+N_SIMS = 1_000_000               # 1,000,000 de simulaciones de Monte Carlo en C (Numba)
 
-# Rango estricto de cuotas rentables (Eliminadas las cuotas basura < 1.45)
 CUOTA_MIN = 1.45
 CUOTA_MAX = 2.20
 TIEMPO_CACHE_HORAS = 1.5
@@ -38,6 +35,7 @@ TIEMPO_CACHE_HORAS = 1.5
 ARCHIVO_AUDITORIA = "auditoria_iabet.json"
 ARCHIVO_CACHE_ODDS = "cache_odds_api.json"
 ARCHIVO_NINJA_INTEL = "ninjabet_intel.json"
+ARCHIVO_ESTADO_PICKS = "estado_anterior_picks.json"
 ARCHIVO_WEB = "index.html"
 
 ZONA_PERU = timezone(timedelta(hours=-5))
@@ -48,7 +46,6 @@ HEADERS_PRO = {
     "Accept-Language": "es-PE,es;q=0.9,en;q=0.8"
 }
 
-# Configuracion de Ligas Globales (ESPN + Football-Data CSV + The Odds API)
 LIGAS_CONFIG = [
     {"nombre": "Premier League", "espn": "eng.1", "csv": "E0", "odds": "soccer_epl"},
     {"nombre": "LaLiga España", "espn": "esp.1", "csv": "SP1", "odds": "soccer_spain_la_liga"},
@@ -88,10 +85,6 @@ DICCIONARIO_EQUIPOS_CSV = {
 # 2. CAPA DE INGESTA FURTIVA CON SCRAPLING (NINJABET + KAMBI B2B)
 # ==============================================================================
 def peticion_furtiva_get(url, timeout=12):
-    """
-    Ejecuta peticiones HTTP imitando la huella TLS/JA3 real de Chrome mediante
-    Scrapling para saltar escudos de Cloudflare y bloqueos B2B.
-    """
     if SCRAPLING_ACTIVO:
         try:
             with FetcherSession(impersonate="chrome", stealthy_headers=True, timeout=timeout) as s:
@@ -110,10 +103,6 @@ def peticion_furtiva_get(url, timeout=12):
 
 
 def extraer_inteligencia_ninjabet():
-    """
-    Extrae con Scrapling los benchmarks auditados y el catálogo de bonos de
-    Matched Betting desde ninjabet.es para integrarlos en la pestaña Ninja de IABET.
-    """
     intel = {
         "actualizado": datetime.now(ZONA_PERU).strftime("%Y-%m-%d %H:%M"),
         "motor_scrapling": "ACTIVO (TLS Chrome Impersonation)" if SCRAPLING_ACTIVO else "RESPALDO HTTP",
@@ -146,56 +135,6 @@ def extraer_inteligencia_ninjabet():
     return intel
 
 
-def extraer_cuotas_kambi_scrapling():
-    """
-    Conecta mediante Scrapling al endpoint JSON de Kambi (proveedor B2B de Betsson e Inkabet)
-    para obtener cuotas locales directas sin intermediarios.
-    """
-    mapa_kambi = {}
-    url_kambi = "https://eu-offering-api.kambicdn.com/offering/v2018/ubpe/listView/football/all/all/all/matches.json?lang=es_ES&market=PE"
-    raw = peticion_furtiva_get(url_kambi, timeout=10)
-    if not raw:
-        return mapa_kambi
-    try:
-        data = json.loads(raw)
-        for ev in data.get("events", []):
-            ev_info = ev.get("event", {})
-            local = ev_info.get("homeName", "")
-            visita = ev_info.get("awayName", "")
-            if not local or not visita:
-                continue
-            cuotas_ev = {}
-            for bo in ev.get("betOffers", []):
-                crit = bo.get("criterion", {}).get("label", "").lower()
-                outcomes = bo.get("outcomes", [])
-                if "final" in crit or "1x2" in crit or "partido" in crit:
-                    for out in outcomes:
-                        lbl = out.get("label", "")
-                        odd = out.get("odds", 0) / 1000.0
-                        if odd > 1.01:
-                            if lbl == "1" or lbl == local:
-                                cuotas_ev["1"] = odd
-                            elif lbl == "X" or "Empate" in lbl:
-                                cuotas_ev["X"] = odd
-                            elif lbl == "2" or lbl == visita:
-                                cuotas_ev["2"] = odd
-                elif "total" in crit and "goles" in crit:
-                    for out in outcomes:
-                        linea = out.get("line", 0) / 1000.0
-                        odd = out.get("odds", 0) / 1000.0
-                        lbl = out.get("label", "").lower()
-                        if linea == 2.5 and odd > 1.01:
-                            if "más" in lbl or "over" in lbl:
-                                cuotas_ev["over_25"] = odd
-                            elif "menos" in lbl or "under" in lbl:
-                                cuotas_ev["under_25"] = odd
-            if cuotas_ev:
-                mapa_kambi[f"{local.lower()}_{visita.lower()}"] = cuotas_ev
-    except Exception:
-        pass
-    return mapa_kambi
-
-
 # ==============================================================================
 # 3. INGESTA DE HISTORIALES PUROS (CSV L5·L10·L20) Y MERCADO GLOBAL (ODDS API)
 # ==============================================================================
@@ -225,7 +164,7 @@ def descargar_bases_csv():
                 partidos_eq = df[(df["HomeTeam"] == eq) | (df["AwayTeam"] == eq)].tail(20)
                 if len(partidos_eq) < 5:
                     continue
-                gf, gc, sot_tot, cor_tot, tarj_tot = [], [], [], [], []
+                gf, gc, sot_tot, cor_tot = [], [], [], []
                 for _, row in partidos_eq.iterrows():
                     es_local = (row["HomeTeam"] == eq)
                     gf.append(float(row["FTHG"] if es_local else row["FTAG"]))
@@ -234,17 +173,11 @@ def descargar_bases_csv():
                         sot_tot.append(float(row["HST"] + row["AST"]))
                     if "HC" in row and "AC" in row and pd.notna(row["HC"]) and pd.notna(row["AC"]):
                         cor_tot.append(float(row["HC"] + row["AC"]))
-                    if "HY" in row and "AY" in row and pd.notna(row["HY"]) and pd.notna(row["AY"]):
-                        tarj_tot.append(float(row["HY"] + row["AY"]))
 
                 db_equipos[eq] = {
                     "gf": np.mean(gf), "gc": np.mean(gc),
                     "sot_partido": np.mean(sot_tot) if sot_tot else 8.4,
-                    "cor_partido": np.mean(cor_tot) if cor_tot else 9.6,
-                    "tarj_partido": np.mean(tarj_tot) if tarj_tot else 4.1,
-                    "sot_lista": sot_tot[-15:] if sot_tot else [8.0] * 10,
-                    "cor_lista": cor_tot[-15:] if cor_tot else [9.5] * 10,
-                    "gf_lista": gf[-15:], "gc_lista": gc[-15:]
+                    "cor_partido": np.mean(cor_tot) if cor_tot else 9.6
                 }
     return db_equipos
 
@@ -263,10 +196,6 @@ def buscar_equipo_csv(nombre_espn, db_equipos):
 
 
 def obtener_cuotas_multicasa_y_dutcher(ligas_activas_odds):
-    """
-    Descarga cuotas de múltiples casas (Pinnacle, Betfair, Smarkets, Betano, Unibet, William Hill)
-    guardando TANTO la mejor cuota como la casa exacta que la paga para armar el Dutcher NinjaBet.
-    """
     ahora_ts = time.time()
     if os.path.exists(ARCHIVO_CACHE_ODDS):
         try:
@@ -302,7 +231,6 @@ def obtener_cuotas_multicasa_y_dutcher(ligas_activas_odds):
                     a_team = ev.get("away_team", "")
                     key_ev = f"{h_team.lower()}_{a_team.lower()}"
 
-                    # Registros detallados por casa para Dutcher / Oddsmatcher
                     mejores = {
                         "1": {"odd": 0.0, "casa": "Mercado"}, "X": {"odd": 0.0, "casa": "Mercado"}, "2": {"odd": 0.0, "casa": "Mercado"},
                         "over_25": {"odd": 0.0, "casa": "Mercado"}, "under_25": {"odd": 0.0, "casa": "Mercado"}
@@ -371,25 +299,11 @@ def obtener_cuotas_multicasa_y_dutcher(ligas_activas_odds):
 # 4. NÚCLEO MATEMÁTICO EN C (NUMBA): MONTE CARLO 1M + DIXON-COLES + DUTCHER NINJA
 # ==============================================================================
 @njit(fastmath=True)
-def simular_partido_montecarlo_1m(lam_l, lam_v, media_cor, media_sot, n_sims):
-    c_1 = 0
-    c_x = 0
-    c_2 = 0
-    c_o15 = 0
-    c_o25 = 0
-    c_u35 = 0
-    c_btts = 0
-
+def simular_partido_montecarlo_1m(lam_l, lam_v, n_sims):
+    c_1, c_x, c_2, c_o15, c_o25, c_u35, c_btts = 0, 0, 0, 0, 0, 0, 0
     for _ in range(n_sims):
         gl = np.random.poisson(lam_l)
         gv = np.random.poisson(lam_v)
-
-        # Ajuste estructural de marcadores bajos (Dixon-Coles simplificado)
-        if gl == 0 and gv == 0 and np.random.random() < 0.06:
-            pass
-        elif gl == 1 and gv == 1 and np.random.random() < 0.05:
-            pass
-
         tot_g = gl + gv
         if gl > gv:
             c_1 += 1
@@ -397,7 +311,6 @@ def simular_partido_montecarlo_1m(lam_l, lam_v, media_cor, media_sot, n_sims):
             c_x += 1
         else:
             c_2 += 1
-
         if tot_g >= 2:
             c_o15 += 1
         if tot_g >= 3:
@@ -406,28 +319,17 @@ def simular_partido_montecarlo_1m(lam_l, lam_v, media_cor, media_sot, n_sims):
             c_u35 += 1
         if gl >= 1 and gv >= 1:
             c_btts += 1
-
     inv = 1.0 / float(n_sims)
-    return (
-        c_1 * inv, c_x * inv, c_2 * inv,
-        c_o15 * inv, c_o25 * inv, c_u35 * inv, c_btts * inv
-    )
+    return c_1 * inv, c_x * inv, c_2 * inv, c_o15 * inv, c_o25 * inv, c_u35 * inv, c_btts * inv
 
 
-def calcular_dutcher_y_oddsmatcher(partido, liga, dia_tag, info_odds, bankroll=100.0):
-    """
-    Motor NinjaBet integrado en IABET:
-    1. Calcula el Rating % para Mercados de 2 Vías (Over 2.5 vs Under 2.5) y 3 Vías (1X2 / 1 vs X2).
-    2. Si Rating > 100% (Suma de inversas < 1.0), declara SUREBET (Ganancia Garantizada).
-    3. Si Rating está entre 95.5% y 100%, declara OPORTUNIDAD ODDSMATCHER para liberar Bonos / Freebets.
-    """
+def calcular_dutcher_y_oddsmatcher(partido, liga, dia_tag, info_odds, bankroll_ref=100.0):
     resultados_ninja = []
     if not info_odds:
         return resultados_ninja
-
     mej = info_odds.get("mejores", {})
 
-    # Evaluación 2-Vías: Más de 2.5 Goles vs Menos de 2.5 Goles
+    # 1) Mercado 2-Vías: Over 2.5 vs Under 2.5
     o25 = mej.get("over_25", {}).get("odd", 0.0)
     casa_o25 = mej.get("over_25", {}).get("casa", "Casa A")
     u25 = mej.get("under_25", {}).get("odd", 0.0)
@@ -436,16 +338,15 @@ def calcular_dutcher_y_oddsmatcher(partido, liga, dia_tag, info_odds, bankroll=1
     if o25 > 1.05 and u25 > 1.05:
         inv_sum = (1.0 / o25) + (1.0 / u25)
         rating_pct = (1.0 / inv_sum) * 100.0
-        stake_a = round(bankroll * ((1.0 / o25) / inv_sum))
-        stake_b = int(bankroll - stake_a)
+        prop_a = (1.0 / o25) / inv_sum
+        stake_a = round(bankroll_ref * prop_a)
+        stake_b = int(bankroll_ref - stake_a)
         retorno_min = min(stake_a * o25, stake_b * u25)
-        profit_neto = retorno_min - bankroll
+        profit_neto = retorno_min - bankroll_ref
 
         if rating_pct >= 95.0:
             resultados_ninja.append({
-                "partido": partido,
-                "liga": liga,
-                "dia_tag": dia_tag,
+                "partido": partido, "liga": liga, "dia_tag": dia_tag,
                 "tipo": "🔥 SUREBET (0% RIESGO)" if rating_pct >= 100.0 else "🥷 ODDSMATCHER (LIBERAR BONO)",
                 "es_surebet": rating_pct >= 100.0,
                 "rating_pct": round(rating_pct, 2),
@@ -458,7 +359,7 @@ def calcular_dutcher_y_oddsmatcher(partido, liga, dia_tag, info_odds, bankroll=1
                 "cuota_2": u25
             })
 
-    # Evaluación 2-Vías Equivalente: Local (1) vs Visita o Empate (X2 sintético)
+    # 2) Mercado 1 vs X2 Sintético
     c1 = mej.get("1", {}).get("odd", 0.0)
     casa_1 = mej.get("1", {}).get("casa", "Casa A")
     cx = mej.get("X", {}).get("odd", 0.0)
@@ -472,17 +373,15 @@ def calcular_dutcher_y_oddsmatcher(partido, liga, dia_tag, info_odds, bankroll=1
         rating_1x2 = (1.0 / inv_total_1x2) * 100.0
 
         if rating_1x2 >= 95.5 and cuota_x2_sintetica > 1.15:
-            stake_1 = round(bankroll * ((1.0 / c1) / inv_total_1x2))
-            stake_x2 = int(bankroll - stake_1)
+            stake_1 = round(bankroll_ref * ((1.0 / c1) / inv_total_1x2))
+            stake_x2 = int(bankroll_ref - stake_1)
             ret_min = min(stake_1 * c1, stake_x2 * cuota_x2_sintetica)
             resultados_ninja.append({
-                "partido": partido,
-                "liga": liga,
-                "dia_tag": dia_tag,
+                "partido": partido, "liga": liga, "dia_tag": dia_tag,
                 "tipo": "🔥 SUREBET 1X2 (0% RIESGO)" if rating_1x2 >= 100.0 else "🥷 ODDSMATCHER 1X2 (BONOS)",
                 "es_surebet": rating_1x2 >= 100.0,
                 "rating_pct": round(rating_1x2, 2),
-                "profit_soles": round(ret_min - bankroll, 2),
+                "profit_soles": round(ret_min - bankroll_ref, 2),
                 "apuesta_1": f"Gana Local 1 (@{c1:.2f} en {casa_1})",
                 "stake_1": stake_1,
                 "apuesta_2": f"Doble Oportunidad X2 (@{cuota_x2_sintetica:.2f} en {casa_2})",
@@ -495,17 +394,14 @@ def calcular_dutcher_y_oddsmatcher(partido, liga, dia_tag, info_odds, bankroll=1
 
 
 # ==============================================================================
-# 5. AUDITORÍA AUTOMÁTICA CON ESPN SUMMARY API
+# 5. AUDITORÍA AUTOMÁTICA INALTERABLE (BASE OFICIAL S/ 100.00)
 # ==============================================================================
 def cargar_y_sincronizar_auditoria():
     auditoria = {
-        "bankroll_inicial": BANKROLL_BASE,
-        "bankroll_actual": BANKROLL_BASE,
-        "ganados": 0,
-        "perdidos": 0,
-        "win_rate": 0.0,
-        "roi": 0.0,
-        "racha": "0W",
+        "bankroll_inicial": BANKROLL_AUDITORIA_BASE,
+        "bankroll_actual": BANKROLL_AUDITORIA_BASE,
+        "ganados": 0, "perdidos": 0,
+        "win_rate": 0.0, "roi": 0.0, "racha": "0W",
         "historial": []
     }
     if os.path.exists(ARCHIVO_AUDITORIA):
@@ -517,7 +413,6 @@ def cargar_y_sincronizar_auditoria():
         except Exception:
             pass
 
-    # Calificar partidos pendientes contra ESPN Summary API
     for item in auditoria["historial"]:
         if item.get("estado") != "PENDIENTE":
             continue
@@ -544,9 +439,7 @@ def cargar_y_sincronizar_auditoria():
             gv = int(a_comp.get("score", 0))
             tot_g = gl + gv
 
-            # Extraer Córners y Tiros al Arco del boxscore de ESPN
-            cor_total = 0
-            sot_total = 0
+            cor_total, sot_total = 0, 0
             for tm in d.get("boxscore", {}).get("teams", []):
                 for st in tm.get("statistics", []):
                     nm = st.get("name", "").lower()
@@ -562,9 +455,9 @@ def cargar_y_sincronizar_auditoria():
 
             mkt = item.get("mercado", "")
             gano = None
-            if "Victoria Local" in mkt or "Gana " in mkt and "(1)" in mkt:
+            if "Gana Local" in mkt or "(1)" in mkt:
                 gano = (gl > gv)
-            elif "Victoria Visita" in mkt or "(2)" in mkt:
+            elif "Gana Visita" in mkt or "(2)" in mkt:
                 gano = (gv > gl)
             elif "Local o Empate (1X)" in mkt:
                 gano = (gl >= gv)
@@ -580,8 +473,6 @@ def cargar_y_sincronizar_auditoria():
                 gano = (tot_g <= 3)
             elif "Ambos Equipos Anotan (Sí)" in mkt:
                 gano = (gl >= 1 and gv >= 1)
-            elif "Ambos Equipos Anotan (No)" in mkt:
-                gano = (gl == 0 or gv == 0)
             elif "Córners" in mkt and cor_total > 0:
                 m_num = re.search(r"(\d+\.\d+)", mkt)
                 if m_num:
@@ -602,7 +493,6 @@ def cargar_y_sincronizar_auditoria():
         except Exception:
             continue
 
-    # Recalcular métricas globales verificadas
     ganados = sum(1 for x in auditoria["historial"] if x.get("estado") == "GANADO")
     perdidos = sum(1 for x in auditoria["historial"] if x.get("estado") == "PERDIDO")
     profit_tot = sum(float(x.get("profit", 0.0)) for x in auditoria["historial"] if x.get("estado") in ["GANADO", "PERDIDO"])
@@ -613,7 +503,7 @@ def cargar_y_sincronizar_auditoria():
     auditoria["perdidos"] = perdidos
     auditoria["win_rate"] = round((ganados / tot_cerrados) * 100.0, 1) if tot_cerrados > 0 else 84.0
     auditoria["roi"] = round((profit_tot / stake_tot) * 100.0, 1) if stake_tot > 0 else 14.5
-    auditoria["bankroll_actual"] = round(BANKROLL_BASE + profit_tot, 2)
+    auditoria["bankroll_actual"] = round(BANKROLL_AUDITORIA_BASE + profit_tot, 2)
 
     racha_cnt = 0
     for x in auditoria["historial"]:
@@ -626,7 +516,86 @@ def cargar_y_sincronizar_auditoria():
 
 
 # ==============================================================================
-# 6. ESCÁNER PRINCIPAL DE PARTIDOS Y GENERACIÓN DEL PORTAFOLIO (VALUE + NINJA)
+# 6. DETECTOR DIFERENCIAL DE CAMBIOS Y NUEVAS FIJAS PARA TELEGRAM
+# ==============================================================================
+def clasificar_cambios_y_fijas(picks_finales):
+    """
+    Compara los picks del escaneo actual contra `estado_anterior_picks.json`
+    para detectar:
+    - 🆕 NUEVA APUESTA / FIJA HABILITADA
+    - 🔄 APUESTA MODIFICADA (Cambio en cuota >= 0.04, probabilidad o cambio de mercado)
+    - ✅ ACTIVA SIN CAMBIOS
+    """
+    estado_previo = {}
+    if os.path.exists(ARCHIVO_ESTADO_PICKS):
+        try:
+            with open(ARCHIVO_ESTADO_PICKS, "r", encoding="utf-8") as f:
+                estado_previo = json.load(f)
+        except Exception:
+            estado_previo = {}
+
+    nuevos_detectados = []
+    modificados_detectados = []
+    fijas_del_dia = []
+    nuevo_estado_guardar = {}
+
+    for pk in picks_finales:
+        eid = str(pk["event_id"])
+        es_fija = (
+            pk["categoria"] not in ("FALTAS", "TARJETAS")
+            and 1.48 <= pk["cuota"] <= 1.85
+            and pk["prob_real"] >= 64.0
+            and pk["edge"] >= 2.4
+        )
+        pk["es_fija_hoy"] = es_fija
+
+        if eid not in estado_previo:
+            pk["estado_alerta"] = "🆕 NUEVA HABILITADA"
+            pk["detalle_cambio"] = "Acaba de ingresar al radar en la última actualización de datos."
+            nuevos_detectados.append(pk)
+        else:
+            prev = estado_previo[eid]
+            mkt_prev = prev.get("mercado", "")
+            cuo_prev = float(prev.get("cuota", pk["cuota"]))
+            diff_cuota = round(pk["cuota"] - cuo_prev, 2)
+
+            if mkt_prev != pk["mercado"]:
+                pk["estado_alerta"] = "🔄 MERCADO ACTUALIZADO"
+                pk["detalle_cambio"] = f"Cambió de '{mkt_prev}' (@{cuo_prev:.2f}) ➡️ '{pk['mercado']}' (@{pk['cuota']:.2f})"
+                modificados_detectados.append(pk)
+            elif abs(diff_cuota) >= 0.04:
+                flecha = "📈 subió" if diff_cuota > 0 else "📉 ajustó"
+                pk["estado_alerta"] = "🔄 CUOTA MODIFICADA"
+                pk["detalle_cambio"] = f"La cuota {flecha} de @{cuo_prev:.2f} ➡️ @{pk['cuota']:.2f} (Edge: +{pk['edge']:.1f}%)"
+                modificados_detectados.append(pk)
+            else:
+                pk["estado_alerta"] = "✅ CONFIRMADA"
+                pk["detalle_cambio"] = "Línea estable verificada en el último barrido."
+
+        if es_fija and len(fijas_del_dia) < 3:
+            fijas_del_dia.append(pk)
+
+        nuevo_estado_guardar[eid] = {
+            "partido": pk["partido"],
+            "mercado": pk["mercado"],
+            "cuota": pk["cuota"],
+            "prob_real": pk["prob_real"],
+            "edge": pk["edge"],
+            "stake_pct": pk["stake_pct"],
+            "timestamp": datetime.now(ZONA_PERU).strftime("%Y-%m-%d %H:%M")
+        }
+
+    try:
+        with open(ARCHIVO_ESTADO_PICKS, "w", encoding="utf-8") as f:
+            json.dump(nuevo_estado_guardar, f, ensure_ascii=False, indent=2)
+    except Exception:
+        pass
+
+    return nuevos_detectados, modificados_detectados, fijas_del_dia
+
+
+# ==============================================================================
+# 7. ESCÁNER DE PARTIDOS ESPN Y GENERACIÓN DEL PORTAFOLIO
 # ==============================================================================
 def descargar_calendario_espn():
     partidos = []
@@ -675,16 +644,13 @@ def descargar_calendario_espn():
                         "event_id": str(ev.get("id", "")),
                         "liga": lg["nombre"],
                         "odds_key": lg["odds"],
-                        "local": local,
-                        "visita": visita,
+                        "local": local, "visita": visita,
                         "partido": f"{local} vs {visita}",
                         "estado": estado,
                         "detalle_vivo": detalle_vivo,
                         "marcador_vivo": f"{h_c.get('score', '0')}-{a_c.get('score', '0')}",
                         "dia_tag": dia_tag,
-                        "filtro_dia": filtro_dia,
-                        "form_l": h_c.get("form", "WWDLW"),
-                        "form_v": a_c.get("form", "WDLWW")
+                        "filtro_dia": filtro_dia
                     })
             except Exception:
                 continue
@@ -694,7 +660,6 @@ def descargar_calendario_espn():
         for res in ex.map(consultar_liga, LIGAS_CONFIG):
             partidos.extend(res)
 
-    # Deduplicar por event_id
     vistos = set()
     unicos = []
     for p in partidos:
@@ -704,14 +669,13 @@ def descargar_calendario_espn():
     return unicos
 
 
-def ejecutar_iabet_pro_30():
+def ejecutar_iabet_pro_31():
     t0 = time.time()
-    print("🚀 Iniciando IABET Pro 3.0 (Quant + Ninja Arbitrage Edition)...")
+    print("🚀 Iniciando IABET Pro 3.1 (Dynamic Client Bankroll & Delta Alerts)...")
 
     auditoria = cargar_y_sincronizar_auditoria()
     intel_ninja = extraer_inteligencia_ninjabet()
     db_csv = descargar_bases_csv()
-    mapa_kambi = extraer_cuotas_kambi_scrapling()
     partidos_espn = descargar_calendario_espn()
 
     ligas_activas = [p["odds_key"] for p in partidos_espn if p.get("odds_key")]
@@ -736,7 +700,6 @@ def ejecutar_iabet_pro_30():
         media_cor = ((st_l["cor_partido"] + st_v["cor_partido"]) / 2.0) if tiene_csv else 9.6
         media_sot = ((st_l["sot_partido"] + st_v["sot_partido"]) / 2.0) if tiene_csv else 8.4
 
-        # Emparejar con cuotas de The Odds API o Kambi B2B
         key_busq = f"{p['local'].lower()}_{p['visita'].lower()}"
         info_mkt = mapa_odds.get(key_busq)
         if not info_mkt:
@@ -745,15 +708,12 @@ def ejecutar_iabet_pro_30():
                     info_mkt = v_o
                     break
 
-        # Si hay datos multi-casa, ejecutar el escáner Ninja Dutcher & Oddsmatcher
         if info_mkt:
-            ops_n = calcular_dutcher_y_oddsmatcher(p["partido"], p["liga"], p["dia_tag"], info_mkt, BANKROLL_BASE)
+            ops_n = calcular_dutcher_y_oddsmatcher(p["partido"], p["liga"], p["dia_tag"], info_mkt, BANKROLL_AUDITORIA_BASE)
             oportunidades_ninja.extend(ops_n)
 
-        # Ejecutar 1,000,000 de simulaciones de Monte Carlo
-        p1, px, p2, po15, po25, pu35, pbtts = simular_partido_montecarlo_1m(lam_l, lam_v, media_cor, media_sot, N_SIMS)
+        p1, px, p2, po15, po25, pu35, pbtts = simular_partido_montecarlo_1m(lam_l, lam_v, N_SIMS)
 
-        # Cuotas reales verificadas (Mercado / Kambi) o precio justo + margen estándar
         if info_mkt:
             c_1 = info_mkt["mejores"]["1"]["odd"] or info_mkt["avg_1"]
             c_x = info_mkt["mejores"]["X"]["odd"] or info_mkt["avg_X"]
@@ -761,12 +721,10 @@ def ejecutar_iabet_pro_30():
             c_o25 = info_mkt["mejores"]["over_25"]["odd"] or info_mkt["avg_o25"]
             c_u25 = info_mkt["mejores"]["under_25"]["odd"] or info_mkt["avg_u25"]
             casa_ref = info_mkt["mejores"]["1"]["casa"]
-            # De-Vigging del consenso de mercado
             inv_1x2 = (1.0 / info_mkt["avg_1"]) + (1.0 / info_mkt["avg_X"]) + (1.0 / info_mkt["avg_2"])
             mkt_p1 = (1.0 / info_mkt["avg_1"]) / inv_1x2
             mkt_px = (1.0 / info_mkt["avg_X"]) / inv_1x2
             mkt_p2 = (1.0 / info_mkt["avg_2"]) / inv_1x2
-            # Anclaje Bayesiano 50% Monte Carlo + 50% Mercado Sin Comisión
             p1 = (p1 * 0.50) + (mkt_p1 * 0.50)
             px = (px * 0.50) + (mkt_px * 0.50)
             p2 = (p2 * 0.50) + (mkt_p2 * 0.50)
@@ -794,7 +752,6 @@ def ejecutar_iabet_pro_30():
             ("Ambos Equipos Anotan (Sí)", "BTTS", pbtts, c_btts_si, True)
         ]
 
-        # Mercados Estadísticos (Córners y Tiros al Arco) SOLO si hay CSV verificado y colchón >= 2.0
         if tiene_csv:
             if media_cor <= 8.6:
                 mercados_evaluar.append(("Menos de 10.5 Córners", "CORNERS", 0.685, 1.62, True))
@@ -815,21 +772,24 @@ def ejecutar_iabet_pro_30():
                 continue
 
             prob_pct = prob_r * 100.0
+            kelly_puro_pct = max(0.0, KELLY_FRAC * ((prob_r * cuota_m - 1.0) / (cuota_m - 1.0)) * 100.0)
+
             if permite_s and prob_pct >= 66.0 and cuota_m <= 1.75 and edge >= 2.5:
-                tier_lbl = "💎 TIER S (Blindado)"
+                tier_lbl = "💎 TIER S (Fija Blindada)"
                 tier_ord = 1
-                stake_sug = min(4.50, max(3.00, round(BANKROLL_BASE * KELLY_FRAC * ((prob_r * cuota_m - 1.0) / (cuota_m - 1.0)), 2)))
+                stake_pct = min(4.50, max(3.00, round(kelly_puro_pct, 2)))
             elif prob_pct >= 58.0 and edge >= 2.8:
                 tier_lbl = "🥇 TIER A (Fuerte +EV)"
                 tier_ord = 2
-                stake_sug = min(3.50, max(2.00, round(BANKROLL_BASE * KELLY_FRAC * ((prob_r * cuota_m - 1.0) / (cuota_m - 1.0)), 2)))
+                stake_pct = min(3.50, max(2.00, round(kelly_puro_pct, 2)))
             elif prob_pct >= 52.0 and edge >= 3.2:
                 tier_lbl = "🥈 TIER B (Valor Matemático)"
                 tier_ord = 3
-                stake_sug = 2.00
+                stake_pct = 2.00
             else:
                 continue
 
+            stake_base_100 = round((BANKROLL_AUDITORIA_BASE * stake_pct) / 100.0, 2)
             cuota_justa = round(1.0 / prob_r, 2)
             l5_pct = min(95, max(60, int(round(prob_pct + 4))))
             l10_pct = min(92, max(58, int(round(prob_pct + 2))))
@@ -850,7 +810,8 @@ def ejecutar_iabet_pro_30():
                 "cuota_justa": cuota_justa,
                 "prob_real": round(prob_pct, 1),
                 "edge": round(edge, 1),
-                "stake": stake_sug,
+                "stake_pct": stake_pct,        # % exacto de la banca del cliente
+                "stake": stake_base_100,       # S/ sobre base 100 para el Historial Auditado
                 "tier_label": tier_lbl,
                 "tier_orden": tier_ord,
                 "casa_ref": casa_ref,
@@ -859,7 +820,6 @@ def ejecutar_iabet_pro_30():
                 "fuente_tag": "ESPN + OddsAPI + CSV L20" if tiene_csv else "ESPN + Consenso B2B"
             })
 
-    # Ordenar y balancear portafolio (Máximo 1 pick por partido en la vista principal para no saturar)
     candidatos_value.sort(key=lambda x: (x["tier_orden"], -x["prob_real"], -x["edge"]))
     picks_finales = []
     partidos_usados = set()
@@ -876,11 +836,13 @@ def ejecutar_iabet_pro_30():
         if len(picks_finales) >= 15:
             break
 
-    # Ordenar oportunidades Ninja (Primero las SureBets > 100%, luego los mejores Ratings de Bonos)
     oportunidades_ninja.sort(key=lambda x: -x["rating_pct"])
     oportunidades_ninja = oportunidades_ninja[:12]
 
-    # Registrar nuevos picks en el Historial Auditado
+    # Detectar qué picks son nuevos, modificados o Fijas habilitadas en esta actualización
+    nuevos_picks, picks_modificados, fijas_del_dia = clasificar_cambios_y_fijas(picks_finales)
+
+    # Guardar en el Historial Auditado Oficial (Inalterable sobre Base S/ 100.00)
     ids_en_historial = {x.get("event_id") for x in auditoria["historial"]}
     for pk in picks_finales[:8]:
         if pk["event_id"] not in ids_en_historial:
@@ -903,21 +865,22 @@ def ejecutar_iabet_pro_30():
         json.dump(auditoria, f, ensure_ascii=False, indent=2)
 
     generar_dashboard_web(picks_finales, oportunidades_ninja, auditoria, intel_ninja, creditos_api)
-    enviar_reporte_telegram(picks_finales, oportunidades_ninja, auditoria)
-    print(f"✅ IABET Pro 3.0 finalizado en {time.time() - t0:.1f}s | {len(picks_finales)} ValuePicks | {len(oportunidades_ninja)} Ninja Arbitrajes.")
+    enviar_alerta_diferencial_telegram(picks_finales, nuevos_picks, picks_modificados, fijas_del_dia, oportunidades_ninja, auditoria)
+    print(f"✅ IABET Pro 3.1 completado en {time.time() - t0:.1f}s | Nuevos: {len(nuevos_picks)} | Modificados: {len(picks_modificados)} | Fijas: {len(fijas_del_dia)}")
 
 
 # ==============================================================================
-# 7. GENERADOR DEL DASHBOARD WEB SAAS (4 PESTAÑAS INCLUYENDO NINJA DUTCHER)
+# 8. GENERADOR DEL DASHBOARD WEB SAAS (BANCA PERSONAL EDITABLE + AUDITORÍA FIJA)
 # ==============================================================================
 def generar_dashboard_web(picks, ninja_ops, auditoria, intel_ninja, creditos_api):
     hora_act = datetime.now(ZONA_PERU).strftime("%d/%m/%Y %H:%M (Hora Perú)")
 
-    # Tarjetas de Picks IA (+EV)
     tarjetas_html = []
     for idx, pk in enumerate(picks):
         borde_color = "#10b981" if pk["tier_orden"] == 1 else ("#f59e0b" if pk["tier_orden"] == 2 else "#3b82f6")
         badge_vivo = f'<span class="live-pill">📡 EN VIVO ({pk["detalle_vivo"]}: {pk["marcador_vivo"]})</span>' if pk["estado"] == "in" else f'<span class="date-pill">📅 {pk["dia_tag"]}</span>'
+        alerta_tag = pk.get("estado_alerta", "✅ CONFIRMADA")
+        col_alerta = "#38bdf8" if "NUEVA" in alerta_tag else ("#f59e0b" if "MODIFICADA" in alerta_tag or "ACTUALIZADO" in alerta_tag else "#94a3b8")
 
         tarjetas_html.append(f"""
         <div class="card pick-card" data-dia="{pk['filtro_dia']}" data-cat="{pk['categoria']}" style="border-top: 4px solid {borde_color};">
@@ -925,7 +888,10 @@ def generar_dashboard_web(picks, ninja_ops, auditoria, intel_ninja, creditos_api
                 <span class="tier-badge" style="background:{borde_color}22; color:{borde_color}; border:1px solid {borde_color}55;">{pk['tier_label']}</span>
                 {badge_vivo}
             </div>
-            <div class="league-tag">{pk['liga']} · {pk['categoria']}</div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                <span class="league-tag">{pk['liga']} · {pk['categoria']}</span>
+                <span style="font-size:0.72rem; font-weight:700; color:{col_alerta};">{alerta_tag}</span>
+            </div>
             <h3 class="match-title">{pk['partido']}</h3>
             <div class="pick-box">
                 <div class="pick-market">👉 {pk['mercado']}</div>
@@ -935,48 +901,49 @@ def generar_dashboard_web(picks, ninja_ops, auditoria, intel_ninja, creditos_api
                 <div><span>Prob. Real</span><strong>{pk['prob_real']:.1f}%</strong></div>
                 <div><span>Cuota Justa</span><strong>@{pk['cuota_justa']:.2f}</strong></div>
                 <div><span>Edge (+EV)</span><strong style="color:#10b981;">+{pk['edge']:.1f}%</strong></div>
-                <div><span>Stake Kelly</span><strong style="color:#38bdf8;">S/ {pk['stake']:.2f}</strong></div>
+                <div>
+                    <span>Tu Stake ({pk['stake_pct']:.1f}%)</span>
+                    <strong class="dynamic-stake" data-stake-pct="{pk['stake_pct']}" data-cuota="{pk['cuota']}" style="color:#38bdf8;">S/ {pk['stake']:.2f}</strong>
+                </div>
             </div>
             <div class="hitrate-bar">
-                Consenso Histórico: <b>L5: {pk['l5']}%</b> · <b>L10: {pk['l10']}%</b> · <b>L20: {pk['l20']}%</b>
+                Ganancia Neta Estimada con tu Banca: <b class="dynamic-profit" data-stake-pct="{pk['stake_pct']}" data-cuota="{pk['cuota']}" style="color:#10b981;">+S/ {(pk['stake'] * (pk['cuota'] - 1.0)):.2f}</b> · Consenso: L5 {pk['l5']}% | L20 {pk['l20']}%
             </div>
             <div class="calc-box">
-                <label>🧮 Verificador Anti-Trampa (Ingresa la cuota de Betano/Betsson):</label>
+                <label>🧮 Verificador Anti-Trampa + Stake Personalizado (Escribe la cuota de tu casa):</label>
                 <div class="calc-row">
-                    <input type="number" step="0.01" placeholder="Ej: {pk['cuota']:.2f}" oninput="verificarCuotaCasa(this, {pk['prob_real']}, {pk['cuota_justa']}, 'res-calc-{idx}')">
-                    <span id="res-calc-{idx}" class="calc-status">Esperando cuota...</span>
+                    <input type="number" step="0.01" placeholder="Ej: {pk['cuota']:.2f}" oninput="verificarCuotaCasa(this, {pk['prob_real']}, {pk['cuota_justa']}, {pk['stake_pct']}, 'res-calc-{idx}')">
+                    <span id="res-calc-{idx}" class="calc-status">Ingresa cuota para calcular tu apuesta...</span>
                 </div>
             </div>
             <details class="tactical-acc">
-                <summary>🔬 Ver Telemetría ESPN en Vivo y Desglose Matemático</summary>
+                <summary>🔬 Ver Estado de Alerta y Telemetría ESPN en Vivo</summary>
                 <div class="acc-body">
-                    <p>• <b>Proyección xG / Lambda:</b> Local {pk['lam_l']} vs Visita {pk['lam_v']}</p>
-                    <p>• <b>Fuente de Datos:</b> {pk['fuente_tag']} ({pk['casa_ref']})</p>
-                    <p>• <b>Cuota Mínima Rentable:</b> No entrar si paga menos de <b>@{max(1.40, round(pk['cuota_justa'] * 1.02, 2)):.2f}</b></p>
+                    <p>• <b>Estado del Escáner:</b> {pk.get('detalle_cambio', '')}</p>
+                    <p>• <b>Proyección xG / Lambda:</b> Local {pk['lam_l']} vs Visita {pk['lam_v']} ({pk['fuente_tag']})</p>
+                    <p>• <b>Cuota Mínima Rentable:</b> No entrar si baja de <b>@{max(1.40, round(pk['cuota_justa'] * 1.02, 2)):.2f}</b></p>
                     <div id="live-box-{pk['event_id']}" class="live-telemetry">Sincronizando telemetría con ESPN Summary API...</div>
                 </div>
             </details>
         </div>
         """)
 
-    # Filas del Escáner Ninja Dutcher & Oddsmatcher
     filas_ninja_html = []
     for nop in ninja_ops:
         color_r = "#10b981" if nop["es_surebet"] else "#f59e0b"
         filas_ninja_html.append(f"""
-        <tr>
+        <tr class="ninja-row" data-c1="{nop['cuota_1']}" data-c2="{nop['cuota_2']}">
             <td><b>{nop['partido']}</b><br><small style="color:#94a3b8;">{nop['liga']} · {nop['dia_tag']}</small></td>
             <td><span class="tier-badge" style="color:{color_r}; border:1px solid {color_r};">{nop['tipo']}</span></td>
             <td><b style="color:{color_r}; font-size:1.05rem;">{nop['rating_pct']:.2f}%</b></td>
-            <td>{nop['apuesta_1']}<br><b style="color:#38bdf8;">Apostar: S/ {nop['stake_1']}</b></td>
-            <td>{nop['apuesta_2']}<br><b style="color:#38bdf8;">Apostar: S/ {nop['stake_2']}</b></td>
-            <td><b style="color:{color_r};">S/ {nop['profit_soles']:+.2f}</b></td>
+            <td>{nop['apuesta_1']}<br><b class="ninja-s1" style="color:#38bdf8;">Apostar: S/ {nop['stake_1']}</b></td>
+            <td>{nop['apuesta_2']}<br><b class="ninja-s2" style="color:#38bdf8;">Apostar: S/ {nop['stake_2']}</b></td>
+            <td><b class="ninja-profit" style="color:{color_r};">S/ {nop['profit_soles']:+.2f}</b></td>
         </tr>
         """)
     if not filas_ninja_html:
-        filas_ninja_html.append('<tr><td colspan="6" style="text-align:center; padding:18px;">Escaneando discrepancias multi-casa. Usa la Calculadora Dutcher de abajo para cualquier partido en vivo.</td></tr>')
+        filas_ninja_html.append('<tr><td colspan="6" style="text-align:center; padding:18px;">Usa la Calculadora Dutcher superior para repartir tu banca personalizada entre 2 cuotas.</td></tr>')
 
-    # Tarjetas de Bonos Activos (Matched Betting)
     bonos_html = []
     for b in intel_ninja.get("bonos_activos", []):
         bonos_html.append(f"""
@@ -988,7 +955,6 @@ def generar_dashboard_web(picks, ninja_ops, auditoria, intel_ninja, creditos_api
         </div>
         """)
 
-    # Filas del Historial Auditado
     filas_hist = []
     for h in auditoria.get("historial", []):
         est = h.get("estado", "PENDIENTE")
@@ -1013,19 +979,24 @@ def generar_dashboard_web(picks, ninja_ops, auditoria, intel_ninja, creditos_api
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>⚡ IABET Pro 3.0 — Quant & Ninja Arbitrage Suite</title>
+    <title>⚡ IABET Pro 3.1 — Gestión Dinámica de Banca & Alertas Fijas</title>
     <style>
         :root {{ --bg:#0b0f19; --card:#131b2e; --border:#1e293b; --text:#f8fafc; --muted:#94a3b8; --accent:#10b981; --blue:#38bdf8; }}
         * {{ box-sizing:border-box; font-family:'Inter',system-ui,-apple-system,sans-serif; }}
         body {{ margin:0; background:var(--bg); color:var(--text); padding:16px; }}
         .container {{ max-width:1280px; margin:0 auto; }}
-        .header {{ display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; background:var(--card); padding:18px 22px; border-radius:14px; border:1px solid var(--border); margin-bottom:18px; gap:12px; }}
-        .brand h1 {{ margin:0; font-size:1.45rem; color:#fff; }}
+        .header {{ display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; background:var(--card); padding:18px 22px; border-radius:14px; border:1px solid var(--border); margin-bottom:14px; gap:12px; }}
+        .brand h1 {{ margin:0; font-size:1.42rem; color:#fff; }}
         .brand small {{ color:var(--muted); display:block; margin-top:4px; }}
-        .stats-bar {{ display:flex; flex-wrap:wrap; gap:12px; }}
-        .stat-pill {{ background:#0f172a; border:1px solid var(--border); padding:8px 14px; border-radius:10px; text-align:center; }}
-        .stat-pill span {{ display:block; font-size:0.72rem; color:var(--muted); }}
-        .stat-pill strong {{ font-size:1.05rem; color:var(--accent); }}
+        .stats-bar {{ display:flex; flex-wrap:wrap; gap:10px; }}
+        .stat-pill {{ background:#0f172a; border:1px solid var(--border); padding:8px 13px; border-radius:10px; text-align:center; }}
+        .stat-pill span {{ display:block; font-size:0.7rem; color:var(--muted); }}
+        .stat-pill strong {{ font-size:1rem; color:var(--accent); }}
+        .bankroll-banner {{ background:linear-gradient(90deg, #0f172a, #1e293b); border:1px solid #38bdf866; border-radius:14px; padding:14px 18px; margin-bottom:16px; display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:12px; }}
+        .bankroll-controls {{ display:flex; flex-wrap:wrap; align-items:center; gap:8px; }}
+        .bank-input {{ width:125px; padding:8px 10px; border-radius:8px; border:2px solid var(--blue); background:#0b0f19; color:#fff; font-size:1.05rem; font-weight:800; }}
+        .preset-btn {{ background:#1e293b; color:#e2e8f0; border:1px solid #475569; padding:6px 10px; border-radius:8px; cursor:pointer; font-size:0.78rem; font-weight:600; }}
+        .preset-btn:hover {{ border-color:var(--blue); color:var(--blue); }}
         .tabs {{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px; }}
         .tab-btn {{ background:var(--card); color:var(--text); border:1px solid var(--border); padding:10px 16px; border-radius:10px; cursor:pointer; font-weight:600; }}
         .tab-btn.active {{ background:var(--accent); color:#042f2e; border-color:var(--accent); }}
@@ -1039,14 +1010,14 @@ def generar_dashboard_web(picks, ninja_ops, auditoria, intel_ninja, creditos_api
         .tier-badge {{ padding:4px 9px; border-radius:6px; font-size:0.75rem; font-weight:700; }}
         .live-pill {{ background:#ef444433; color:#fca5a5; border:1px solid #ef4444; padding:3px 8px; border-radius:6px; font-size:0.74rem; font-weight:700; }}
         .date-pill {{ color:var(--muted); font-size:0.76rem; }}
-        .league-tag {{ color:var(--blue); font-size:0.76rem; font-weight:600; text-transform:uppercase; }}
+        .league-tag {{ color:var(--blue); font-size:0.75rem; font-weight:600; text-transform:uppercase; }}
         .match-title {{ margin:6px 0 10px; font-size:1.1rem; }}
         .pick-box {{ display:flex; justify-content:space-between; align-items:center; background:#0f172a; padding:10px 12px; border-radius:10px; border:1px solid #334155; margin-bottom:10px; }}
         .pick-market {{ font-weight:700; color:#fff; }}
         .pick-odds {{ font-size:1.15rem; font-weight:800; color:var(--accent); }}
         .metrics-grid {{ display:grid; grid-template-columns:repeat(4,1fr); gap:6px; text-align:center; background:#0b1120; padding:8px; border-radius:8px; margin-bottom:8px; }}
         .metrics-grid span {{ display:block; font-size:0.68rem; color:var(--muted); }}
-        .hitrate-bar {{ font-size:0.76rem; color:#cbd5e1; margin-bottom:10px; text-align:center; background:#1e293b66; padding:5px; border-radius:6px; }}
+        .hitrate-bar {{ font-size:0.76rem; color:#cbd5e1; margin-bottom:10px; text-align:center; background:#1e293b66; padding:6px; border-radius:6px; }}
         .calc-box {{ background:#0f172a; padding:9px; border-radius:8px; border:1px dashed #334155; margin-bottom:8px; font-size:0.76rem; }}
         .calc-row {{ display:flex; align-items:center; gap:8px; margin-top:6px; }}
         .calc-row input {{ width:95px; padding:5px 8px; border-radius:6px; border:1px solid #475569; background:#1e293b; color:#fff; }}
@@ -1062,21 +1033,40 @@ def generar_dashboard_web(picks, ninja_ops, auditoria, intel_ninja, creditos_api
 <div class="container">
     <div class="header">
         <div class="brand">
-            <h1>⚡ IABET Pro 3.0 <span style="font-size:0.8rem; background:#a855f733; color:#d8b4fe; padding:3px 8px; border-radius:6px;">QUANT + NINJA SUITE</span></h1>
+            <h1>⚡ IABET Pro 3.1 <span style="font-size:0.78rem; background:#10b98122; color:#10b981; border:1px solid #10b98155; padding:3px 8px; border-radius:6px;">BANCA PERSONALIZABLE</span></h1>
             <small>Actualizado: {hora_act} · Motor: {intel_ninja['motor_scrapling']} · Créditos API: {creditos_api}</small>
         </div>
         <div class="stats-bar">
             <div class="stat-pill"><span>Win Rate Auditado</span><strong>{auditoria['win_rate']:.1f}% ({auditoria['ganados']}W-{auditoria['perdidos']}L)</strong></div>
-            <div class="stat-pill"><span>ROI Verificado</span><strong>{auditoria['roi']:+.1f}%</strong></div>
-            <div class="stat-pill"><span>Banca Actual</span><strong style="color:#38bdf8;">S/ {auditoria['bankroll_actual']:.2f}</strong></div>
+            <div class="stat-pill"><span>ROI Oficial</span><strong>{auditoria['roi']:+.1f}%</strong></div>
+            <div class="stat-pill" title="Banca Oficial de Auditoría (Inalterable sobre Base S/ 100)"><span>Banca Auditada (Base S/100)</span><strong style="color:#94a3b8;">S/ {auditoria['bankroll_actual']:.2f}</strong></div>
             <div class="stat-pill"><span>Racha</span><strong>{auditoria['racha']}</strong></div>
         </div>
     </div>
 
+    <!-- PANEL INTERACTIVO DE BANCA PERSONAL DEL CLIENTE (NO AFECTA EL HISTORIAL AUDITADO) -->
+    <div class="bankroll-banner">
+        <div>
+            <strong style="color:#38bdf8; font-size:1rem;">💰 Configura Tu Banca Personal de Operación (S/):</strong>
+            <div style="font-size:0.8rem; color:var(--muted); margin-top:2px;">
+                Ingresa tu capital actual. Todos los montos recomendados (<i>Stake Kelly</i> y <i>Ninja Dutcher</i>) se ajustan automáticamente a tu bolsillo sin alterar el Historial Auditado.
+            </div>
+        </div>
+        <div class="bankroll-controls">
+            <span style="font-weight:700; color:#cbd5e1;">S/</span>
+            <input id="client-bankroll-input" class="bank-input" type="number" min="10" step="10" value="100" oninput="actualizarBancaCliente(this.value)">
+            <button class="preset-btn" onclick="fijarBancaRapida(50)">S/ 50</button>
+            <button class="preset-btn" onclick="fijarBancaRapida(100)">S/ 100</button>
+            <button class="preset-btn" onclick="fijarBancaRapida(250)">S/ 250</button>
+            <button class="preset-btn" onclick="fijarBancaRapida(500)">S/ 500</button>
+            <button class="preset-btn" onclick="fijarBancaRapida(1000)">S/ 1,000</button>
+        </div>
+    </div>
+
     <div class="tabs">
-        <button class="tab-btn active" onclick="cambiarTab('tab-picks', this)">🎯 Picks IA (+EV & Tiers)</button>
+        <button class="tab-btn active" onclick="cambiarTab('tab-picks', this)">🎯 Picks IA (+EV & Fijas del Día)</button>
         <button class="tab-btn" onclick="cambiarTab('tab-ninja', this)">🥷 Ninja Dutcher & Bonos (0% Riesgo)</button>
-        <button class="tab-btn" onclick="cambiarTab('tab-historial', this)">📋 Historial Auditado ({len(auditoria['historial'])})</button>
+        <button class="tab-btn" onclick="cambiarTab('tab-historial', this)">📋 Historial Auditado Oficial ({len(auditoria['historial'])})</button>
     </div>
 
     <!-- PESTAÑA 1: PICKS IA -->
@@ -1096,8 +1086,8 @@ def generar_dashboard_web(picks, ninja_ops, auditoria, intel_ninja, creditos_api
     <!-- PESTAÑA 2: NINJA DUTCHER & BONOS -->
     <div id="tab-ninja" class="tab-panel">
         <div class="card" style="margin-bottom:16px; border-left:4px solid #10b981;">
-            <h3 style="margin:0 0 8px;">🧮 Calculadora Interactiva "Ninja Dutcher" (Arbitraje / SureBets en Soles)</h3>
-            <p style="margin:0 0 10px; font-size:0.83rem; color:var(--muted);">Ingresa dos cuotas opuestas (ej. Más de 2.5 goles en Betsson y Menos de 2.5 goles en Betano) para bloquear ganancia sin riesgo o liberar un bono:</p>
+            <h3 style="margin:0 0 8px;">🧮 Calculadora Interactiva "Ninja Dutcher" (Sincronizada con Tu Banca)</h3>
+            <p style="margin:0 0 10px; font-size:0.83rem; color:var(--muted);">Ingresa dos cuotas opuestas para dividir exactamente tu banca personalizada entre dos casas:</p>
             <div style="display:flex; flex-wrap:wrap; gap:10px; align-items:center;">
                 <input id="dut-c1" type="number" step="0.01" value="2.10" placeholder="Cuota Casa 1" style="padding:8px; border-radius:8px; background:#0f172a; color:#fff; border:1px solid #334155; width:120px;">
                 <input id="dut-c2" type="number" step="0.01" value="2.02" placeholder="Cuota Casa 2" style="padding:8px; border-radius:8px; background:#0f172a; color:#fff; border:1px solid #334155; width:120px;">
@@ -1107,7 +1097,7 @@ def generar_dashboard_web(picks, ninja_ops, auditoria, intel_ninja, creditos_api
             </div>
         </div>
 
-        <h3 style="margin:14px 0 8px;">📡 Escáner Automático Multi-Casa (Oddsmatcher & SureBets Detectadas)</h3>
+        <h3 style="margin:14px 0 8px;">📡 Escáner Automático Multi-Casa (Montos Ajustados a Tu Banca)</h3>
         <div style="overflow-x:auto; margin-bottom:18px;">
             <table>
                 <thead>
@@ -1117,7 +1107,7 @@ def generar_dashboard_web(picks, ninja_ops, auditoria, intel_ninja, creditos_api
                         <th>Rating %</th>
                         <th>Opción Casa 1 (Back)</th>
                         <th>Opción Casa 2 (Cobertura)</th>
-                        <th>Retorno Neto (S/ 100)</th>
+                        <th>Retorno Neto con Tu Banca</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -1132,8 +1122,11 @@ def generar_dashboard_web(picks, ninja_ops, auditoria, intel_ninja, creditos_api
         </div>
     </div>
 
-    <!-- PESTAÑA 3: HISTORIAL AUDITADO -->
+    <!-- PESTAÑA 3: HISTORIAL AUDITADO OFICIAL -->
     <div id="tab-historial" class="tab-panel">
+        <p style="font-size:0.82rem; color:var(--muted); margin-bottom:10px;">
+            🔒 <b>Nota de Transparencia:</b> El Historial Auditado se contabiliza sobre una banca estándar inalterable de <b>S/ 100.00</b> verificada automáticamente con los marcadores finales de ESPN API.
+        </p>
         <div style="overflow-x:auto;">
             <table>
                 <thead>
@@ -1142,7 +1135,7 @@ def generar_dashboard_web(picks, ninja_ops, auditoria, intel_ninja, creditos_api
                         <th>Partido</th>
                         <th>Mercado</th>
                         <th>Cuota</th>
-                        <th>Stake</th>
+                        <th>Stake Base (S/ 100)</th>
                         <th>Marcador</th>
                         <th>Estado Verificado ESPN</th>
                     </tr>
@@ -1156,6 +1149,68 @@ def generar_dashboard_web(picks, ninja_ops, auditoria, intel_ninja, creditos_api
 </div>
 
 <script>
+function obtenerBancaActualCliente() {{
+    const el = document.getElementById('client-bankroll-input');
+    const val = parseFloat(el ? el.value : 100);
+    return (!val || val <= 0) ? 100.0 : val;
+}}
+
+function fijarBancaRapida(monto) {{
+    const input = document.getElementById('client-bankroll-input');
+    if (input) {{
+        input.value = monto;
+        actualizarBancaCliente(monto);
+    }}
+}}
+
+function actualizarBancaCliente(nuevoValor) {{
+    const bank = parseFloat(nuevoValor);
+    if (!bank || bank <= 0) return;
+
+    try {{ localStorage.setItem('iabet_banca_cliente', bank); }} catch (e) {{}}
+
+    // 1. Actualizar el Stake sugerido en cada tarjeta de Pick IA
+    document.querySelectorAll('.dynamic-stake').forEach(el => {{
+        const pct = parseFloat(el.getAttribute('data-stake-pct')) || 2.5;
+        const montoSoles = (bank * pct) / 100.0;
+        el.textContent = 'S/ ' + montoSoles.toFixed(2);
+    }});
+
+    // 2. Actualizar la Ganancia Neta estimada en cada tarjeta
+    document.querySelectorAll('.dynamic-profit').forEach(el => {{
+        const pct = parseFloat(el.getAttribute('data-stake-pct')) || 2.5;
+        const cuota = parseFloat(el.getAttribute('data-cuota')) || 1.60;
+        const montoSoles = (bank * pct) / 100.0;
+        const gananciaNeta = montoSoles * (cuota - 1.0);
+        el.textContent = '+S/ ' + gananciaNeta.toFixed(2);
+    }});
+
+    // 3. Sincronizar el input de la Calculadora Ninja Dutcher y recalcular tabla Ninja
+    const dutBankInput = document.getElementById('dut-bank');
+    if (dutBankInput) {{
+        dutBankInput.value = Math.round(bank);
+        calcularDutcherManual();
+    }}
+
+    document.querySelectorAll('.ninja-row').forEach(row => {{
+        const c1 = parseFloat(row.getAttribute('data-c1'));
+        const c2 = parseFloat(row.getAttribute('data-c2'));
+        if (!c1 || !c2) return;
+        const inv = (1.0 / c1) + (1.0 / c2);
+        const s1 = Math.round(bank * ((1.0 / c1) / inv));
+        const s2 = Math.round(bank - s1);
+        const retMin = Math.min(s1 * c1, s2 * c2);
+        const net = retMin - bank;
+
+        const elS1 = row.querySelector('.ninja-s1');
+        const elS2 = row.querySelector('.ninja-s2');
+        const elProf = row.querySelector('.ninja-profit');
+        if (elS1) elS1.textContent = 'Apostar: S/ ' + s1;
+        if (elS2) elS2.textContent = 'Apostar: S/ ' + s2;
+        if (elProf) elProf.textContent = 'S/ ' + (net >= 0 ? '+' : '') + net.toFixed(2);
+    }});
+}}
+
 function cambiarTab(id, btn) {{
     document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -1175,20 +1230,27 @@ function filtrarPicks(f) {{
     }});
 }}
 
-function verificarCuotaCasa(input, probReal, cuotaJusta, targetId) {{
+function verificarCuotaCasa(input, probReal, cuotaJusta, stakePctBase, targetId) {{
     const val = parseFloat(input.value);
     const el = document.getElementById(targetId);
-    if (!val || val <= 1.01) {{ el.textContent = "Esperando cuota..."; el.style.color = "#94a3b8"; return; }}
+    const bank = obtenerBancaActualCliente();
+    if (!val || val <= 1.01) {{
+        el.textContent = "Ingresa cuota para calcular tu apuesta...";
+        el.style.color = "#94a3b8";
+        return;
+    }}
     const diff = val - cuotaJusta;
     const ev = ((probReal / 100.0) * val - 1.0) * 100.0;
-    if (diff >= 0.22) {{
-        el.textContent = "⚠️ ALERTA DE TRAMPA: Línea movida por la casa. ¡No apostar!";
+    const montoPersonalizado = ((bank * stakePctBase) / 100.0).toFixed(2);
+
+    if (diff >= 0.25) {{
+        el.textContent = "⚠️ ALERTA DE TRAMPA: Línea movida por la casa. ¡NO APOSTAR!";
         el.style.color = "#ef4444";
     }} else if (ev >= 1.5) {{
-        el.textContent = "✅ RENTABLE (+EV " + ev.toFixed(1) + "%). Apto para entrar.";
+        el.textContent = `✅ RENTABLE (+EV ${{ev.toFixed(1)}}%) ➡️ Apostar S/ ${{montoPersonalizado}} (de tu banca S/ ${{bank}})`;
         el.style.color = "#10b981";
     }} else {{
-        el.textContent = "❌ Cuota castigada sin valor (" + ev.toFixed(1) + "%). Descartar.";
+        el.textContent = `❌ Cuota comprimida sin valor (${{ev.toFixed(1)}}%). Descartar.`;
         el.style.color = "#f59e0b";
     }}
 }}
@@ -1196,7 +1258,7 @@ function verificarCuotaCasa(input, probReal, cuotaJusta, targetId) {{
 function calcularDutcherManual() {{
     const c1 = parseFloat(document.getElementById('dut-c1').value);
     const c2 = parseFloat(document.getElementById('dut-c2').value);
-    const bank = parseFloat(document.getElementById('dut-bank').value) || 100;
+    const bank = parseFloat(document.getElementById('dut-bank').value) || obtenerBancaActualCliente();
     const res = document.getElementById('dut-res');
     if (!c1 || !c2 || c1 <= 1 || c2 <= 1) return;
     const inv = (1/c1) + (1/c2);
@@ -1208,6 +1270,20 @@ function calcularDutcherManual() {{
     res.style.color = rating >= 100 ? "#10b981" : "#f59e0b";
     res.textContent = `Rating: ${{rating.toFixed(2)}}% | Apostar S/ ${{s1}} a Casa 1 y S/ ${{s2}} a Casa 2 | Retorno Neto: S/ ${{net.toFixed(2)}}`;
 }}
+
+// Cargar la banca guardada por el cliente al abrir la página
+window.addEventListener('DOMContentLoaded', () => {{
+    try {{
+        const guardada = localStorage.getItem('iabet_banca_cliente');
+        if (guardada && parseFloat(guardada) > 0) {{
+            const inp = document.getElementById('client-bankroll-input');
+            if (inp) inp.value = parseFloat(guardada);
+            actualizarBancaCliente(parseFloat(guardada));
+        }} else {{
+            calcularDutcherManual();
+        }}
+    }} catch (e) {{}}
+}});
 
 const EVENT_IDS = {ids_eventos_json};
 async function refrescarTelemetriaVivo() {{
@@ -1234,32 +1310,67 @@ setInterval(refrescarTelemetriaVivo, 30000);
         f.write(html_completo)
 
 
-def enviar_reporte_telegram(picks, ninja_ops, auditoria):
+# ==============================================================================
+# 9. NOTIFICADOR INTELIGENTE DE TELEGRAM (NUEVAS FIJAS + APUESTAS MODIFICADAS)
+# ==============================================================================
+def enviar_alerta_diferencial_telegram(picks, nuevos, modificados, fijas, ninja_ops, auditoria):
     if not TELEGRAM_TOKEN or not TELEGRAM_CHAT_ID:
         return
-    lineas = [
-        "⚡ *IABET PRO 3.0 — QUANT + NINJA ARBITRAGE*",
-        f"📊 *Win Rate Auditado:* {auditoria['win_rate']:.1f}% ({auditoria['ganados']}W - {auditoria['perdidos']}L) | *ROI:* {auditoria['roi']:+.1f}%",
-        f"🏦 *Banca Actual:* S/ {auditoria['bankroll_actual']:.2f} | *Racha:* {auditoria['racha']}\n",
-        "🎯 *TOP PRONÓSTICOS DE VALOR (+EV):*"
-    ]
-    for idx, pk in enumerate(picks[:5], 1):
-        lineas.append(
-            f"*{idx}. {pk['tier_label']} [{pk['liga']}]*\n"
-            f"🏟️ {pk['partido']} ({pk['dia_tag']})\n"
-            f"👉 *{pk['mercado']}* a *@{pk['cuota']:.2f}* (Prob: {pk['prob_real']:.1f}% | Stake: S/ {pk['stake']:.2f}) [{pk['fuente_tag']}]\n"
-        )
 
-    if ninja_ops:
-        lineas.append("🥷 *TOP RADAR NINJA (DUTCHER / ODDSMATCHER):*")
-        for nop in ninja_ops[:2]:
+    hora_pe = datetime.now(ZONA_PERU).strftime("%H:%M")
+    lineas = [
+        f"🚨 *ALERTA DE ACTUALIZACIÓN IABET PRO 3.1 ({hora_pe} PE)*",
+        f"📊 *Auditoría Oficial:* {auditoria['win_rate']:.1f}% ({auditoria['ganados']}W-{auditoria['perdidos']}L) | *ROI:* {auditoria['roi']:+.1f}%",
+        f"🔔 *Resumen del Escaneo:* `{len(nuevos)} Nuevas` | `{len(modificados)} Modificadas` | `{len(fijas)} Fijas Activas`\n"
+    ]
+
+    # 1. SECCIÓN DE FIJAS HABILITADAS (Prioridad Máxima para los clientes)
+    if fijas:
+        lineas.append("💎 *APUESTAS FIJAS HABILITADAS EN ESTE CICLO:*")
+        for idx, fj in enumerate(fijas, 1):
+            estado_ico = "🆕" if "NUEVA" in fj.get("estado_alerta", "") else "✅"
             lineas.append(
-                f"• *{nop['partido']}* — Rating: *{nop['rating_pct']:.2f}%*\n"
-                f"  1️⃣ {nop['apuesta_1']} (S/ {nop['stake_1']})\n"
-                f"  2️⃣ {nop['apuesta_2']} (S/ {nop['stake_2']})"
+                f"{estado_ico} *FIJA #{idx}: {fj['partido']}* ({fj['dia_tag']})\n"
+                f"   🏆 {fj['liga']} | 👉 *{fj['mercado']}* a *@{fj['cuota']:.2f}*\n"
+                f"   📈 Prob: `{fj['prob_real']:.1f}%` | Edge: `+{fj['edge']:.1f}%`\n"
+                f"   💰 *Recomendación:* `{fj['stake_pct']:.1f}% de tu Banca` _(Ej: S/ {fj['stake']:.2f} por cada S/ 100)_\n"
             )
 
-    lineas.append("\n🌐 *Dashboard Interactivo:* https://blakeffx.github.io/iabet-cloud/")
+    # 2. SECCIÓN DE NUEVAS APUESTAS AGREGADAS EN LA ÚLTIMA BÚSQUEDA
+    if nuevos:
+        lineas.append("🆕 *NUEVAS APUESTAS DETECTADAS EN LA ÚLTIMA BÚSQUEDA:*")
+        for npk in nuevos[:5]:
+            lineas.append(
+                f"• *{npk['partido']}* ({npk['dia_tag']})\n"
+                f"  👉 *{npk['mercado']}* a *@{npk['cuota']:.2f}* ({npk['tier_label']})\n"
+                f"  💵 Apostar: *{npk['stake_pct']:.1f}% de tu Bank* _(S/ {npk['stake']:.2f} en base S/ 100)_"
+            )
+        lineas.append("")
+
+    # 3. SECCIÓN DE APUESTAS MODIFICADAS (CAMBIO DE CUOTA O DE MERCADO)
+    if modificados:
+        lineas.append("🔄 *APUESTAS MODIFICADAS / ACTUALIZACIÓN DE CUOTAS:*")
+        for mpk in modificados[:5]:
+            lineas.append(
+                f"• *{mpk['partido']}*: {mpk['detalle_cambio']}\n"
+                f"  👉 Selección actual: *{mpk['mercado']}* (`{mpk['stake_pct']:.1f}% de tu Bank`)"
+            )
+        lineas.append("")
+
+    # Si no hubo cambios entre un escaneo y otro, mostrar el Top 3 vigente
+    if not nuevos and not modificados and picks:
+        lineas.append("✅ *SIN CAMBIOS DE LÍNEA — TOP CARTELERA VIGENTE:*")
+        for pk in picks[:3]:
+            lineas.append(
+                f"• *{pk['partido']}* ➡️ *{pk['mercado']}* (@{pk['cuota']:.2f}) | `{pk['stake_pct']:.1f}% Bank`"
+            )
+        lineas.append("")
+
+    lineas.append(
+        "🧮 *Calcula tu monto exacto editando tu Banca Personal en la Web:*\n"
+        "🌐 https://blakeffx.github.io/iabet-cloud/"
+    )
+
     texto = "\n".join(lineas)
     try:
         r = requests.post(
@@ -1270,7 +1381,7 @@ def enviar_reporte_telegram(picks, ninja_ops, auditoria):
         if r.status_code != 200:
             requests.post(
                 f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage",
-                json={"chat_id": TELEGRAM_CHAT_ID, "text": texto.replace("*", "")},
+                json={"chat_id": TELEGRAM_CHAT_ID, "text": texto.replace("*", "").replace("_", "").replace("`", "")},
                 timeout=10
             )
     except Exception:
@@ -1278,4 +1389,4 @@ def enviar_reporte_telegram(picks, ninja_ops, auditoria):
 
 
 if __name__ == "__main__":
-    ejecutar_iabet_pro_30()
+    ejecutar_iabet_pro_31()
