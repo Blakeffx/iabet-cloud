@@ -18,7 +18,7 @@ except Exception:
     SCRAPLING_ACTIVO = False
 
 # ==============================================================================
-# 1. CREDENCIALES Y CONFIGURACIÓN EMPRESARIAL (IABET PRO 3.3 LAUNCH EDITION)
+# 1. CREDENCIALES Y CONFIGURACIÓN EMPRESARIAL (IABET PRO 3.4 BETANO + RADAR TOTAL)
 # ==============================================================================
 TELEGRAM_TOKEN = "8902181028:AAE1ywEiCc6do90ZPclI8GnUdmVqKBc7iOU"
 TELEGRAM_CHAT_ID = "5203732922"
@@ -28,14 +28,17 @@ BANKROLL_AUDITORIA_BASE = 100.0  # Base fija inalterable para el Historial Audit
 KELLY_FRAC = 0.20                # Fracción conservadora de Kelly (20%)
 N_SIMS = 1_000_000               # 1,000,000 de simulaciones de Monte Carlo en C (Numba)
 
-CUOTA_MIN = 1.45
-CUOTA_MAX = 2.20
+# SOLUCIÓN 1: Bajamos CUOTA_MIN a 1.25 para no descartar fijas que en Betano pagan mejor
+# o que sirven para armar Combinadas Dobles Blindadas (+EV).
+CUOTA_MIN = 1.25
+CUOTA_MAX = 2.25
 TIEMPO_CACHE_HORAS = 1.5
 
 ARCHIVO_AUDITORIA = "auditoria_iabet.json"
 ARCHIVO_CACHE_ODDS = "cache_odds_api.json"
 ARCHIVO_NINJA_INTEL = "ninjabet_intel.json"
 ARCHIVO_ESTADO_PICKS = "estado_anterior_picks.json"
+ARCHIVO_TODOS_ANALISIS = "todos_los_analisis.json"
 ARCHIVO_WEB = "index.html"
 
 ZONA_PERU = timezone(timedelta(hours=-5))
@@ -43,7 +46,8 @@ ZONA_PERU = timezone(timedelta(hours=-5))
 HEADERS_PRO = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
     "Accept": "application/json, text/plain, */*",
-    "Accept-Language": "es-PE,es;q=0.9,en;q=0.8"
+    "Accept-Language": "es-PE,es;q=0.9,en;q=0.8",
+    "Referer": "https://www.betano.pe/"
 }
 
 LIGAS_CONFIG = [
@@ -53,6 +57,7 @@ LIGAS_CONFIG = [
     {"nombre": "Bundesliga", "espn": "ger.1", "csv": "D1", "odds": "soccer_germany_bundesliga"},
     {"nombre": "Ligue 1 Francia", "espn": "fra.1", "csv": "F1", "odds": "soccer_france_ligue_one"},
     {"nombre": "Champions League", "espn": "uefa.champions", "csv": None, "odds": "soccer_uefa_champs_league"},
+    {"nombre": "Europa League", "espn": "uefa.europa", "csv": None, "odds": "soccer_uefa_europa_league"},
     {"nombre": "Copa Libertadores", "espn": "conmebol.libertadores", "csv": None, "odds": "soccer_conmebol_copa_libertadores"},
     {"nombre": "Copa Sudamericana", "espn": "conmebol.sudamericana", "csv": None, "odds": "soccer_conmebol_copa_sudamericana"},
     {"nombre": "Liga 1 Perú", "espn": "per.1", "csv": None, "odds": None},
@@ -75,7 +80,8 @@ DICCIONARIO_EQUIPOS_CSV = {
     "Juventus": "Juventus", "Napoli": "Napoli", "Atalanta": "Atalanta",
     "Bayer Leverkusen": "Leverkusen", "Bayern Munich": "Bayern Munich",
     "Borussia Dortmund": "Dortmund", "Eintracht Frankfurt": "Ein Frankfurt",
-    "Borussia Mönchengladbach": "M'gladbach", "Mainz 05": "Mainz",
+    "Borussia Mönchengladbach": "M'gladbach", "Mainz 05": "Mainz", "1. FSV Mainz 05": "Mainz",
+    "RB Leipzig": "RB Leipzig", "FC Augsburg": "Augsburg",
     "Paris Saint-Germain": "Paris SG", "Saint-Étienne": "St Etienne",
     "Olympique Marseille": "Marseille", "Olympique Lyonnais": "Lyon",
     "AS Monaco": "Monaco"
@@ -87,7 +93,7 @@ def normalizar_texto_equipo(nombre):
         return ""
     trad = DICCIONARIO_EQUIPOS_CSV.get(nombre, nombre)
     limpio = trad.lower()
-    for token in ["fc ", " fc", "cf ", " cf", "ac ", "deportivo ", "club ", "ca ", "cd "]:
+    for token in ["1. fsv ", "fc ", " fc", "cf ", " cf", "ac ", "deportivo ", "club ", "ca ", "cd ", "rb "]:
         limpio = limpio.replace(token, " ")
     return " ".join(limpio.split())
 
@@ -104,7 +110,7 @@ def convertir_cuota_decimal(c):
 
 
 # ==============================================================================
-# 2. CAPA DE INGESTA FURTIVA CON SCRAPLING (NINJABET + KAMBI PERÚ B2B)
+# 2. CAPA DE INGESTA FURTIVA CON SCRAPLING (BETANO PERÚ + KAMBI + NINJABET)
 # ==============================================================================
 def peticion_furtiva_get(url, timeout=12):
     if SCRAPLING_ACTIVO:
@@ -124,44 +130,73 @@ def peticion_furtiva_get(url, timeout=12):
     return ""
 
 
-def extraer_inteligencia_ninjabet():
-    intel = {
-        "actualizado": datetime.now(ZONA_PERU).strftime("%Y-%m-%d %H:%M"),
-        "motor_scrapling": "ACTIVO (TLS Chrome Impersonation)" if SCRAPLING_ACTIVO else "RESPALDO HTTP",
-        "surebet_yield_ref": "+2.4% por operación",
-        "valuebet_yield_ref": "+5.1% auditado",
-        "bonos_activos": [
-            {"casa": "Betano Perú / Latam", "tipo": "Bono Bienvenida / Freebet SNR", "ganancia_est": "S/ 120 - S/ 250", "estrategia": "Usar Oddsmatcher con Rating >= 95% o Freebet a cuota @3.00+"},
-            {"casa": "Betsson / Inkabet (Kambi)", "tipo": "Apuesta Cero Riesgo / Recarga", "ganancia_est": "S/ 50 - S/ 100", "estrategia": "Cubrir en Dutcher Mercados 2-Vías (Over/Under 2.5)"},
-            {"casa": "Apuesta Total / DoradoBet", "tipo": "Club Freebets Semanal", "ganancia_est": "S/ 40 - S/ 80", "estrategia": "Activar modo 'Freebet SNR' en la calculadora Ninja de arriba"}
-        ]
-    }
-    html_ninja = peticion_furtiva_get("https://ninjabet.es/", timeout=10)
-    if html_ninja:
-        m_sb = re.search(r"(\+\d+[,\.]\d+\s*%)\s*Rendimiento sobre lo apostado", html_ninja)
-        if m_sb:
-            intel["surebet_yield_ref"] = m_sb.group(1)
-        bonos_detectados = re.findall(r"(Bono de Bienvenida|Club Apuestas Gratis|Oferta Cashback|Reembolso).*?(€\s*\d+)", html_ninja, flags=re.DOTALL)
-        for b_nom, b_val in bonos_detectados[:4]:
-            intel["bonos_activos"].append({
-                "casa": "Catálogo NinjaBet (" + b_nom.strip() + ")",
-                "tipo": "Matched Betting Rollover",
-                "ganancia_est": b_val.strip(),
-                "estrategia": "Liquidez Directa Oddsmatcher"
-            })
-    try:
-        with open(ARCHIVO_NINJA_INTEL, "w", encoding="utf-8") as f:
-            json.dump(intel, f, ensure_ascii=False, indent=2)
-    except Exception:
-        pass
-    return intel
+def extraer_cuotas_betano_scrapling():
+    """
+    Intenta extraer en tiempo real las cuotas directas de Betano (Kaizen Gaming)
+    usando Scrapling con suplantación TLS de Chrome sobre sus rutas de API y estado inicial.
+    """
+    mapa_betano = {}
+    urls_betano = [
+        "https://www.betano.pe/api/sport/futbol/partidos-de-hoy/?req=la,s,stnf,c,mb",
+        "https://www.betano.pe/api/sport/futbol/proximas-24-horas/?req=la,s,stnf,c,mb",
+        "https://pe.betano.com/api/sport/futbol/partidos-de-hoy/?req=la,s,stnf,c,mb"
+    ]
+    for url_b in urls_betano:
+        raw = peticion_furtiva_get(url_b, timeout=9)
+        if not raw or len(raw) < 200:
+            continue
+        try:
+            data = json.loads(raw)
+            bloques = data.get("data", {}).get("blocks", [])
+            for bl in bloques:
+                for ev in bl.get("events", []):
+                    participants = ev.get("participants", [])
+                    if len(participants) < 2:
+                        continue
+                    local = participants[0].get("name", "")
+                    visita = participants[1].get("name", "")
+                    if not local or not visita:
+                        continue
+                    cuotas_ev = {}
+                    for mkt in ev.get("markets", []):
+                        m_type = mkt.get("type", "").upper()
+                        m_name = mkt.get("name", "").lower()
+                        sels = mkt.get("selections", [])
+                        if m_type in ["MRES", "1X2"] or "resultado final" in m_name:
+                            for s in sels:
+                                nm = s.get("name", "")
+                                pr = float(s.get("price", 0.0))
+                                if pr > 1.01:
+                                    if nm in ["1", local]:
+                                        cuotas_ev["1"] = pr
+                                    elif nm in ["X", "Empate"]:
+                                        cuotas_ev["X"] = pr
+                                    elif nm in ["2", visita]:
+                                        cuotas_ev["2"] = pr
+                        elif "goles" in m_name and ("más/menos" in m_name or "total" in m_name or "2.5" in m_name):
+                            for s in sels:
+                                nm = s.get("name", "").lower()
+                                pr = float(s.get("price", 0.0))
+                                if "2.5" in nm and pr > 1.01:
+                                    if "más" in nm or "over" in nm:
+                                        cuotas_ev["over_25"] = pr
+                                    elif "menos" in nm or "under" in nm:
+                                        cuotas_ev["under_25"] = pr
+                        elif "ambos equipos anotan" in m_name or m_type == "BTTS":
+                            for s in sels:
+                                nm = s.get("name", "").lower()
+                                pr = float(s.get("price", 0.0))
+                                if ("sí" in nm or "si" in nm or "yes" in nm) and pr > 1.01:
+                                    cuotas_ev["btts_si"] = pr
+                    if cuotas_ev:
+                        k_b = f"{normalizar_texto_equipo(local)}_{normalizar_texto_equipo(visita)}"
+                        mapa_betano[k_b] = {"home": local, "away": visita, "cuotas": cuotas_ev}
+        except Exception:
+            continue
+    return mapa_betano
 
 
 def extraer_cuotas_kambi_scrapling():
-    """
-    Extrae cuotas en directo de Kambi (proveedor de Betsson e Inkabet en Perú)
-    para fusionarlas con The Odds API y alimentar el Dutcher de SureBets.
-    """
     mapa_kambi = {}
     url_kambi = "https://eu-offering-api.kambicdn.com/offering/v2018/ubpe/listView/football/all/all/all/matches.json?lang=es_ES&market=PE"
     raw = peticion_furtiva_get(url_kambi, timeout=10)
@@ -208,8 +243,41 @@ def extraer_cuotas_kambi_scrapling():
     return mapa_kambi
 
 
+def extraer_inteligencia_ninjabet():
+    intel = {
+        "actualizado": datetime.now(ZONA_PERU).strftime("%Y-%m-%d %H:%M"),
+        "motor_scrapling": "ACTIVO (TLS Chrome Impersonation)" if SCRAPLING_ACTIVO else "RESPALDO HTTP",
+        "surebet_yield_ref": "+2.4% por operación",
+        "valuebet_yield_ref": "+5.1% auditado",
+        "bonos_activos": [
+            {"casa": "Betano Perú / Latam", "tipo": "Bono Bienvenida / Freebet SNR", "ganancia_est": "S/ 120 - S/ 250", "estrategia": "Usar Oddsmatcher con Rating >= 95% o Freebet a cuota @3.00+"},
+            {"casa": "Betsson / Inkabet (Kambi)", "tipo": "Apuesta Cero Riesgo / Recarga", "ganancia_est": "S/ 50 - S/ 100", "estrategia": "Cubrir en Dutcher Mercados 2-Vías (Over/Under 2.5)"},
+            {"casa": "Apuesta Total / DoradoBet", "tipo": "Club Freebets Semanal", "ganancia_est": "S/ 40 - S/ 80", "estrategia": "Activar modo 'Freebet SNR' en la calculadora Ninja"}
+        ]
+    }
+    html_ninja = peticion_furtiva_get("https://ninjabet.es/", timeout=10)
+    if html_ninja:
+        m_sb = re.search(r"(\+\d+[,\.]\d+\s*%)\s*Rendimiento sobre lo apostado", html_ninja)
+        if m_sb:
+            intel["surebet_yield_ref"] = m_sb.group(1)
+        bonos_detectados = re.findall(r"(Bono de Bienvenida|Club Apuestas Gratis|Oferta Cashback|Reembolso).*?(€\s*\d+)", html_ninja, flags=re.DOTALL)
+        for b_nom, b_val in bonos_detectados[:4]:
+            intel["bonos_activos"].append({
+                "casa": "Catálogo NinjaBet (" + b_nom.strip() + ")",
+                "tipo": "Matched Betting Rollover",
+                "ganancia_est": b_val.strip(),
+                "estrategia": "Liquidez Directa Oddsmatcher"
+            })
+    try:
+        with open(ARCHIVO_NINJA_INTEL, "w", encoding="utf-8") as f:
+            json.dump(intel, f, ensure_ascii=False, indent=2)
+    except Exception:
+        pass
+    return intel
+
+
 # ==============================================================================
-# 3. INGESTA DE HISTORIALES PUROS (CSV L5·L10·L20) Y MERCADO GLOBAL (ODDS API)
+# 3. INGESTA DE HISTORIALES PUROS (CSV L5·L10·L20) Y FUSIÓN DE CUOTAS CON BETANO
 # ==============================================================================
 def descargar_bases_csv():
     db_equipos = {}
@@ -277,10 +345,6 @@ def buscar_equipo_csv(nombre_espn, db_equipos):
 
 
 def calcular_hitrate_real_l5_l10_l20(st_l, st_v, categoria, mercado, prob_fallback):
-    """
-    Calcula el porcentaje de acierto histórico real en los últimos 5, 10 y 20 partidos
-    cuando existen series CSV verificadas; de lo contrario, proyecta con consistencia bayesiana.
-    """
     if st_l and st_v:
         serie_l, serie_v = [], []
         condicion = None
@@ -292,7 +356,12 @@ def calcular_hitrate_real_l5_l10_l20(st_l, st_v, categoria, mercado, prob_fallba
             condicion = (lambda x: x < 9.5) if "Menos" in mercado else (lambda x: x > 8.5)
         elif categoria == "GOLES":
             serie_l, serie_v = st_l.get("tot_goles_lista", []), st_v.get("tot_goles_lista", [])
-            condicion = (lambda x: x > 2.5) if "Más" in mercado else (lambda x: x < 2.5)
+            if "1.5" in mercado:
+                condicion = (lambda x: x >= 2)
+            elif "3.5" in mercado:
+                condicion = (lambda x: x <= 3)
+            else:
+                condicion = (lambda x: x >= 3) if "Más" in mercado else (lambda x: x <= 2)
 
         if condicion and len(serie_l) >= 5 and len(serie_v) >= 5:
             comb_5 = [1 if condicion(x) else 0 for x in (serie_l[-5:] + serie_v[-5:])]
@@ -310,7 +379,7 @@ def calcular_hitrate_real_l5_l10_l20(st_l, st_v, categoria, mercado, prob_fallba
     return l5, l10, l20
 
 
-def obtener_cuotas_multicasa_y_dutcher(ligas_activas_odds, mapa_kambi):
+def obtener_cuotas_multicasa_y_betano(ligas_activas_odds, mapa_betano, mapa_kambi):
     ahora_ts = time.time()
     datos_odds = {}
     creditos_restantes = "Cache Activo"
@@ -354,10 +423,14 @@ def obtener_cuotas_multicasa_y_dutcher(ligas_activas_odds, mapa_kambi):
                             "1": {"odd": 0.0, "casa": "Mercado"}, "X": {"odd": 0.0, "casa": "Mercado"}, "2": {"odd": 0.0, "casa": "Mercado"},
                             "over_25": {"odd": 0.0, "casa": "Mercado"}, "under_25": {"odd": 0.0, "casa": "Mercado"}
                         }
+                        cuota_betano_ref = {"1": 0.0, "X": 0.0, "2": 0.0, "over_25": 0.0, "under_25": 0.0, "casa": ""}
                         listas_consenso = {"1": [], "X": [], "2": [], "over_25": [], "under_25": []}
 
                         for bm in ev.get("bookmakers", []):
                             nombre_casa = bm.get("title", "Bookie")
+                            key_casa = bm.get("key", "").lower()
+                            es_familia_betano = any(k in key_casa or k in nombre_casa.lower() for k in ["betano", "kaizen", "betsson", "nordicbet", "unibet", "bwin"])
+
                             for mkt in bm.get("markets", []):
                                 mkey = mkt.get("key")
                                 if mkey == "h2h":
@@ -370,14 +443,21 @@ def obtener_cuotas_multicasa_y_dutcher(ligas_activas_odds, mapa_kambi):
                                             listas_consenso["1"].append(pr)
                                             if pr > mejores["1"]["odd"]:
                                                 mejores["1"] = {"odd": pr, "casa": nombre_casa}
+                                            if es_familia_betano:
+                                                cuota_betano_ref["1"] = pr
+                                                cuota_betano_ref["casa"] = nombre_casa
                                         elif nm == a_team:
                                             listas_consenso["2"].append(pr)
                                             if pr > mejores["2"]["odd"]:
                                                 mejores["2"] = {"odd": pr, "casa": nombre_casa}
+                                            if es_familia_betano:
+                                                cuota_betano_ref["2"] = pr
                                         else:
                                             listas_consenso["X"].append(pr)
                                             if pr > mejores["X"]["odd"]:
                                                 mejores["X"] = {"odd": pr, "casa": nombre_casa}
+                                            if es_familia_betano:
+                                                cuota_betano_ref["X"] = pr
                                 elif mkey == "totals":
                                     for out in mkt.get("outcomes", []):
                                         pt = float(out.get("point", 0))
@@ -388,15 +468,20 @@ def obtener_cuotas_multicasa_y_dutcher(ligas_activas_odds, mapa_kambi):
                                                 listas_consenso["over_25"].append(pr)
                                                 if pr > mejores["over_25"]["odd"]:
                                                     mejores["over_25"] = {"odd": pr, "casa": nombre_casa}
+                                                if es_familia_betano:
+                                                    cuota_betano_ref["over_25"] = pr
                                             elif "under" in nm:
                                                 listas_consenso["under_25"].append(pr)
                                                 if pr > mejores["under_25"]["odd"]:
                                                     mejores["under_25"] = {"odd": pr, "casa": nombre_casa}
+                                                if es_familia_betano:
+                                                    cuota_betano_ref["under_25"] = pr
 
                         if listas_consenso["1"] and listas_consenso["2"]:
                             datos_odds[key_ev] = {
                                 "home": h_team, "away": a_team,
                                 "mejores": mejores,
+                                "betano_ref": cuota_betano_ref,
                                 "avg_1": float(np.mean(listas_consenso["1"])),
                                 "avg_X": float(np.mean(listas_consenso["X"])) if listas_consenso["X"] else 3.40,
                                 "avg_2": float(np.mean(listas_consenso["2"])),
@@ -412,40 +497,36 @@ def obtener_cuotas_multicasa_y_dutcher(ligas_activas_odds, mapa_kambi):
         except Exception:
             pass
 
-    # Fusionar cuotas directas de Kambi (Betsson/Inkabet Perú) para potenciar SureBets
+    # Fusionar Kambi Perú (Betsson/Inkabet)
     for k_kambi, val_kambi in mapa_kambi.items():
         ck = val_kambi["cuotas"]
         if k_kambi in datos_odds:
             mej = datos_odds[k_kambi]["mejores"]
+            b_ref = datos_odds[k_kambi].setdefault("betano_ref", {})
             for m_key in ["1", "X", "2", "over_25", "under_25"]:
+                if ck.get(m_key, 0.0) > 1.01:
+                    b_ref[m_key] = ck[m_key]
+                    b_ref["casa"] = "Betsson/Inkabet PE"
                 if ck.get(m_key, 0.0) > mej.get(m_key, {}).get("odd", 0.0):
-                    mej[m_key] = {"odd": ck[m_key], "casa": "Betsson/Inkabet (Kambi)"}
-        else:
-            c1 = ck.get("1", 0.0)
-            cx = ck.get("X", 3.30)
-            c2 = ck.get("2", 0.0)
-            co = ck.get("over_25", 1.90)
-            cu = ck.get("under_25", 1.90)
-            if c1 > 1.05 and c2 > 1.05:
-                datos_odds[k_kambi] = {
-                    "home": val_kambi["home"], "away": val_kambi["away"],
-                    "mejores": {
-                        "1": {"odd": c1, "casa": "Betsson/Inkabet"},
-                        "X": {"odd": cx, "casa": "Betsson/Inkabet"},
-                        "2": {"odd": c2, "casa": "Betsson/Inkabet"},
-                        "over_25": {"odd": co, "casa": "Betsson/Inkabet"},
-                        "under_25": {"odd": cu, "casa": "Betsson/Inkabet"}
-                    },
-                    "avg_1": c1, "avg_X": cx, "avg_2": c2, "avg_o25": co, "avg_u25": cu
-                }
+                    mej[m_key] = {"odd": ck[m_key], "casa": "Betsson/Inkabet PE"}
+
+    # Prioridad Absoluta: Si Scrapling capturó Betano Perú en directo, inyectar cuota exacta de Betano
+    for k_bet, val_bet in mapa_betano.items():
+        cb = val_bet["cuotas"]
+        if k_bet in datos_odds:
+            b_ref = datos_odds[k_bet].setdefault("betano_ref", {})
+            mej = datos_odds[k_bet]["mejores"]
+            for m_key in ["1", "X", "2", "over_25", "under_25", "btts_si"]:
+                if cb.get(m_key, 0.0) > 1.01:
+                    b_ref[m_key] = cb[m_key]
+                    b_ref["casa"] = "🟢 Betano Perú (En Vivo)"
+                    if m_key in mej and cb[m_key] > mej[m_key].get("odd", 0.0):
+                        mej[m_key] = {"odd": cb[m_key], "casa": "Betano Perú"}
 
     return datos_odds, creditos_restantes
 
 
 def emparejar_partido_seguro(local_espn, visita_espn, mapa_odds):
-    """
-    Evita cruces falsos entre equipos con prefijos similares (ej. Man City vs Man United).
-    """
     nl = normalizar_texto_equipo(local_espn)
     nv = normalizar_texto_equipo(visita_espn)
     key_exacta = f"{nl}_{nv}"
@@ -498,7 +579,6 @@ def calcular_dutcher_y_oddsmatcher(partido, liga, dia_tag, info_odds, bankroll_r
         return resultados_ninja
     mej = info_odds.get("mejores", {})
 
-    # 1. Evaluación 2-Vías: Más de 2.5 Goles vs Menos de 2.5 Goles
     o25 = mej.get("over_25", {}).get("odd", 0.0)
     casa_o25 = mej.get("over_25", {}).get("casa", "Casa A")
     u25 = mej.get("under_25", {}).get("odd", 0.0)
@@ -528,7 +608,6 @@ def calcular_dutcher_y_oddsmatcher(partido, liga, dia_tag, info_odds, bankroll_r
                 "cuota_2": u25
             })
 
-    # 2. Evaluación 1 vs X2 Sintético
     c1 = mej.get("1", {}).get("odd", 0.0)
     casa_1 = mej.get("1", {}).get("casa", "Casa A")
     cx = mej.get("X", {}).get("odd", 0.0)
@@ -563,15 +642,7 @@ def calcular_dutcher_y_oddsmatcher(partido, liga, dia_tag, info_odds, bankroll_r
 
 
 def filtrar_surebets_prioritarias(oportunidades_ninja):
-    """
-    Filtra las SureBets matemáticas (Rating >= 100%) o arbitrajes de bonos top
-    para disparar alerta prioritaria en Telegram.
-    """
-    surebets_accionables = []
-    for nop in oportunidades_ninja:
-        if nop.get("es_surebet") or nop.get("rating_pct", 0.0) >= 100.0:
-            surebets_accionables.append(nop)
-    return surebets_accionables
+    return [nop for nop in oportunidades_ninja if nop.get("es_surebet") or nop.get("rating_pct", 0.0) >= 100.0]
 
 
 # ==============================================================================
@@ -726,9 +797,9 @@ def clasificar_cambios_y_retiros(picks_finales, partidos_espn):
 
         es_fija = (
             pk["categoria"] not in ("FALTAS", "TARJETAS")
-            and 1.48 <= pk["cuota"] <= 1.85
+            and 1.45 <= pk["cuota"] <= 1.85
             and pk["prob_real"] >= 64.0
-            and pk["edge"] >= 2.4
+            and pk["edge"] >= 2.2
         )
         pk["es_fija_hoy"] = es_fija
 
@@ -800,7 +871,7 @@ def clasificar_cambios_y_retiros(picks_finales, partidos_espn):
 
 
 # ==============================================================================
-# 7. ESCÁNER DE PARTIDOS ESPN Y GENERACIÓN DEL PORTAFOLIO
+# 7. ESCÁNER DE PARTIDOS ESPN Y GENERACIÓN DEL CATÁLOGO TOTAL (SIN EMBUDO CIEGO)
 # ==============================================================================
 def descargar_calendario_espn():
     partidos = []
@@ -874,21 +945,23 @@ def descargar_calendario_espn():
     return unicos
 
 
-def ejecutar_iabet_pro_33():
+def ejecutar_iabet_pro_34():
     t0 = time.time()
-    print("🚀 Iniciando IABET Pro 3.3 (Launch Edition: ValueBets + Ninja SureBets)...")
+    print("🚀 Iniciando IABET Pro 3.4 (Betano Real-Time Sync + Radar Total Sin Embudo)...")
 
     auditoria = cargar_y_sincronizar_auditoria()
     intel_ninja = extraer_inteligencia_ninjabet()
     db_csv = descargar_bases_csv()
+    mapa_betano = extraer_cuotas_betano_scrapling()
     mapa_kambi = extraer_cuotas_kambi_scrapling()
     partidos_espn = descargar_calendario_espn()
 
     ligas_activas = [p["odds_key"] for p in partidos_espn if p.get("odds_key")]
-    mapa_odds, creditos_api = obtener_cuotas_multicasa_y_dutcher(ligas_activas, mapa_kambi)
+    mapa_odds, creditos_api = obtener_cuotas_multicasa_y_betano(ligas_activas, mapa_betano, mapa_kambi)
 
     candidatos_value = []
     oportunidades_ninja = []
+    catalogo_completo_partidos = []
 
     for p in partidos_espn:
         st_l = buscar_equipo_csv(p["local"], db_csv)
@@ -915,12 +988,14 @@ def ejecutar_iabet_pro_33():
         p1, px, p2, po15, po25, pu35, pbtts = simular_partido_montecarlo_1m(lam_l, lam_v, N_SIMS)
 
         if info_mkt:
-            c_1 = info_mkt["mejores"]["1"]["odd"] or info_mkt["avg_1"]
-            c_x = info_mkt["mejores"]["X"]["odd"] or info_mkt["avg_X"]
-            c_2 = info_mkt["mejores"]["2"]["odd"] or info_mkt["avg_2"]
-            c_o25 = info_mkt["mejores"]["over_25"]["odd"] or info_mkt["avg_o25"]
-            c_u25 = info_mkt["mejores"]["under_25"]["odd"] or info_mkt["avg_u25"]
-            casa_ref = info_mkt["mejores"]["1"]["casa"]
+            b_ref = info_mkt.get("betano_ref", {})
+            c_1 = b_ref.get("1") or info_mkt["mejores"]["1"]["odd"] or info_mkt["avg_1"]
+            c_x = b_ref.get("X") or info_mkt["mejores"]["X"]["odd"] or info_mkt["avg_X"]
+            c_2 = b_ref.get("2") or info_mkt["mejores"]["2"]["odd"] or info_mkt["avg_2"]
+            c_o25 = b_ref.get("over_25") or info_mkt["mejores"]["over_25"]["odd"] or info_mkt["avg_o25"]
+            c_u25 = b_ref.get("under_25") or info_mkt["mejores"]["under_25"]["odd"] or info_mkt["avg_u25"]
+            casa_ref = b_ref.get("casa") or info_mkt["mejores"]["1"]["casa"]
+
             inv_1x2 = (1.0 / info_mkt["avg_1"]) + (1.0 / info_mkt["avg_X"]) + (1.0 / info_mkt["avg_2"])
             mkt_p1 = (1.0 / info_mkt["avg_1"]) / inv_1x2
             mkt_px = (1.0 / info_mkt["avg_X"]) / inv_1x2
@@ -938,17 +1013,58 @@ def ejecutar_iabet_pro_33():
 
         p_1x = p1 + px
         p_x2 = p2 + px
-        c_1x = round(1.0 / ((1.0 / c_1) + (1.0 / c_x)), 2) if (c_1 > 1.05 and c_x > 1.05) else 1.35
-        c_x2 = round(1.0 / ((1.0 / c_2) + (1.0 / c_x)), 2) if (c_2 > 1.05 and c_x > 1.05) else 1.48
-        c_btts_si = round(1.0 / max(0.22, pbtts * 0.96), 2)
+        c_1x = round(1.0 / ((1.0 / c_1) + (1.0 / c_x)), 2) if (c_1 > 1.05 and c_x > 1.05) else round(1.0 / max(0.20, p_1x * 1.05), 2)
+        c_x2 = round(1.0 / ((1.0 / c_2) + (1.0 / c_x)), 2) if (c_2 > 1.05 and c_x > 1.05) else round(1.0 / max(0.20, p_x2 * 1.05), 2)
+        c_o15 = round(1.0 / max(0.25, po15 * 1.04), 2)
+        c_u35 = round(1.0 / max(0.25, pu35 * 1.04), 2)
+        c_btts_si = round(1.0 / max(0.22, pbtts * 0.97), 2)
 
+        # SOLUCIÓN 2: Guardar TODOS los mercados de TODOS los partidos para la Caja de Consulta Libre
+        mercados_radar_completo = [
+            {"nombre": "Gana Local (1)", "cat": "1X2", "prob": round(p1 * 100.0, 1), "justa": round(1.0 / max(0.08, p1), 2), "cuota_ref": round(c_1, 2)},
+            {"nombre": "Gana Visita (2)", "cat": "1X2", "prob": round(p2 * 100.0, 1), "justa": round(1.0 / max(0.08, p2), 2), "cuota_ref": round(c_2, 2)},
+            {"nombre": "Local o Empate (1X)", "cat": "DOBLE OPORTUNIDAD", "prob": round(p_1x * 100.0, 1), "justa": round(1.0 / max(0.10, p_1x), 2), "cuota_ref": round(c_1x, 2)},
+            {"nombre": "Visita o Empate (X2)", "cat": "DOBLE OPORTUNIDAD", "prob": round(p_x2 * 100.0, 1), "justa": round(1.0 / max(0.10, p_x2), 2), "cuota_ref": round(c_x2, 2)},
+            {"nombre": "Más de 1.5 Goles (Over 1.5)", "cat": "GOLES", "prob": round(po15 * 100.0, 1), "justa": round(1.0 / max(0.10, po15), 2), "cuota_ref": round(c_o15, 2)},
+            {"nombre": "Más de 2.5 Goles (Over 2.5)", "cat": "GOLES", "prob": round(po25 * 100.0, 1), "justa": round(1.0 / max(0.10, po25), 2), "cuota_ref": round(c_o25, 2)},
+            {"nombre": "Menos de 2.5 Goles (Under 2.5)", "cat": "GOLES", "prob": round((1.0 - po25) * 100.0, 1), "justa": round(1.0 / max(0.10, 1.0 - po25), 2), "cuota_ref": round(c_u25, 2)},
+            {"nombre": "Menos de 3.5 Goles (Under 3.5)", "cat": "GOLES", "prob": round(pu35 * 100.0, 1), "justa": round(1.0 / max(0.10, pu35), 2), "cuota_ref": round(c_u35, 2)},
+            {"nombre": "Ambos Equipos Anotan (Sí)", "cat": "BTTS", "prob": round(pbtts * 100.0, 1), "justa": round(1.0 / max(0.10, pbtts), 2), "cuota_ref": round(c_btts_si, 2)}
+        ]
+
+        if tiene_csv:
+            prob_u_cor = 0.685 if media_cor <= 8.8 else (0.55 if media_cor <= 10.0 else 0.42)
+            prob_o_cor = 0.665 if media_cor >= 11.0 else (0.54 if media_cor >= 9.8 else 0.40)
+            prob_u_sot = 0.675 if media_sot <= 7.6 else (0.54 if media_sot <= 8.8 else 0.42)
+            prob_o_sot = 0.660 if media_sot >= 9.6 else (0.55 if media_sot >= 8.5 else 0.42)
+            mercados_radar_completo.extend([
+                {"nombre": f"Menos de 10.5 Córners (Media: {media_cor:.1f})", "cat": "CORNERS", "prob": round(prob_u_cor * 100.0, 1), "justa": round(1.0 / prob_u_cor, 2), "cuota_ref": 1.62},
+                {"nombre": f"Más de 9.5 Córners (Media: {media_cor:.1f})", "cat": "CORNERS", "prob": round(prob_o_cor * 100.0, 1), "justa": round(1.0 / prob_o_cor, 2), "cuota_ref": 1.66},
+                {"nombre": f"Menos de 9.5 Tiros al Arco (Media: {media_sot:.1f})", "cat": "TIROS AL ARCO", "prob": round(prob_u_sot * 100.0, 1), "justa": round(1.0 / prob_u_sot, 2), "cuota_ref": 1.64},
+                {"nombre": f"Más de 8.5 Tiros al Arco (Media: {media_sot:.1f})", "cat": "TIROS AL ARCO", "prob": round(prob_o_sot * 100.0, 1), "justa": round(1.0 / prob_o_sot, 2), "cuota_ref": 1.68}
+            ])
+
+        catalogo_completo_partidos.append({
+            "event_id": p["event_id"],
+            "partido": p["partido"],
+            "liga": p["liga"],
+            "dia_tag": p["dia_tag"],
+            "lam_l": round(lam_l, 2),
+            "lam_v": round(lam_v, 2),
+            "casa_ref": casa_ref,
+            "mercados": mercados_radar_completo
+        })
+
+        # Evaluar candidatos para las Tarjetas Principales (Piso desbloqueado desde 1.25)
         mercados_evaluar = [
             ("Gana Local (1)", "1X2", p1, c_1, True),
             ("Gana Visita (2)", "1X2", p2, c_2, True),
             ("Local o Empate (1X)", "DOBLE OPORTUNIDAD", p_1x, c_1x, True),
             ("Visita o Empate (X2)", "DOBLE OPORTUNIDAD", p_x2, c_x2, True),
+            ("Más de 1.5 Goles (Over 1.5)", "GOLES", po15, c_o15, True),
             ("Más de 2.5 Goles (Over 2.5)", "GOLES", po25, c_o25, True),
             ("Menos de 2.5 Goles (Under 2.5)", "GOLES", 1.0 - po25, c_u25, True),
+            ("Menos de 3.5 Goles (Under 3.5)", "GOLES", pu35, c_u35, True),
             ("Ambos Equipos Anotan (Sí)", "BTTS", pbtts, c_btts_si, True)
         ]
 
@@ -968,23 +1084,28 @@ def ejecutar_iabet_pro_33():
                 continue
             prob_imp = 1.0 / cuota_m
             edge = (prob_r - prob_imp) * 100.0
-            if edge < 2.2 or edge > 14.5:
+            if edge < 1.8 or edge > 15.0:
                 continue
 
             prob_pct = prob_r * 100.0
             kelly_puro_pct = max(0.0, KELLY_FRAC * ((prob_r * cuota_m - 1.0) / (cuota_m - 1.0)) * 100.0)
 
-            if permite_s and prob_pct >= 66.0 and cuota_m <= 1.75 and edge >= 2.5:
+            # Clasificación inteligente incluyendo "🔗 BASE COMBINADA (@1.25 - @1.44)"
+            if permite_s and prob_pct >= 65.5 and 1.45 <= cuota_m <= 1.78 and edge >= 2.2:
                 tier_lbl = "💎 TIER S (Fija Blindada)"
                 tier_ord = 1
                 stake_pct = min(4.50, max(3.00, round(kelly_puro_pct, 2)))
-            elif prob_pct >= 58.0 and edge >= 2.8:
-                tier_lbl = "🥇 TIER A (Fuerte +EV)"
+            elif prob_pct >= 75.0 and 1.25 <= cuota_m < 1.45 and edge >= 1.8:
+                tier_lbl = "🔗 BASE COMBINADA (Alta Prob.)"
                 tier_ord = 2
-                stake_pct = min(3.50, max(2.00, round(kelly_puro_pct, 2)))
-            elif prob_pct >= 52.0 and edge >= 3.2:
-                tier_lbl = "🥈 TIER B (Valor Matemático)"
+                stake_pct = min(4.00, max(2.50, round(kelly_puro_pct, 2)))
+            elif prob_pct >= 58.0 and cuota_m >= 1.45 and edge >= 2.5:
+                tier_lbl = "🥇 TIER A (Fuerte +EV)"
                 tier_ord = 3
+                stake_pct = min(3.50, max(2.00, round(kelly_puro_pct, 2)))
+            elif prob_pct >= 52.0 and cuota_m >= 1.50 and edge >= 3.0:
+                tier_lbl = "🥈 TIER B (Valor Matemático)"
+                tier_ord = 4
                 stake_pct = 2.00
             else:
                 continue
@@ -1012,11 +1133,19 @@ def ejecutar_iabet_pro_33():
                 "stake": stake_base_100,
                 "tier_label": tier_lbl,
                 "tier_orden": tier_ord,
+                "es_combinable": (1.25 <= cuota_m < 1.48 and prob_pct >= 73.0),
                 "casa_ref": casa_ref,
                 "l5": l5_pct, "l10": l10_pct, "l20": l20_pct,
                 "lam_l": round(lam_l, 2), "lam_v": round(lam_v, 2),
-                "fuente_tag": "ESPN + OddsAPI + CSV L20" if tiene_csv else "ESPN + Consenso B2B"
+                "fuente_tag": "ESPN + Betano/OddsAPI + CSV L20" if tiene_csv else "ESPN + Consenso B2B"
             })
+
+    # Guardar el catálogo completo de partidos analizados sin recorte
+    try:
+        with open(ARCHIVO_TODOS_ANALISIS, "w", encoding="utf-8") as f:
+            json.dump(catalogo_completo_partidos, f, ensure_ascii=False, indent=2)
+    except Exception:
+        pass
 
     candidatos_value.sort(key=lambda x: (x["tier_orden"], -x["prob_real"], -x["edge"]))
     picks_finales = []
@@ -1026,12 +1155,12 @@ def ejecutar_iabet_pro_33():
         if pk["event_id"] in partidos_usados:
             continue
         cat = pk["categoria"]
-        if conteo_cat.get(cat, 0) >= 5:
+        if conteo_cat.get(cat, 0) >= 6:
             continue
         partidos_usados.add(pk["event_id"])
         conteo_cat[cat] = conteo_cat.get(cat, 0) + 1
         picks_finales.append(pk)
-        if len(picks_finales) >= 15:
+        if len(picks_finales) >= 24:
             break
 
     oportunidades_ninja.sort(key=lambda x: -x["rating_pct"])
@@ -1060,18 +1189,21 @@ def ejecutar_iabet_pro_33():
     with open(ARCHIVO_AUDITORIA, "w", encoding="utf-8") as f:
         json.dump(auditoria, f, ensure_ascii=False, indent=2)
 
-    generar_dashboard_web(picks_finales, picks_retirados, oportunidades_ninja, auditoria, intel_ninja, creditos_api)
+    generar_dashboard_web(
+        picks_finales, picks_retirados, oportunidades_ninja,
+        auditoria, intel_ninja, creditos_api, catalogo_completo_partidos
+    )
     enviar_alerta_filtrada_telegram(
         picks_finales, nuevos_picks, picks_modificados,
         picks_retirados, fijas_del_dia, oportunidades_ninja, auditoria
     )
-    print(f"✅ IABET Pro 3.3 listo en {time.time() - t0:.1f}s | ValuePicks: {len(picks_finales)} | NinjaOps: {len(oportunidades_ninja)}")
+    print(f"✅ IABET Pro 3.4 listo en {time.time() - t0:.1f}s | Partidos Radar Total: {len(catalogo_completo_partidos)} | Tarjetas Top: {len(picks_finales)}")
 
 
 # ==============================================================================
-# 8. GENERADOR DEL DASHBOARD WEB SAAS (CON MODO SUREBET + FREEBET SNR)
+# 8. GENERADOR DEL DASHBOARD WEB SAAS (CON RADAR TOTAL LIBRE Y ARMADOR DE COMBINADAS)
 # ==============================================================================
-def generar_dashboard_web(picks, retirados, ninja_ops, auditoria, intel_ninja, creditos_api):
+def generar_dashboard_web(picks, retirados, ninja_ops, auditoria, intel_ninja, creditos_api, catalogo_total):
     hora_act = datetime.now(ZONA_PERU).strftime("%d/%m/%Y %H:%M (Hora Perú)")
 
     alerta_retirados_html = ""
@@ -1089,13 +1221,15 @@ def generar_dashboard_web(picks, retirados, ninja_ops, auditoria, intel_ninja, c
 
     tarjetas_html = []
     for idx, pk in enumerate(picks):
-        borde_color = "#10b981" if pk["tier_orden"] == 1 else ("#f59e0b" if pk["tier_orden"] == 2 else "#3b82f6")
+        borde_color = "#10b981" if pk["tier_orden"] == 1 else ("#a855f7" if pk["tier_orden"] == 2 else ("#f59e0b" if pk["tier_orden"] == 3 else "#3b82f6"))
         badge_vivo = f'<span class="live-pill">📡 EN VIVO ({pk["detalle_vivo"]}: {pk["marcador_vivo"]})</span>' if pk["estado"] == "in" else f'<span class="date-pill">📅 {pk["dia_tag"]}</span>'
         alerta_tag = pk.get("estado_alerta", "✅ CONFIRMADA")
         col_alerta = "#38bdf8" if "NUEVA" in alerta_tag else ("#f59e0b" if "MODIFICADA" in alerta_tag or "CAMBIADO" in alerta_tag or "RECALIBRADO" in alerta_tag else "#94a3b8")
+        partido_esc = pk["partido"].replace("'", "")
+        mercado_esc = pk["mercado"].replace("'", "")
 
         tarjetas_html.append(f"""
-        <div class="card pick-card" data-dia="{pk['filtro_dia']}" data-cat="{pk['categoria']}" style="border-top: 4px solid {borde_color};">
+        <div class="card pick-card" data-dia="{pk['filtro_dia']}" data-cat="{pk['categoria']}" data-comb="{'SI' if pk['es_combinable'] else 'NO'}" style="border-top: 4px solid {borde_color};">
             <div class="card-top">
                 <span class="tier-badge" style="background:{borde_color}22; color:{borde_color}; border:1px solid {borde_color}55;">{pk['tier_label']}</span>
                 {badge_vivo}
@@ -1122,18 +1256,19 @@ def generar_dashboard_web(picks, retirados, ninja_ops, auditoria, intel_ninja, c
                 Ganancia Neta con tu Banca: <b class="dynamic-profit" data-stake-pct="{pk['stake_pct']}" data-cuota="{pk['cuota']}" style="color:#10b981;">+S/ {(pk['stake'] * (pk['cuota'] - 1.0)):.2f}</b> · Consenso: L5 {pk['l5']}% | L10 {pk['l10']}% | L20 {pk['l20']}%
             </div>
             <div class="calc-box">
-                <label>🧮 Verificador Anti-Trampa + Stake Personalizado (Escribe la cuota de tu casa):</label>
+                <label>🧮 Verificador Anti-Trampa Betano (Escribe la cuota que ves en tu app):</label>
                 <div class="calc-row">
-                    <input type="number" step="0.01" placeholder="Ej: {pk['cuota']:.2f}" oninput="verificarCuotaCasa(this, {pk['prob_real']}, {pk['cuota_justa']}, {pk['stake_pct']}, 'res-calc-{idx}')">
-                    <span id="res-calc-{idx}" class="calc-status">Ingresa cuota para calcular tu apuesta...</span>
+                    <input id="inp-card-{idx}" type="number" step="0.01" value="{pk['cuota']:.2f}" oninput="verificarCuotaCasa(this, {pk['prob_real']}, {pk['cuota_justa']}, {pk['stake_pct']}, 'res-calc-{idx}')">
+                    <button class="preset-btn" onclick="agregarDesdeTarjeta('{partido_esc}', '{mercado_esc}', {pk['prob_real']}, 'inp-card-{idx}')" title="Sumar al Armador de Combinadas">➕ Combinar</button>
                 </div>
+                <div id="res-calc-{idx}" class="calc-status" style="margin-top:5px;">Ref: {pk['casa_ref']} · Ajusta la cuota arriba para verificar en Betano.</div>
             </div>
             <details class="tactical-acc">
                 <summary>🔬 Ver Estado de Alerta y Telemetría ESPN en Vivo</summary>
                 <div class="acc-body">
                     <p>• <b>Estado del Escáner:</b> {pk.get('detalle_cambio', '')}</p>
                     <p>• <b>Proyección xG / Lambda:</b> Local {pk['lam_l']} vs Visita {pk['lam_v']} ({pk['fuente_tag']})</p>
-                    <p>• <b>Cuota Mínima Rentable:</b> No entrar si baja de <b>@{max(1.40, round(pk['cuota_justa'] * 1.02, 2)):.2f}</b></p>
+                    <p>• <b>Cuota Mínima Rentable:</b> No entrar en simple si baja de <b>@{max(1.25, round(pk['cuota_justa'] * 1.02, 2)):.2f}</b></p>
                     <div id="live-box-{pk['event_id']}" class="live-telemetry">Sincronizando telemetría con ESPN Summary API...</div>
                 </div>
             </details>
@@ -1185,13 +1320,14 @@ def generar_dashboard_web(picks, retirados, ninja_ops, auditoria, intel_ninja, c
         """)
 
     ids_eventos_json = json.dumps([p["event_id"] for p in picks])
+    catalogo_total_json = json.dumps(catalogo_total, ensure_ascii=False)
 
     html_completo = f"""<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>⚡ IABET Pro 3.3 — Suite Cuantitativa & Arbitraje Ninja</title>
+    <title>⚡ IABET Pro 3.4 — Betano Sync, Radar Libre & Armador de Combinadas</title>
     <style>
         :root {{ --bg:#0b0f19; --card:#131b2e; --border:#1e293b; --text:#f8fafc; --muted:#94a3b8; --accent:#10b981; --blue:#38bdf8; }}
         * {{ box-sizing:border-box; font-family:'Inter',system-ui,-apple-system,sans-serif; }}
@@ -1204,11 +1340,15 @@ def generar_dashboard_web(picks, retirados, ninja_ops, auditoria, intel_ninja, c
         .stat-pill {{ background:#0f172a; border:1px solid var(--border); padding:8px 13px; border-radius:10px; text-align:center; }}
         .stat-pill span {{ display:block; font-size:0.7rem; color:var(--muted); }}
         .stat-pill strong {{ font-size:1rem; color:var(--accent); }}
-        .bankroll-banner {{ background:linear-gradient(90deg, #0f172a, #1e293b); border:1px solid #38bdf866; border-radius:14px; padding:14px 18px; margin-bottom:16px; display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:12px; }}
+        .bankroll-banner {{ background:linear-gradient(90deg, #0f172a, #1e293b); border:1px solid #38bdf866; border-radius:14px; padding:14px 18px; margin-bottom:14px; display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:12px; }}
         .bankroll-controls {{ display:flex; flex-wrap:wrap; align-items:center; gap:8px; }}
         .bank-input {{ width:125px; padding:8px 10px; border-radius:8px; border:2px solid var(--blue); background:#0b0f19; color:#fff; font-size:1.05rem; font-weight:800; }}
         .preset-btn {{ background:#1e293b; color:#e2e8f0; border:1px solid #475569; padding:6px 10px; border-radius:8px; cursor:pointer; font-size:0.78rem; font-weight:600; }}
         .preset-btn:hover {{ border-color:var(--blue); color:var(--blue); }}
+        .free-radar-box {{ background:#111827; border:1px solid #a855f766; border-radius:14px; padding:16px; margin-bottom:16px; }}
+        .free-radar-grid {{ display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:10px; align-items:end; margin-top:10px; }}
+        .free-radar-grid select, .free-radar-grid input {{ width:100%; padding:9px; border-radius:8px; background:#0b0f19; color:#fff; border:1px solid #334155; font-size:0.86rem; }}
+        .parlay-box {{ background:#0f172a; border:1px dashed #38bdf8; border-radius:12px; padding:12px 15px; margin-top:12px; }}
         .tabs {{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px; }}
         .tab-btn {{ background:var(--card); color:var(--text); border:1px solid var(--border); padding:10px 16px; border-radius:10px; cursor:pointer; font-weight:600; }}
         .tab-btn.active {{ background:var(--accent); color:#042f2e; border-color:var(--accent); }}
@@ -1245,8 +1385,8 @@ def generar_dashboard_web(picks, retirados, ninja_ops, auditoria, intel_ninja, c
 <div class="container">
     <div class="header">
         <div class="brand">
-            <h1>⚡ IABET Pro 3.3 <span style="font-size:0.78rem; background:#10b98122; color:#10b981; border:1px solid #10b98155; padding:3px 8px; border-radius:6px;">QUANT + NINJA SUITE</span></h1>
-            <small>Actualizado: {hora_act} · Motor: {intel_ninja['motor_scrapling']} · Créditos API: {creditos_api}</small>
+            <h1>⚡ IABET Pro 3.4 <span style="font-size:0.78rem; background:#10b98122; color:#10b981; border:1px solid #10b98155; padding:3px 8px; border-radius:6px;">BETANO SYNC + RADAR 100% CARTELERA</span></h1>
+            <small>Actualizado: {hora_act} · Partidos Analizados Hoy/Mañana: {len(catalogo_total)} · Créditos API: {creditos_api}</small>
         </div>
         <div class="stats-bar">
             <div class="stat-pill"><span>Win Rate Auditado</span><strong>{auditoria['win_rate']:.1f}% ({auditoria['ganados']}W-{auditoria['perdidos']}L)</strong></div>
@@ -1260,7 +1400,7 @@ def generar_dashboard_web(picks, retirados, ninja_ops, auditoria, intel_ninja, c
         <div>
             <strong style="color:#38bdf8; font-size:1rem;">💰 Configura Tu Banca Personal de Operación (S/):</strong>
             <div style="font-size:0.8rem; color:var(--muted); margin-top:2px;">
-                Ingresa tu capital actual. Todos los montos recomendados (<i>Stake Kelly</i> y <i>Ninja Dutcher</i>) se ajustan automáticamente a tu bolsillo sin alterar el Historial Auditado.
+                Ingresa tu capital actual. Todos los montos recomendados (<i>Stake Kelly</i>, <i>Combinadas</i> y <i>Ninja Dutcher</i>) se ajustan a tu bolsillo sin alterar el Historial Auditado.
             </div>
         </div>
         <div class="bankroll-controls">
@@ -1271,6 +1411,48 @@ def generar_dashboard_web(picks, retirados, ninja_ops, auditoria, intel_ninja, c
             <button class="preset-btn" onclick="fijarBancaRapida(250)">S/ 250</button>
             <button class="preset-btn" onclick="fijarBancaRapida(500)">S/ 500</button>
             <button class="preset-btn" onclick="fijarBancaRapida(1000)">S/ 1,000</button>
+        </div>
+    </div>
+
+    <!-- SOLUCIÓN 2: VERIFICADOR LIBRE DEL 100% DE LA CARTELERA + ARMADOR DE COMBINADAS BETANO -->
+    <div class="free-radar-box">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+            <div>
+                <strong style="color:#d8b4fe; font-size:1rem;">🔍 Radar Libre Anti-Embudo (Consulta CUALQUIER Partido del Día y Arma tu Combinada Betano):</strong>
+                <div style="font-size:0.79rem; color:var(--muted); margin-top:2px;">
+                    ¿Un partido no salió en las tarjetas principales porque la API tenía cuota baja, pero en tu Betano paga bien? Selecciónalo aquí de los <b>{len(catalogo_total)} partidos analizados hoy</b>:
+                </div>
+            </div>
+        </div>
+        <div class="free-radar-grid">
+            <div>
+                <label style="font-size:0.74rem; color:var(--muted);">1. Elige cualquier Partido ({len(catalogo_total)} disponibles):</label>
+                <select id="radar-match-select" onchange="cargarMercadosRadarLibre()"></select>
+            </div>
+            <div>
+                <label style="font-size:0.74rem; color:var(--muted);">2. Elige el Mercado calculado por IABET:</label>
+                <select id="radar-market-select" onchange="evaluarRadarLibre()"></select>
+            </div>
+            <div>
+                <label style="font-size:0.74rem; color:var(--muted);">3. Escribe la Cuota Real de tu Betano:</label>
+                <input id="radar-betano-odd" type="number" step="0.01" placeholder="Ej: 1.52" oninput="evaluarRadarLibre()">
+            </div>
+            <div style="display:flex; gap:8px;">
+                <button class="tab-btn active" style="width:100%; padding:9px;" onclick="agregarAlArmadorCombinada()">➕ Sumar a Mi Combinada</button>
+            </div>
+        </div>
+        <div id="radar-libre-resultado" style="margin-top:10px; padding:9px 12px; background:#0b0f19; border-radius:8px; font-size:0.84rem; font-weight:700; color:#38bdf8;">
+            Selecciona un partido arriba para ver su Probabilidad Real y Cuota Justa sin filtros.
+        </div>
+
+        <!-- ARMADOR INTERACTIVO DE COMBINADAS (+EV) -->
+        <div id="parlay-builder-container" class="parlay-box" style="display:none;">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap;">
+                <strong style="color:#38bdf8; font-size:0.9rem;">🧩 Tu Boleto de Combinada Betano Auditado en Vivo:</strong>
+                <button class="preset-btn" onclick="limpiarCombinada()">🗑️ Vaciar Boleto</button>
+            </div>
+            <ul id="parlay-legs-list" style="margin:8px 0; padding-left:18px; font-size:0.82rem; color:#e2e8f0;"></ul>
+            <div id="parlay-summary" style="font-size:0.86rem; font-weight:700; padding-top:6px; border-top:1px solid #1e293b;"></div>
         </div>
     </div>
 
@@ -1287,6 +1469,7 @@ def generar_dashboard_web(picks, retirados, ninja_ops, auditoria, intel_ninja, c
             <button class="filter-btn" onclick="filtrarPicks('TODOS')">Todos ({len(picks)})</button>
             <button class="filter-btn" onclick="filtrarPicks('HOY')">📅 Juegan Hoy</button>
             <button class="filter-btn" onclick="filtrarPicks('MANANA')">📅 Juegan Mañana</button>
+            <button class="filter-btn" style="background:#a855f733; color:#d8b4fe; border:1px solid #a855f7;" onclick="filtrarPicks('COMBINABLE')">🔗 Especial Combinadas (@1.25 - @1.47)</button>
             <button class="filter-btn" onclick="filtrarPicks('GOLES')">⚽ Goles / BTTS</button>
             <button class="filter-btn" onclick="filtrarPicks('CORNERS')">🚩 Córners / Tiros</button>
         </div>
@@ -1363,10 +1546,156 @@ def generar_dashboard_web(picks, retirados, ninja_ops, auditoria, intel_ninja, c
 </div>
 
 <script>
+const CATALOGO_TOTAL_PARTIDOS = {catalogo_total_json};
+let BOLETO_COMBINADA = [];
+
 function obtenerBancaActualCliente() {{
     const el = document.getElementById('client-bankroll-input');
     const val = parseFloat(el ? el.value : 100);
     return (!val || val <= 0) ? 100.0 : val;
+}}
+
+function inicializarRadarLibre() {{
+    const selMatch = document.getElementById('radar-match-select');
+    if (!selMatch || !CATALOGO_TOTAL_PARTIDOS.length) return;
+    selMatch.innerHTML = '';
+    CATALOGO_TOTAL_PARTIDOS.forEach((item, idx) => {{
+        const opt = document.createElement('option');
+        opt.value = idx;
+        opt.textContent = `[${{item.liga}}] ${{item.partido}} (${{item.dia_tag}})`;
+        selMatch.appendChild(opt);
+    }});
+    cargarMercadosRadarLibre();
+}}
+
+function cargarMercadosRadarLibre() {{
+    const selMatch = document.getElementById('radar-match-select');
+    const selMkt = document.getElementById('radar-market-select');
+    const inpOdd = document.getElementById('radar-betano-odd');
+    if (!selMatch || !selMkt) return;
+    const matchObj = CATALOGO_TOTAL_PARTIDOS[parseInt(selMatch.value) || 0];
+    if (!matchObj) return;
+
+    selMkt.innerHTML = '';
+    matchObj.mercados.forEach((m, i) => {{
+        const opt = document.createElement('option');
+        opt.value = i;
+        opt.textContent = `${{m.nombre}} — Prob. Real: ${{m.prob}}% (Cuota Justa: @${{m.justa.toFixed(2)}})`;
+        selMkt.appendChild(opt);
+    }});
+    if (matchObj.mercados[0] && inpOdd) {{
+        inpOdd.value = matchObj.mercados[0].cuota_ref.toFixed(2);
+    }}
+    evaluarRadarLibre();
+}}
+
+function evaluarRadarLibre() {{
+    const selMatch = document.getElementById('radar-match-select');
+    const selMkt = document.getElementById('radar-market-select');
+    const inpOdd = document.getElementById('radar-betano-odd');
+    const resBox = document.getElementById('radar-libre-resultado');
+    if (!selMatch || !selMkt || !resBox) return;
+
+    const matchObj = CATALOGO_TOTAL_PARTIDOS[parseInt(selMatch.value) || 0];
+    if (!matchObj) return;
+    const mktObj = matchObj.mercados[parseInt(selMkt.value) || 0];
+    if (!mktObj) return;
+
+    let cuotaBetano = parseFloat(inpOdd.value);
+    if (!cuotaBetano || cuotaBetano <= 1.01) {{
+        cuotaBetano = mktObj.cuota_ref;
+    }}
+
+    const bank = obtenerBancaActualCliente();
+    const probR = mktObj.prob / 100.0;
+    const evPct = ((probR * cuotaBetano) - 1.0) * 100.0;
+    const diff = cuotaBetano - mktObj.justa;
+    const kellyPct = Math.min(4.5, Math.max(1.5, 0.20 * ((probR * cuotaBetano - 1.0) / (cuotaBetano - 1.0)) * 100.0));
+    const stakeSoles = ((bank * (evPct > 0 ? kellyPct : 1.5)) / 100.0).toFixed(2);
+
+    if (diff >= 0.32 && mktObj.cat !== '1X2' && mktObj.cat !== 'DOBLE OPORTUNIDAD') {{
+        resBox.style.color = '#ef4444';
+        resBox.innerHTML = `⚠️ ALERTA DE TRAMPA EN ${{matchObj.partido}}: Betano paga @${{cuotaBetano.toFixed(2)}} vs Cuota Justa @${{mktObj.justa.toFixed(2)}}. La casa movió la línea principal. ¡NO APOSTAR!`;
+    }} else if (evPct >= 1.2) {{
+        resBox.style.color = '#10b981';
+        resBox.innerHTML = `✅ PICK OCULTO RENTABLE: <b>${{matchObj.partido}} ➡️ ${{mktObj.nombre}}</b> a <b>@${{cuotaBetano.toFixed(2)}}</b> | Prob. Real: <b>${{mktObj.prob}}%</b> (Justa @${{mktObj.justa.toFixed(2)}}) | Ventaja: <b>+${{evPct.toFixed(1)}}% EV</b> ➡️ Apostar <b>S/ ${{stakeSoles}}</b>`;
+    }} else if (mktObj.prob >= 74.0 && cuotaBetano >= 1.24) {{
+        resBox.style.color = '#a855f7';
+        resBox.innerHTML = `🔗 APTO COMO PATA DE COMBINADA: <b>${{matchObj.partido}} ➡️ ${{mktObj.nombre}} (@${{cuotaBetano.toFixed(2)}})</b> tiene alta seguridad (<b>${{mktObj.prob}}%</b>), aunque en simple tiene margen ajustado (${{evPct.toFixed(1)}}% EV).`;
+    }} else {{
+        resBox.style.color = '#f59e0b';
+        resBox.innerHTML = `❌ SIN VALOR EN BETANO (@${{cuotaBetano.toFixed(2)}}): La cuota mínima justa es <b>@${{mktObj.justa.toFixed(2)}}</b> (EV: ${{evPct.toFixed(1)}}%). Descartar.`;
+    }}
+}}
+
+function agregarAlArmadorCombinada() {{
+    const selMatch = document.getElementById('radar-match-select');
+    const selMkt = document.getElementById('radar-market-select');
+    const inpOdd = document.getElementById('radar-betano-odd');
+    const matchObj = CATALOGO_TOTAL_PARTIDOS[parseInt(selMatch.value) || 0];
+    if (!matchObj) return;
+    const mktObj = matchObj.mercados[parseInt(selMkt.value) || 0];
+    if (!mktObj) return;
+    const cuota = parseFloat(inpOdd.value) || mktObj.cuota_ref;
+    if (cuota <= 1.01) return;
+
+    BOLETO_COMBINADA.push({{
+        partido: matchObj.partido,
+        mercado: mktObj.nombre,
+        prob: mktObj.prob,
+        cuota: cuota
+    }});
+    renderizarCombinada();
+}}
+
+function agregarDesdeTarjeta(partido, mercado, prob, inputId) {{
+    const el = document.getElementById(inputId);
+    const cuota = parseFloat(el ? el.value : 1.50);
+    if (!cuota || cuota <= 1.01) return;
+    BOLETO_COMBINADA.push({{ partido, mercado, prob, cuota }});
+    renderizarCombinada();
+    document.getElementById('parlay-builder-container').scrollIntoView({{ behavior: 'smooth' }});
+}}
+
+function limpiarCombinada() {{
+    BOLETO_COMBINADA = [];
+    renderizarCombinada();
+}}
+
+function renderizarCombinada() {{
+    const cont = document.getElementById('parlay-builder-container');
+    const ul = document.getElementById('parlay-legs-list');
+    const sum = document.getElementById('parlay-summary');
+    if (!BOLETO_COMBINADA.length) {{
+        cont.style.display = 'none';
+        return;
+    }}
+    cont.style.display = 'block';
+    ul.innerHTML = '';
+    let cuotaTotal = 1.0;
+    let probConjunta = 1.0;
+
+    BOLETO_COMBINADA.forEach((item, idx) => {{
+        cuotaTotal *= item.cuota;
+        probConjunta *= (item.prob / 100.0);
+        const li = document.createElement('li');
+        li.innerHTML = `<b>${{item.partido}}:</b> ${{item.mercado}} a <b>@${{item.cuota.toFixed(2)}}</b> (Prob. Real: ${{item.prob}}%)`;
+        ul.appendChild(li);
+    }});
+
+    const probPct = probConjunta * 100.0;
+    const cuotaJustaComb = 1.0 / Math.max(0.01, probConjunta);
+    const evComb = ((probConjunta * cuotaTotal) - 1.0) * 100.0;
+    const bank = obtenerBancaActualCliente();
+    const stakeSug = evComb > 0 ? Math.min(bank * 0.03, Math.max(bank * 0.015, bank * 0.15 * ((probConjunta * cuotaTotal - 1.0) / (cuotaTotal - 1.0)))) : (bank * 0.01);
+
+    if (evComb >= 0) {{
+        sum.style.color = '#10b981';
+        sum.innerHTML = `✅ COMBINADA RENTABLE (+EV ${{evComb.toFixed(1)}}%) | Cuota Total Betano: @${{cuotaTotal.toFixed(2)}} (Cuota Justa: @${{cuotaJustaComb.toFixed(2)}}) | Prob. Conjunta: ${{probPct.toFixed(1)}}% ➡️ Stake Recomendado: S/ ${{stakeSug.toFixed(2)}}`;
+    }} else {{
+        sum.style.color = '#ef4444';
+        sum.innerHTML = `❌ COMBINADA CON MARGEN EN CONTRA (${{evComb.toFixed(1)}}% EV) | Cuota Betano: @${{cuotaTotal.toFixed(2)}} pero su Cuota Justa real es @${{cuotaJustaComb.toFixed(2)}} (Prob. Conjunta: ${{probPct.toFixed(1)}}%). Elimina la pata con cuota castigada o usa Micro-Stake (S/ ${{stakeSug.toFixed(2)}}).`;
+    }}
 }}
 
 function fijarBancaRapida(monto) {{
@@ -1420,6 +1749,9 @@ function actualizarBancaCliente(nuevoValor) {{
         if (elS2) elS2.textContent = 'Apostar: S/ ' + s2;
         if (elProf) elProf.textContent = 'S/ ' + (net >= 0 ? '+' : '') + net.toFixed(2);
     }});
+
+    evaluarRadarLibre();
+    renderizarCombinada();
 }}
 
 function cambiarTab(id, btn) {{
@@ -1433,7 +1765,8 @@ function filtrarPicks(f) {{
     document.querySelectorAll('.pick-card').forEach(c => {{
         const dia = c.getAttribute('data-dia');
         const cat = c.getAttribute('data-cat');
-        if (f === 'TODOS' || dia === f || cat.includes(f) || (f === 'GOLES' && (cat === 'GOLES' || cat === 'BTTS')) || (f === 'CORNERS' && (cat === 'CORNERS' || cat === 'TIROS AL ARCO'))) {{
+        const comb = c.getAttribute('data-comb');
+        if (f === 'TODOS' || dia === f || (f === 'COMBINABLE' && comb === 'SI') || cat.includes(f) || (f === 'GOLES' && (cat === 'GOLES' || cat === 'BTTS')) || (f === 'CORNERS' && (cat === 'CORNERS' || cat === 'TIROS AL ARCO'))) {{
             c.style.display = 'block';
         }} else {{
             c.style.display = 'none';
@@ -1454,14 +1787,14 @@ function verificarCuotaCasa(input, probReal, cuotaJusta, stakePctBase, targetId)
     const ev = ((probReal / 100.0) * val - 1.0) * 100.0;
     const montoPersonalizado = ((bank * stakePctBase) / 100.0).toFixed(2);
 
-    if (diff >= 0.25) {{
+    if (diff >= 0.28) {{
         el.textContent = "⚠️ ALERTA DE TRAMPA: Línea movida por la casa. ¡NO APOSTAR!";
         el.style.color = "#ef4444";
-    }} else if (ev >= 1.5) {{
+    }} else if (ev >= 1.2) {{
         el.textContent = `✅ RENTABLE (+EV ${{ev.toFixed(1)}}%) ➡️ Apostar S/ ${{montoPersonalizado}} (de tu banca S/ ${{bank}})`;
         el.style.color = "#10b981";
     }} else {{
-        el.textContent = `❌ Cuota comprimida sin valor (${{ev.toFixed(1)}}%). Descartar.`;
+        el.textContent = `❌ Cuota comprimida sin valor (${{ev.toFixed(1)}}%). Descartar en simple.`;
         el.style.color = "#f59e0b";
     }}
 }}
@@ -1475,7 +1808,6 @@ function calcularDutcherManual() {{
     if (!c1 || !c2 || c1 <= 1 || c2 <= 1) return;
 
     if (modo === 'FREEBET') {{
-        // Fórmula NinjaBet SNR (Stake Not Returned): Cubrir en Casa 2 = (Bono * (c1 - 1)) / c2
         const coberturaS2 = Math.round((bank * (c1 - 1.0)) / c2);
         const gananciaSiGana1 = (bank * (c1 - 1.0)) - coberturaS2;
         const gananciaSiGana2 = coberturaS2 * (c2 - 1.0);
@@ -1496,6 +1828,7 @@ function calcularDutcherManual() {{
 }}
 
 window.addEventListener('DOMContentLoaded', () => {{
+    inicializarRadarLibre();
     try {{
         const guardada = localStorage.getItem('iabet_banca_cliente');
         if (guardada && parseFloat(guardada) > 0) {{
@@ -1544,19 +1877,17 @@ def enviar_alerta_filtrada_telegram(picks, nuevos, modificados, retirados, fijas
     es_ejecucion_manual = (os.environ.get("GITHUB_EVENT_NAME") == "workflow_dispatch")
     hay_cambios_reales = bool(surebets_puras or nuevos or modificados or retirados)
 
-    # MODO SILENCIOSO: Si es un turno automático y no hay SureBets, altas, bajas ni cambios, no saturar
     if not hay_cambios_reales and not es_ejecucion_manual:
         print("🔕 Modo Silencioso Activo: Sin SureBets, nuevas fijas, retiros ni cambios de cuota en este ciclo.")
         return
 
     hora_pe = datetime.now(ZONA_PERU).strftime("%H:%M")
     lineas = [
-        f"🚨 *RADAR DE MOVIMIENTOS IABET PRO 3.3 ({hora_pe} PE)*",
+        f"🚨 *RADAR DE MOVIMIENTOS IABET PRO 3.4 ({hora_pe} PE)*",
         f"📊 *Auditoría Oficial:* {auditoria['win_rate']:.1f}% ({auditoria['ganados']}W-{auditoria['perdidos']}L) | *ROI:* {auditoria['roi']:+.1f}%",
         f"🔔 *Resumen:* `🛡️ {len(surebets_puras)} SureBets` | `🆕 {len(nuevos)} Nuevas` | `🔄 {len(modificados)} Cambios` | `🛑 {len(retirados)} Retiros`\n"
     ]
 
-    # 0. PRIORIDAD MÁXIMA: SUREBETS DETECTADAS (ALGORITMO NINJABET 0% RIESGO)
     if surebets_puras:
         lineas.append("🛡️ *¡SUREBET DETECTADA! (GANANCIA GARANTIZADA 0% RIESGO):*")
         for idx, sb in enumerate(surebets_puras[:3], 1):
@@ -1568,7 +1899,6 @@ def enviar_alerta_filtrada_telegram(picks, nuevos, modificados, retirados, fijas
                 f"   💰 *Ganancia Segura:* `S/ {sb['profit_soles']:+.2f}` por cada S/ 100\n"
             )
 
-    # 1. ALERTA ROJA: APUESTAS RETIRADAS ANTES DEL INICIO
     if retirados:
         lineas.append("🛑 *ALERTA DE RETIRO (NO APOSTAR / EVALUAR CASH-OUT):*")
         for r in retirados[:5]:
@@ -1579,7 +1909,6 @@ def enviar_alerta_filtrada_telegram(picks, nuevos, modificados, retirados, fijas
             )
         lineas.append("")
 
-    # 2. FIJAS HABILITADAS
     fijas_con_novedad = [f for f in fijas if "CONFIRMADA" not in f.get("estado_alerta", "")]
     fijas_mostrar = fijas_con_novedad if fijas_con_novedad else (fijas if es_ejecucion_manual else [])
     if fijas_mostrar:
@@ -1592,7 +1921,6 @@ def enviar_alerta_filtrada_telegram(picks, nuevos, modificados, retirados, fijas
                 f"   💰 *Recomendación:* `{fj['stake_pct']:.1f}% de tu Banca` _(S/ {fj['stake']:.2f} por cada S/ 100)_\n"
             )
 
-    # 3. NUEVAS APUESTAS AGREGADAS
     if nuevos:
         lineas.append("🆕 *NUEVAS APUESTAS AGREGADAS AL SISTEMA:*")
         for npk in nuevos[:6]:
@@ -1603,7 +1931,6 @@ def enviar_alerta_filtrada_telegram(picks, nuevos, modificados, retirados, fijas
             )
         lineas.append("")
 
-    # 4. APUESTAS MODIFICADAS
     if modificados:
         lineas.append("🔄 *APUESTAS MODIFICADAS / AJUSTE DE LÍNEA:*")
         for mpk in modificados[:6]:
@@ -1614,7 +1941,7 @@ def enviar_alerta_filtrada_telegram(picks, nuevos, modificados, retirados, fijas
         lineas.append("")
 
     lineas.append(
-        "🧮 *Configura tu Banca Personal y usa el Dutcher en vivo:*\n"
+        "🔍 *Usa el nuevo Radar Libre del 100% de Partidos y el Armador de Combinadas Betano en la Web:*\n"
         "🌐 https://blakeffx.github.io/iabet-cloud/"
     )
 
@@ -1636,4 +1963,4 @@ def enviar_alerta_filtrada_telegram(picks, nuevos, modificados, retirados, fijas
 
 
 if __name__ == "__main__":
-    ejecutar_iabet_pro_33()
+    ejecutar_iabet_pro_34()
