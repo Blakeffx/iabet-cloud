@@ -1,390 +1,1076 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IABET Pro 2.6 | Audited AI Quant</title>
-<style>
-  :root {
-    --bg: #070b13; --card: #0f1726; --border: #1e293b;
-    --cyan: #38bdf8; --green: #10b981; --amber: #f59e0b; --red: #ef4444;
-    --text: #f8fafc; --muted: #94a3b8;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', system-ui, -apple-system, sans-serif; }
-  body { background: var(--bg); color: var(--text); padding: 14px 20px 60px; max-width: 1380px; margin: 0 auto; line-height: 1.45; }
-  .top-bar { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; padding: 10px 4px 16px; border-bottom: 1px solid var(--border); margin-bottom: 16px; }
-  .brand { font-size: 1.38rem; font-weight: 800; display: flex; align-items: center; gap: 8px; }
-  .brand span { color: var(--cyan); }
-  .nav-pills { display: flex; gap: 8px; flex-wrap: wrap; }
-  .pill-btn { background: #162032; color: #fff; border: 1px solid #26354d; padding: 8px 16px; border-radius: 999px; font-size: 0.8rem; font-weight: 700; cursor: pointer; transition: 0.2s; }
-  .pill-btn.active { background: var(--green); color: #02120a; border-color: var(--green); }
-  .badge-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
-  .badge { background: #131c2e; border: 1px solid #23324a; color: var(--cyan); font-size: 0.73rem; padding: 5px 11px; border-radius: 999px; font-weight: 600; }
-
-  .stats-summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; margin-bottom: 16px; }
-  .st-card { background: #0c1322; border: 1px solid var(--border); border-radius: 12px; padding: 12px; text-align: center; }
-  .st-title { font-size: 0.68rem; color: var(--muted); text-transform: uppercase; font-weight: 700; }
-  .st-val { font-size: 1.25rem; font-weight: 800; margin-top: 3px; }
-
-  .filters-bar { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; margin-bottom: 16px; }
-  .select-pro { background: #111927; color: var(--text); border: 1px solid #24324b; padding: 9px 12px; border-radius: 10px; font-size: 0.8rem; font-weight: 600; width: 100%; }
-
-  .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 16px; }
-  @media (max-width: 480px) { .cards-grid { grid-template-columns: 1fr; } }
-
-  .pick-card { background: var(--card); border: 1px solid var(--border); border-radius: 15px; padding: 16px; box-shadow: 0 6px 22px rgba(0,0,0,0.35); display: flex; flex-direction: column; justify-content: space-between; position: relative; overflow: hidden; }
-  .card-top { display: flex; justify-content: space-between; align-items: center; font-size: 0.74rem; color: var(--muted); margin-bottom: 8px; font-weight: 700; }
-  .tier-pill { padding: 3px 9px; border-radius: 999px; font-weight: 800; font-size: 0.71rem; }
-  .tier-s { background: rgba(16,185,129,0.18); color: #34d399; border: 1px solid rgba(16,185,129,0.45); }
-  .tier-a { background: rgba(56,189,248,0.18); color: #38bdf8; border: 1px solid rgba(56,189,248,0.45); }
-  .tier-b { background: rgba(245,158,11,0.18); color: #fbbf24; border: 1px solid rgba(245,158,11,0.45); }
-  .match-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; gap: 8px; }
-  .match-title { font-size: 1.1rem; font-weight: 800; color: #fff; }
-  .live-pill { background: #162235; color: #cbd5e1; border: 1px solid #283a57; padding: 3px 9px; border-radius: 999px; font-size: 0.72rem; font-weight: 800; white-space: nowrap; }
-
-  .pick-box { background: #090e17; border: 1px solid #1e2d45; border-radius: 11px; padding: 11px 13px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-  .pick-val { font-size: 0.98rem; font-weight: 800; color: var(--cyan); }
-  .odd-val { background: rgba(16,185,129,0.15); border: 1px solid var(--green); color: var(--green); padding: 6px 11px; border-radius: 9px; font-weight: 900; font-size: 1.05rem; }
-
-  .live-tracker { background: #0b1220; border: 1px solid #1b2840; border-radius: 10px; padding: 9px 11px; margin-bottom: 9px; }
-  .live-tracker-txt { font-size: 0.75rem; font-weight: 700; color: #34d399; display: flex; justify-content: space-between; margin-bottom: 5px; }
-  .prog-bg { width: 100%; height: 6px; background: #1e293b; border-radius: 99px; overflow: hidden; }
-  .prog-fill { height: 100%; background: linear-gradient(90deg, #10b981, #38bdf8); width: 0%; transition: width 0.4s; }
-
-  .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; background: #090e17; padding: 8px 6px; border-radius: 9px; text-align: center; margin-bottom: 9px; border: 1px solid #172236; }
-  .m-title { font-size: 0.66rem; color: var(--muted); }
-  .m-val { font-size: 0.88rem; font-weight: 800; }
-
-  .hist-strip { background: #0b1220; border: 1px solid #1a273d; border-radius: 8px; padding: 7px 10px; font-size: 0.74rem; color: #cbd5e1; margin-bottom: 9px; font-weight: 600; }
-
-  .val-box { background: #111827; border: 1px solid #283548; border-radius: 10px; padding: 9px 11px; font-size: 0.76rem; font-weight: 700; margin-bottom: 9px; }
-  .val-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
-  .val-input { width: 74px; background: #090e17; color: var(--cyan); border: 1px solid var(--cyan); border-radius: 6px; padding: 4px 6px; text-align: center; font-weight: 800; font-size: 0.85rem; }
-
-  .acc-btn { width: 100%; background: #121c2d; border: 1px solid #22324c; color: #dbeafe; border-radius: 9px; padding: 8px 11px; font-size: 0.76rem; font-weight: 700; text-align: left; display: flex; justify-content: space-between; align-items: center; cursor: pointer; margin-bottom: 7px; }
-  .acc-content { display: none; background: #090e18; border: 1px solid #1d2b42; border-radius: 9px; padding: 10px; margin-bottom: 8px; font-size: 0.76rem; color: #cbd5e1; }
-  .stat-line { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid #151f30; }
-
-  .hist-item { background: var(--card); border: 1px solid var(--border); border-radius: 11px; padding: 13px 15px; margin-bottom: 10px; }
-  .hist-top { display: flex; justify-content: space-between; font-size: 0.76rem; color: var(--muted); margin-bottom: 5px; font-weight: 700; }
-  .badge-status { padding: 3px 9px; border-radius: 6px; font-weight: 800; font-size: 0.73rem; }
-  .st-won { background: rgba(16,185,129,0.2); color: #34d399; border: 1px solid rgba(16,185,129,0.4); }
-  .st-lost { background: rgba(239,68,68,0.2); color: #f87171; border: 1px solid rgba(239,68,68,0.4); }
-  .st-pend { background: rgba(245,158,11,0.2); color: #fbbf24; border: 1px solid rgba(245,158,11,0.4); }
-  .hidden { display: none !important; }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>⚡ IABET Pro 3.0 — Quant & Ninja Arbitrage Suite</title>
+    <style>
+        :root { --bg:#0b0f19; --card:#131b2e; --border:#1e293b; --text:#f8fafc; --muted:#94a3b8; --accent:#10b981; --blue:#38bdf8; }
+        * { box-sizing:border-box; font-family:'Inter',system-ui,-apple-system,sans-serif; }
+        body { margin:0; background:var(--bg); color:var(--text); padding:16px; }
+        .container { max-width:1280px; margin:0 auto; }
+        .header { display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; background:var(--card); padding:18px 22px; border-radius:14px; border:1px solid var(--border); margin-bottom:18px; gap:12px; }
+        .brand h1 { margin:0; font-size:1.45rem; color:#fff; }
+        .brand small { color:var(--muted); display:block; margin-top:4px; }
+        .stats-bar { display:flex; flex-wrap:wrap; gap:12px; }
+        .stat-pill { background:#0f172a; border:1px solid var(--border); padding:8px 14px; border-radius:10px; text-align:center; }
+        .stat-pill span { display:block; font-size:0.72rem; color:var(--muted); }
+        .stat-pill strong { font-size:1.05rem; color:var(--accent); }
+        .tabs { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px; }
+        .tab-btn { background:var(--card); color:var(--text); border:1px solid var(--border); padding:10px 16px; border-radius:10px; cursor:pointer; font-weight:600; }
+        .tab-btn.active { background:var(--accent); color:#042f2e; border-color:var(--accent); }
+        .tab-panel { display:none; }
+        .tab-panel.active { display:block; }
+        .filters { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px; }
+        .filter-btn { background:#1e293b; color:#e2e8f0; border:none; padding:7px 12px; border-radius:8px; cursor:pointer; font-size:0.82rem; }
+        .grid-3 { display:grid; grid-template-columns:repeat(auto-fill, minmax(350px, 1fr)); gap:16px; }
+        .card { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:16px; }
+        .card-top { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; gap:6px; }
+        .tier-badge { padding:4px 9px; border-radius:6px; font-size:0.75rem; font-weight:700; }
+        .live-pill { background:#ef444433; color:#fca5a5; border:1px solid #ef4444; padding:3px 8px; border-radius:6px; font-size:0.74rem; font-weight:700; }
+        .date-pill { color:var(--muted); font-size:0.76rem; }
+        .league-tag { color:var(--blue); font-size:0.76rem; font-weight:600; text-transform:uppercase; }
+        .match-title { margin:6px 0 10px; font-size:1.1rem; }
+        .pick-box { display:flex; justify-content:space-between; align-items:center; background:#0f172a; padding:10px 12px; border-radius:10px; border:1px solid #334155; margin-bottom:10px; }
+        .pick-market { font-weight:700; color:#fff; }
+        .pick-odds { font-size:1.15rem; font-weight:800; color:var(--accent); }
+        .metrics-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:6px; text-align:center; background:#0b1120; padding:8px; border-radius:8px; margin-bottom:8px; }
+        .metrics-grid span { display:block; font-size:0.68rem; color:var(--muted); }
+        .hitrate-bar { font-size:0.76rem; color:#cbd5e1; margin-bottom:10px; text-align:center; background:#1e293b66; padding:5px; border-radius:6px; }
+        .calc-box { background:#0f172a; padding:9px; border-radius:8px; border:1px dashed #334155; margin-bottom:8px; font-size:0.76rem; }
+        .calc-row { display:flex; align-items:center; gap:8px; margin-top:6px; }
+        .calc-row input { width:95px; padding:5px 8px; border-radius:6px; border:1px solid #475569; background:#1e293b; color:#fff; }
+        .tactical-acc summary { cursor:pointer; font-size:0.8rem; color:var(--blue); font-weight:600; }
+        .acc-body { font-size:0.78rem; color:#cbd5e1; margin-top:8px; line-height:1.45; }
+        .live-telemetry { margin-top:6px; padding:6px; background:#090d16; border-radius:6px; color:#38bdf8; font-size:0.75rem; }
+        table { width:100%; border-collapse:collapse; background:var(--card); border-radius:12px; overflow:hidden; font-size:0.85rem; }
+        th, td { padding:11px 12px; border-bottom:1px solid var(--border); text-align:left; }
+        th { background:#0f172a; color:var(--muted); font-size:0.76rem; text-transform:uppercase; }
+    </style>
 </head>
 <body>
+<div class="container">
+    <div class="header">
+        <div class="brand">
+            <h1>⚡ IABET Pro 3.0 <span style="font-size:0.8rem; background:#a855f733; color:#d8b4fe; padding:3px 8px; border-radius:6px;">QUANT + NINJA SUITE</span></h1>
+            <small>Actualizado: 06/11/2026 19:22 (Hora Perú) · Motor: ACTIVO (TLS Chrome Impersonation) · Créditos API: N/A</small>
+        </div>
+        <div class="stats-bar">
+            <div class="stat-pill"><span>Win Rate Auditado</span><strong>80.4% (41W-10L)</strong></div>
+            <div class="stat-pill"><span>ROI Verificado</span><strong>+22.6%</strong></div>
+            <div class="stat-pill"><span>Banca Actual</span><strong style="color:#38bdf8;">S/ 148.99</strong></div>
+            <div class="stat-pill"><span>Racha</span><strong>1W 🔥</strong></div>
+        </div>
+    </div>
 
-<div class="top-bar">
-  <div class="brand">⚡ IABET <span>PRO 2.6</span></div>
-  <div class="nav-pills">
-    <button class="pill-btn active" id="btn-p" onclick="showTab('p')">🎯 Picks Auditados (10)</button>
-    <button class="pill-btn" id="btn-r" onclick="showTab('r')">📊 Buscador FutbolDataPro (39 Partidos)</button>
-    <button class="pill-btn" id="btn-h" onclick="showTab('h')">📋 Historial Auditado</button>
-  </div>
-  <div class="badge-row">
-    <span class="badge">🔄 Sync: 03/11/2026 19:25 (Live 30s)</span>
-    <span class="badge">📡 Feed: 284 (+B2B)</span>
-    <span class="badge">🛡️ TIER S Blindado (Sin Faltas Arbitrales)</span>
-  </div>
-</div>
+    <div class="tabs">
+        <button class="tab-btn active" onclick="cambiarTab('tab-picks', this)">🎯 Picks IA (+EV & Tiers)</button>
+        <button class="tab-btn" onclick="cambiarTab('tab-ninja', this)">🥷 Ninja Dutcher & Bonos (0% Riesgo)</button>
+        <button class="tab-btn" onclick="cambiarTab('tab-historial', this)">📋 Historial Auditado (72)</button>
+    </div>
 
-<div class="stats-summary">
-  <div class="st-card"><div class="st-title">Win Rate Auditado</div><div class="st-val" style="color:var(--green);">78.8%</div></div>
-  <div class="st-card"><div class="st-title">Récord Verificado</div><div class="st-val">26W - 7L</div></div>
-  <div class="st-card"><div class="st-title">ROI Auditado</div><div class="st-val" style="color:var(--cyan);">+21.0%</div></div>
-  <div class="st-card"><div class="st-title">Racha Activa</div><div class="st-val" style="color:var(--amber);">0W 🔥</div></div>
-</div>
+    <!-- PESTAÑA 1: PICKS IA -->
+    <div id="tab-picks" class="tab-panel active">
+        <div class="filters">
+            <button class="filter-btn" onclick="filtrarPicks('TODOS')">Todos (3)</button>
+            <button class="filter-btn" onclick="filtrarPicks('HOY')">📅 Juegan Hoy</button>
+            <button class="filter-btn" onclick="filtrarPicks('MANANA')">📅 Juegan Mañana</button>
+            <button class="filter-btn" onclick="filtrarPicks('GOLES')">⚽ Goles</button>
+            <button class="filter-btn" onclick="filtrarPicks('CORNERS')">🚩 Córners / Tiros</button>
+        </div>
+        <div class="grid-3">
+            
+        <div class="card pick-card" data-dia="MANANA" data-cat="BTTS" style="border-top: 4px solid #10b981;">
+            <div class="card-top">
+                <span class="tier-badge" style="background:#10b98122; color:#10b981; border:1px solid #10b98155;">💎 TIER S (Blindado)</span>
+                <span class="date-pill">📅 MAÑANA · 09:30</span>
+            </div>
+            <div class="league-tag">Bundesliga · BTTS</div>
+            <h3 class="match-title">Mainz vs Bayern Munich</h3>
+            <div class="pick-box">
+                <div class="pick-market">👉 Ambos Equipos Anotan (Sí)</div>
+                <div class="pick-odds">@1.49</div>
+            </div>
+            <div class="metrics-grid">
+                <div><span>Prob. Real</span><strong>70.1%</strong></div>
+                <div><span>Cuota Justa</span><strong>@1.43</strong></div>
+                <div><span>Edge (+EV)</span><strong style="color:#10b981;">+3.0%</strong></div>
+                <div><span>Stake Kelly</span><strong style="color:#38bdf8;">S/ 3.00</strong></div>
+            </div>
+            <div class="hitrate-bar">
+                Consenso Histórico: <b>L5: 74%</b> · <b>L10: 72%</b> · <b>L20: 70%</b>
+            </div>
+            <div class="calc-box">
+                <label>🧮 Verificador Anti-Trampa (Ingresa la cuota de Betano/Betsson):</label>
+                <div class="calc-row">
+                    <input type="number" step="0.01" placeholder="Ej: 1.49" oninput="verificarCuotaCasa(this, 70.1, 1.43, 'res-calc-0')">
+                    <span id="res-calc-0" class="calc-status">Esperando cuota...</span>
+                </div>
+            </div>
+            <details class="tactical-acc">
+                <summary>🔬 Ver Telemetría ESPN en Vivo y Desglose Matemático</summary>
+                <div class="acc-body">
+                    <p>• <b>Proyección xG / Lambda:</b> Local 1.5 vs Visita 2.33</p>
+                    <p>• <b>Fuente de Datos:</b> ESPN + OddsAPI + CSV L20 (Consenso B2B / ESPN)</p>
+                    <p>• <b>Cuota Mínima Rentable:</b> No entrar si paga menos de <b>@1.46</b></p>
+                    <div id="live-box-401884740" class="live-telemetry">Sincronizando telemetría con ESPN Summary API...</div>
+                </div>
+            </details>
+        </div>
+        
+        <div class="card pick-card" data-dia="MANANA" data-cat="TIROS AL ARCO" style="border-top: 4px solid #10b981;">
+            <div class="card-top">
+                <span class="tier-badge" style="background:#10b98122; color:#10b981; border:1px solid #10b98155;">💎 TIER S (Blindado)</span>
+                <span class="date-pill">📅 MAÑANA · 12:00</span>
+            </div>
+            <div class="league-tag">Serie A Italia · TIROS AL ARCO</div>
+            <h3 class="match-title">Parma vs Bologna</h3>
+            <div class="pick-box">
+                <div class="pick-market">👉 Menos de 9.5 Tiros al Arco</div>
+                <div class="pick-odds">@1.64</div>
+            </div>
+            <div class="metrics-grid">
+                <div><span>Prob. Real</span><strong>67.5%</strong></div>
+                <div><span>Cuota Justa</span><strong>@1.48</strong></div>
+                <div><span>Edge (+EV)</span><strong style="color:#10b981;">+6.5%</strong></div>
+                <div><span>Stake Kelly</span><strong style="color:#38bdf8;">S/ 3.34</strong></div>
+            </div>
+            <div class="hitrate-bar">
+                Consenso Histórico: <b>L5: 72%</b> · <b>L10: 70%</b> · <b>L20: 68%</b>
+            </div>
+            <div class="calc-box">
+                <label>🧮 Verificador Anti-Trampa (Ingresa la cuota de Betano/Betsson):</label>
+                <div class="calc-row">
+                    <input type="number" step="0.01" placeholder="Ej: 1.64" oninput="verificarCuotaCasa(this, 67.5, 1.48, 'res-calc-1')">
+                    <span id="res-calc-1" class="calc-status">Esperando cuota...</span>
+                </div>
+            </div>
+            <details class="tactical-acc">
+                <summary>🔬 Ver Telemetría ESPN en Vivo y Desglose Matemático</summary>
+                <div class="acc-body">
+                    <p>• <b>Proyección xG / Lambda:</b> Local 1.15 vs Visita 1.16</p>
+                    <p>• <b>Fuente de Datos:</b> ESPN + OddsAPI + CSV L20 (Consenso B2B / ESPN)</p>
+                    <p>• <b>Cuota Mínima Rentable:</b> No entrar si paga menos de <b>@1.51</b></p>
+                    <div id="live-box-401874974" class="live-telemetry">Sincronizando telemetría con ESPN Summary API...</div>
+                </div>
+            </details>
+        </div>
+        
+        <div class="card pick-card" data-dia="MANANA" data-cat="TIROS AL ARCO" style="border-top: 4px solid #10b981;">
+            <div class="card-top">
+                <span class="tier-badge" style="background:#10b98122; color:#10b981; border:1px solid #10b98155;">💎 TIER S (Blindado)</span>
+                <span class="date-pill">📅 MAÑANA · 09:30</span>
+            </div>
+            <div class="league-tag">Bundesliga · TIROS AL ARCO</div>
+            <h3 class="match-title">RB Leipzig vs FC Augsburg</h3>
+            <div class="pick-box">
+                <div class="pick-market">👉 Más de 8.5 Tiros al Arco</div>
+                <div class="pick-odds">@1.68</div>
+            </div>
+            <div class="metrics-grid">
+                <div><span>Prob. Real</span><strong>66.0%</strong></div>
+                <div><span>Cuota Justa</span><strong>@1.52</strong></div>
+                <div><span>Edge (+EV)</span><strong style="color:#10b981;">+6.5%</strong></div>
+                <div><span>Stake Kelly</span><strong style="color:#38bdf8;">S/ 3.20</strong></div>
+            </div>
+            <div class="hitrate-bar">
+                Consenso Histórico: <b>L5: 70%</b> · <b>L10: 68%</b> · <b>L20: 66%</b>
+            </div>
+            <div class="calc-box">
+                <label>🧮 Verificador Anti-Trampa (Ingresa la cuota de Betano/Betsson):</label>
+                <div class="calc-row">
+                    <input type="number" step="0.01" placeholder="Ej: 1.68" oninput="verificarCuotaCasa(this, 66.0, 1.52, 'res-calc-2')">
+                    <span id="res-calc-2" class="calc-status">Esperando cuota...</span>
+                </div>
+            </div>
+            <details class="tactical-acc">
+                <summary>🔬 Ver Telemetría ESPN en Vivo y Desglose Matemático</summary>
+                <div class="acc-body">
+                    <p>• <b>Proyección xG / Lambda:</b> Local 1.87 vs Visita 1.4</p>
+                    <p>• <b>Fuente de Datos:</b> ESPN + OddsAPI + CSV L20 (Consenso B2B / ESPN)</p>
+                    <p>• <b>Cuota Mínima Rentable:</b> No entrar si paga menos de <b>@1.55</b></p>
+                    <div id="live-box-401884744" class="live-telemetry">Sincronizando telemetría con ESPN Summary API...</div>
+                </div>
+            </details>
+        </div>
+        
+        </div>
+    </div>
 
-<!-- PESTAÑA 1: PICKS MULTI-MERCADO -->
-<div id="sec-p">
-  <div class="filters-bar">
-    <select class="select-pro" id="f-dia" onchange="renderPicks()">
-      <option value="TODOS">📅 Día: Todos</option>
-      <option value="HOY">🔥 Juegan Hoy</option>
-      <option value="MANANA">⏭️ Juegan Mañana</option>
-      <option value="PROXIMOS">📆 Próximos</option>
-    </select>
-    <select class="select-pro" id="f-tier" onchange="renderPicks()">
-      <option value="TODOS">💎 Todos los Tiers</option>
-      <option value="TIER S">💎 Solo TIER S (Blindado)</option>
-      <option value="TIER A">🥇 Solo TIER A (Alta Ventaja)</option>
-      <option value="TIER B">🥈 Solo TIER B (Valor +EV)</option>
-    </select>
-    <select class="select-pro" id="f-cat" onchange="renderPicks()">
-      <option value="TODOS">⚽ Todos los Mercados</option>
-      <option value="DOBLE">🛡️ Doble Oportunidad / DNB</option>
-      <option value="GOLES">🥅 Goles (Over/Under 2.5)</option>
-      <option value="BTTS">⚽ Ambos Equipos Anotan</option>
-      <option value="1X2">🏆 Ganador 1X2</option>
-      <option value="CORNERS">🚩 Córners Totales</option>
-      <option value="TIROS">🎯 Tiros al Arco (SOT)</option>
-    </select>
-  </div>
-  <div class="cards-grid" id="list-picks"></div>
-</div>
+    <!-- PESTAÑA 2: NINJA DUTCHER & BONOS -->
+    <div id="tab-ninja" class="tab-panel">
+        <div class="card" style="margin-bottom:16px; border-left:4px solid #10b981;">
+            <h3 style="margin:0 0 8px;">🧮 Calculadora Interactiva "Ninja Dutcher" (Arbitraje / SureBets en Soles)</h3>
+            <p style="margin:0 0 10px; font-size:0.83rem; color:var(--muted);">Ingresa dos cuotas opuestas (ej. Más de 2.5 goles en Betsson y Menos de 2.5 goles en Betano) para bloquear ganancia sin riesgo o liberar un bono:</p>
+            <div style="display:flex; flex-wrap:wrap; gap:10px; align-items:center;">
+                <input id="dut-c1" type="number" step="0.01" value="2.10" placeholder="Cuota Casa 1" style="padding:8px; border-radius:8px; background:#0f172a; color:#fff; border:1px solid #334155; width:120px;">
+                <input id="dut-c2" type="number" step="0.01" value="2.02" placeholder="Cuota Casa 2" style="padding:8px; border-radius:8px; background:#0f172a; color:#fff; border:1px solid #334155; width:120px;">
+                <input id="dut-bank" type="number" step="1" value="100" placeholder="Capital S/" style="padding:8px; border-radius:8px; background:#0f172a; color:#fff; border:1px solid #334155; width:120px;">
+                <button class="tab-btn active" onclick="calcularDutcherManual()">Calcular Stakes Exactos</button>
+                <span id="dut-res" style="font-weight:700; color:#10b981;"></span>
+            </div>
+        </div>
 
-<!-- PESTAÑA 2: BUSCADOR FUTBOLDATAPRO -->
-<div id="sec-r" class="hidden">
-  <input type="text" id="q-search" placeholder="🔍 Buscar equipo o liga (ej. Barcelona, Arsenal, Serie A, Libertadores)..." oninput="renderCatalogo()" style="width:100%;padding:11px 14px;border-radius:10px;background:#0f172a;color:#fff;border:1px solid #26354d;margin-bottom:14px;font-size:0.86rem;">
-  <div class="cards-grid" id="list-cat"></div>
-</div>
+        <h3 style="margin:14px 0 8px;">📡 Escáner Automático Multi-Casa (Oddsmatcher & SureBets Detectadas)</h3>
+        <div style="overflow-x:auto; margin-bottom:18px;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Partido / Liga</th>
+                        <th>Categoría Ninja</th>
+                        <th>Rating %</th>
+                        <th>Opción Casa 1 (Back)</th>
+                        <th>Opción Casa 2 (Cobertura)</th>
+                        <th>Retorno Neto (S/ 100)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td colspan="6" style="text-align:center; padding:18px;">Escaneando discrepancias multi-casa. Usa la Calculadora Dutcher de abajo para cualquier partido en vivo.</td></tr>
+                </tbody>
+            </table>
+        </div>
 
-<!-- PESTAÑA 3: HISTORIAL AUDITADO -->
-<div id="sec-h" class="hidden">
-  <div id="list-hist"></div>
+        <h3 style="margin:14px 0 8px;">🎁 Radar de Bonos y Apuestas Gratis (Matched Betting Intelligence)</h3>
+        <div class="grid-3">
+            
+        <div class="card" style="border-left: 4px solid #a855f7;">
+            <div class="league-tag">Bono Bienvenida / Freebet</div>
+            <h4 style="margin:6px 0; color:#f8fafc;">🎁 Betano Perú / Latam</h4>
+            <p style="margin:4px 0; color:#10b981; font-weight:700;">Ganancia Bloqueada: S/ 120 - S/ 250</p>
+            <small style="color:#94a3b8;">📌 Usar Oddsmatcher con Rating >= 95%</small>
+        </div>
+        
+        <div class="card" style="border-left: 4px solid #a855f7;">
+            <div class="league-tag">Apuesta Cero Riesgo / Recarga</div>
+            <h4 style="margin:6px 0; color:#f8fafc;">🎁 Betsson / Inkabet (Kambi)</h4>
+            <p style="margin:4px 0; color:#10b981; font-weight:700;">Ganancia Bloqueada: S/ 50 - S/ 100</p>
+            <small style="color:#94a3b8;">📌 Cubrir en Dutcher Mercados 2-Vías (Over/Under 2.5)</small>
+        </div>
+        
+        <div class="card" style="border-left: 4px solid #a855f7;">
+            <div class="league-tag">Club Freebets Semanal</div>
+            <h4 style="margin:6px 0; color:#f8fafc;">🎁 Apuesta Total / DoradoBet</h4>
+            <p style="margin:4px 0; color:#10b981; font-weight:700;">Ganancia Bloqueada: S/ 40 - S/ 80</p>
+            <small style="color:#94a3b8;">📌 Convertir Freebet en cuota alta (@3.00+) vs Exchange</small>
+        </div>
+        
+        </div>
+    </div>
+
+    <!-- PESTAÑA 3: HISTORIAL AUDITADO -->
+    <div id="tab-historial" class="tab-panel">
+        <div style="overflow-x:auto;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Partido</th>
+                        <th>Mercado</th>
+                        <th>Cuota</th>
+                        <th>Stake</th>
+                        <th>Marcador</th>
+                        <th>Estado Verificado ESPN</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    
+        <tr>
+            <td>2026-11-06</td>
+            <td><b>RB Leipzig vs FC Augsburg</b><br><small style="color:#94a3b8;">Bundesliga</small></td>
+            <td>Más de 8.5 Tiros al Arco</td>
+            <td>@1.68</td>
+            <td>S/ 3.20</td>
+            <td>-</td>
+            <td><b style="color:#f59e0b;">⏳ PENDIENTE (+0.00)</b></td>
+        </tr>
+        
+        <tr>
+            <td>2026-11-06</td>
+            <td><b>Parma vs Bologna</b><br><small style="color:#94a3b8;">Serie A Italia</small></td>
+            <td>Menos de 9.5 Tiros al Arco</td>
+            <td>@1.64</td>
+            <td>S/ 3.34</td>
+            <td>-</td>
+            <td><b style="color:#f59e0b;">⏳ PENDIENTE (+0.00)</b></td>
+        </tr>
+        
+        <tr>
+            <td>2026-11-06</td>
+            <td><b>Mainz vs Bayern Munich</b><br><small style="color:#94a3b8;">Bundesliga</small></td>
+            <td>Ambos Equipos Anotan (Sí)</td>
+            <td>@1.49</td>
+            <td>S/ 3.00</td>
+            <td>-</td>
+            <td><b style="color:#f59e0b;">⏳ PENDIENTE (+0.00)</b></td>
+        </tr>
+        
+        <tr>
+            <td>2026-10-28</td>
+            <td><b>Gimnástica Torrelavega vs UD Ourense</b><br><small style="color:#94a3b8;">Copa del Rey</small></td>
+            <td>Menos de 3.5 Goles (Under 3.5)</td>
+            <td>@1.54</td>
+            <td>S/ 6.00</td>
+            <td>-</td>
+            <td><b style="color:#10b981;">✅ GANADO (+3.24)</b></td>
+        </tr>
+        
+        <tr>
+            <td>2026-10-28</td>
+            <td><b>Anaitasuna vs Alavés</b><br><small style="color:#94a3b8;">Copa del Rey</small></td>
+            <td>Victoria Anaitasuna (1)</td>
+            <td>@1.70</td>
+            <td>S/ 3.50</td>
+            <td>-</td>
+            <td><b style="color:#ef4444;">❌ PERDIDO (-3.50)</b></td>
+        </tr>
+        
+        <tr>
+            <td>-</td>
+            <td><b>Remo vs Botafogo</b><br><small style="color:#94a3b8;">Brasileirao</small></td>
+            <td>Menos de 3.5 Goles (Under 3.5)</td>
+            <td>@1.33</td>
+            <td>S/ 3.00</td>
+            <td>-</td>
+            <td><b style="color:#10b981;">✅ GANADO (+0.99)</b></td>
+        </tr>
+        
+        <tr>
+            <td>-</td>
+            <td><b>Fiorentina vs Atalanta</b><br><small style="color:#94a3b8;">Serie A</small></td>
+            <td>Más de 1.5 Goles (Over 1.5)</td>
+            <td>@1.36</td>
+            <td>S/ 3.00</td>
+            <td>-</td>
+            <td><b style="color:#10b981;">✅ GANADO (+1.08)</b></td>
+        </tr>
+        
+        <tr>
+            <td>-</td>
+            <td><b>Le Havre AC vs Paris Saint-Germain</b><br><small style="color:#94a3b8;">Ligue 1</small></td>
+            <td>Menos de 11.5 Córners</td>
+            <td>@1.58</td>
+            <td>S/ 3.00</td>
+            <td>1-5</td>
+            <td><b style="color:#10b981;">✅ GANADO (+1.74)</b></td>
+        </tr>
+        
+        <tr>
+            <td>-</td>
+            <td><b>FC Juárez vs Querétaro</b><br><small style="color:#94a3b8;">Liga MX</small></td>
+            <td>Más de 1.5 Goles (Over 1.5)</td>
+            <td>@1.40</td>
+            <td>S/ 2.50</td>
+            <td>3-1</td>
+            <td><b style="color:#10b981;">✅ GANADO (+1.00)</b></td>
+        </tr>
+        
+        <tr>
+            <td>-</td>
+            <td><b>Barcelona vs Alavés</b><br><small style="color:#94a3b8;">LaLiga</small></td>
+            <td>Más de 1.5 Goles (Over 1.5)</td>
+            <td>@1.40</td>
+            <td>S/ 2.50</td>
+            <td>6-1</td>
+            <td><b style="color:#10b981;">✅ GANADO (+1.00)</b></td>
+        </tr>
+        
+        <tr>
+            <td>-</td>
+            <td><b>Feyenoord Rotterdam vs Fortuna Sittard</b><br><small style="color:#94a3b8;">Eredivisie</small></td>
+            <td>Más de 1.5 Goles (Over 1.5)</td>
+            <td>@1.40</td>
+            <td>S/ 2.50</td>
+            <td>1-1</td>
+            <td><b style="color:#10b981;">✅ GANADO (+1.00)</b></td>
+        </tr>
+        
+        <tr>
+            <td>-</td>
+            <td><b>Real Betis vs Málaga</b><br><small style="color:#94a3b8;">LaLiga</small></td>
+            <td>Victoria Real Betis (1)</td>
+            <td>@1.42</td>
+            <td>S/ 2.00</td>
+            <td>-</td>
+            <td><b style="color:#f59e0b;">⏳ PENDIENTE (+0.00)</b></td>
+        </tr>
+        
+        <tr>
+            <td>-</td>
+            <td><b>Bologna vs Monza</b><br><small style="color:#94a3b8;">Serie A</small></td>
+            <td>Menos de 11.5 Córners</td>
+            <td>@1.58</td>
+            <td>S/ 3.00</td>
+            <td>2-1</td>
+            <td><b style="color:#10b981;">✅ GANADO (+1.74)</b></td>
+        </tr>
+        
+        <tr>
+            <td>-</td>
+            <td><b>Aston Villa vs Fulham</b><br><small style="color:#94a3b8;">Premier League</small></td>
+            <td>Menos de 5.5 Tarjetas Totales</td>
+            <td>@1.56</td>
+            <td>S/ 5.00</td>
+            <td>-</td>
+            <td><b style="color:#f59e0b;">⏳ PENDIENTE (+0.00)</b></td>
+        </tr>
+        
+        <tr>
+            <td>-</td>
+            <td><b>Ajax Amsterdam vs AZ Alkmaar</b><br><small style="color:#94a3b8;">Eredivisie</small></td>
+            <td>Menos de 4.5 Tarjetas Totales</td>
+            <td>@1.56</td>
+            <td>S/ 5.00</td>
+            <td>-</td>
+            <td><b style="color:#f59e0b;">⏳ PENDIENTE (+0.00)</b></td>
+        </tr>
+        
+        <tr>
+            <td>-</td>
+            <td><b>Bologna vs Monza</b><br><small style="color:#94a3b8;">Serie A</small></td>
+            <td>Menos de 5.5 Tarjetas Totales</td>
+            <td>@1.56</td>
+            <td>S/ 5.00</td>
+            <td>-</td>
+            <td><b style="color:#f59e0b;">⏳ PENDIENTE (+0.00)</b></td>
+        </tr>
+        
+        <tr>
+            <td>-</td>
+            <td><b>Villarreal vs Espanyol</b><br><small style="color:#94a3b8;">LaLiga</small></td>
+            <td>Menos de 5.5 Tarjetas Totales</td>
+            <td>@1.56</td>
+            <td>S/ 5.00</td>
+            <td>-</td>
+            <td><b style="color:#ef4444;">❌ PERDIDO (-5.00)</b></td>
+        </tr>
+        
+        <tr>
+            <td>-</td>
+            <td><b>Moreirense vs Estrela</b><br><small style="color:#94a3b8;">Primeira Liga</small></td>
+            <td>Menos de 9.5 Tiros al Arco</td>
+            <td>@1.56</td>
+            <td>S/ 5.00</td>
+            <td>2-1</td>
+            <td><b style="color:#10b981;">✅ GANADO (+2.80)</b></td>
+        </tr>
+        
+        <tr>
+            <td>-</td>
+            <td><b>Udinese vs AS Roma</b><br><small style="color:#94a3b8;">Serie A</small></td>
+            <td>Menos de 10.5 Tiros al Arco</td>
+            <td>@1.56</td>
+            <td>S/ 5.00</td>
+            <td>2-5</td>
+            <td><b style="color:#ef4444;">❌ PERDIDO (-5.00)</b></td>
+        </tr>
+        
+        <tr>
+            <td>-</td>
+            <td><b>Le Havre AC vs Paris Saint-Germain</b><br><small style="color:#94a3b8;">Ligue 1</small></td>
+            <td>Menos de 20.5 Faltas Totales</td>
+            <td>@1.56</td>
+            <td>S/ 5.00</td>
+            <td>-</td>
+            <td><b style="color:#ef4444;">❌ PERDIDO (-5.00)</b></td>
+        </tr>
+        
+        <tr>
+            <td>-</td>
+            <td><b>Coritiba vs Vitória</b><br><small style="color:#94a3b8;">Brasileirao</small></td>
+            <td>Menos de 12.5 Córners Totales</td>
+            <td>@1.54</td>
+            <td>S/ 5.00</td>
+            <td>2-0</td>
+            <td><b style="color:#10b981;">✅ GANADO (+2.70)</b></td>
+        </tr>
+        
+        <tr>
+            <td>-</td>
+            <td><b>Corinthians vs Mirassol</b><br><small style="color:#94a3b8;">Brasileirao</small></td>
+            <td>Menos de 12.5 Córners Totales</td>
+            <td>@1.54</td>
+            <td>S/ 5.00</td>
+            <td>-</td>
+            <td><b style="color:#10b981;">✅ GANADO (+2.70)</b></td>
+        </tr>
+        
+        <tr>
+            <td>-</td>
+            <td><b>FC Augsburg vs SC Freiburg</b><br><small style="color:#94a3b8;">Bundesliga</small></td>
+            <td>Menos de 10.5 Córners Totales</td>
+            <td>@1.54</td>
+            <td>S/ 5.00</td>
+            <td>1-2</td>
+            <td><b style="color:#10b981;">✅ GANADO (+2.70)</b></td>
+        </tr>
+        
+        <tr>
+            <td>-</td>
+            <td><b>Atlético de San Luis vs Atlas</b><br><small style="color:#94a3b8;">Liga MX</small></td>
+            <td>Menos de 11.5 Córners Totales</td>
+            <td>@1.54</td>
+            <td>S/ 5.00</td>
+            <td>-</td>
+            <td><b style="color:#10b981;">✅ GANADO (+2.70)</b></td>
+        </tr>
+        
+        <tr>
+            <td>-</td>
+            <td><b>Barcelona vs Alavés</b><br><small style="color:#94a3b8;">LaLiga</small></td>
+            <td>Más de 8.5 Tiros al Arco</td>
+            <td>@1.56</td>
+            <td>S/ 5.00</td>
+            <td>6-1</td>
+            <td><b style="color:#10b981;">✅ GANADO (+2.80)</b></td>
+        </tr>
+        
+        <tr>
+            <td>-</td>
+            <td><b>Lille vs Lens</b><br><small style="color:#94a3b8;">Ligue 1</small></td>
+            <td>Menos de 26.5 Faltas Totales</td>
+            <td>@1.56</td>
+            <td>S/ 5.00</td>
+            <td>-</td>
+            <td><b style="color:#10b981;">✅ GANADO (+2.80)</b></td>
+        </tr>
+        
+        <tr>
+            <td>-</td>
+            <td><b>Villarreal vs Espanyol</b><br><small style="color:#94a3b8;">LaLiga</small></td>
+            <td>Menos de 10.5 Tiros al Arco</td>
+            <td>@1.56</td>
+            <td>S/ 5.00</td>
+            <td>-</td>
+            <td><b style="color:#10b981;">✅ GANADO (+2.80)</b></td>
+        </tr>
+        
+        <tr>
+            <td>-</td>
+            <td><b>Sarmiento (Junín) vs Rosario Central</b><br><small style="color:#94a3b8;">Liga Argentina</small></td>
+            <td>Empate no Válido (Visita) - Rosario Central</td>
+            <td>@1.66</td>
+            <td>S/ 5.00</td>
+            <td>-</td>
+            <td><b style="color:#10b981;">✅ GANADO (+3.30)</b></td>
+        </tr>
+        
+        <tr>
+            <td>-</td>
+            <td><b>Vélez Sarsfield vs San Lorenzo</b><br><small style="color:#94a3b8;">Liga Argentina</small></td>
+            <td>Empate no Válido (Local) - Vélez Sarsfield</td>
+            <td>@1.63</td>
+            <td>S/ 5.00</td>
+            <td>-</td>
+            <td><b style="color:#f59e0b;">⏳ PENDIENTE (+0.00)</b></td>
+        </tr>
+        
+        <tr>
+            <td>-</td>
+            <td><b>Excelsior vs FC Twente</b><br><small style="color:#94a3b8;">Eredivisie</small></td>
+            <td>Menos de 3.5 Tarjetas Totales</td>
+            <td>@1.56</td>
+            <td>S/ 5.00</td>
+            <td>-</td>
+            <td><b style="color:#10b981;">✅ GANADO (+2.80)</b></td>
+        </tr>
+        
+        <tr>
+            <td>-</td>
+            <td><b>Telstar vs FC Utrecht</b><br><small style="color:#94a3b8;">Eredivisie</small></td>
+            <td>Menos de 4.5 Tarjetas Totales</td>
+            <td>@1.56</td>
+            <td>S/ 5.00</td>
+            <td>-</td>
+            <td><b style="color:#10b981;">✅ GANADO (+2.80)</b></td>
+        </tr>
+        
+        <tr>
+            <td>-</td>
+            <td><b>Elche vs Valencia</b><br><small style="color:#94a3b8;">LaLiga</small></td>
+            <td>Menos de 9.5 Córners Totales</td>
+            <td>@1.54</td>
+            <td>S/ 5.00</td>
+            <td>-</td>
+            <td><b style="color:#10b981;">✅ GANADO (+2.70)</b></td>
+        </tr>
+        
+        <tr>
+            <td>-</td>
+            <td><b>Liverpool vs Arsenal</b><br><small style="color:#94a3b8;">Premier League</small></td>
+            <td>Más de 8.5 Tiros al Arco</td>
+            <td>@1.56</td>
+            <td>S/ 5.00</td>
+            <td>-</td>
+            <td><b style="color:#ef4444;">❌ PERDIDO (-5.00)</b></td>
+        </tr>
+        
+        <tr>
+            <td>-</td>
+            <td><b>Newell's Old Boys vs Unión (Santa Fe)</b><br><small style="color:#94a3b8;">Liga Argentina</small></td>
+            <td>Menos de 9.5 Tiros al Arco</td>
+            <td>@1.56</td>
+            <td>S/ 5.00</td>
+            <td>-</td>
+            <td><b style="color:#10b981;">✅ GANADO (+2.80)</b></td>
+        </tr>
+        
+        <tr>
+            <td>-</td>
+            <td><b>Strasbourg vs AJ Auxerre</b><br><small style="color:#94a3b8;">Ligue 1</small></td>
+            <td>Menos de 9.5 Tiros al Arco</td>
+            <td>@1.56</td>
+            <td>S/ 5.00</td>
+            <td>-</td>
+            <td><b style="color:#10b981;">✅ GANADO (+2.80)</b></td>
+        </tr>
+        
+        <tr>
+            <td>-</td>
+            <td><b>FC Porto vs Estoril</b><br><small style="color:#94a3b8;">Primeira Liga</small></td>
+            <td>Menos de 11.5 Córners Totales</td>
+            <td>@1.52</td>
+            <td>S/ 4.50</td>
+            <td>4-0</td>
+            <td><b style="color:#10b981;">✅ GANADO (+2.34)</b></td>
+        </tr>
+        
+        <tr>
+            <td>-</td>
+            <td><b>Bologna vs Monza</b><br><small style="color:#94a3b8;">Serie A</small></td>
+            <td>Menos de 10.5 Tiros al Arco</td>
+            <td>@1.54</td>
+            <td>S/ 4.50</td>
+            <td>2-1</td>
+            <td><b style="color:#10b981;">✅ GANADO (+2.43)</b></td>
+        </tr>
+        
+        <tr>
+            <td>-</td>
+            <td><b>Boca Juniors vs River Plate</b><br><small style="color:#94a3b8;">Liga Argentina</small></td>
+            <td>Menos de 10.5 Tiros al Arco</td>
+            <td>@1.54</td>
+            <td>S/ 4.50</td>
+            <td>-</td>
+            <td><b style="color:#10b981;">✅ GANADO (+2.43)</b></td>
+        </tr>
+        
+        <tr>
+            <td>-</td>
+            <td><b>Tottenham Hotspur vs Crystal Palace</b><br><small style="color:#94a3b8;">Premier League</small></td>
+            <td>Menos de 12.5 Córners Totales</td>
+            <td>@1.52</td>
+            <td>S/ 4.50</td>
+            <td>2-0</td>
+            <td><b style="color:#ef4444;">❌ PERDIDO (-4.50)</b></td>
+        </tr>
+        
+        <tr>
+            <td>-</td>
+            <td><b>Ajax Amsterdam vs AZ Alkmaar</b><br><small style="color:#94a3b8;">Eredivisie</small></td>
+            <td>Menos de 11.5 Tiros al Arco</td>
+            <td>@1.54</td>
+            <td>S/ 4.50</td>
+            <td>1-0</td>
+            <td><b style="color:#10b981;">✅ GANADO (+2.43)</b></td>
+        </tr>
+        
+        <tr>
+            <td>-</td>
+            <td><b>Braga vs FC Famalicao</b><br><small style="color:#94a3b8;">Primeira Liga</small></td>
+            <td>Menos de 10.5 Tiros al Arco</td>
+            <td>@1.54</td>
+            <td>S/ 4.50</td>
+            <td>-</td>
+            <td><b style="color:#10b981;">✅ GANADO (+2.43)</b></td>
+        </tr>
+        
+        <tr>
+            <td>-</td>
+            <td><b>Eintracht Frankfurt vs Hamburg SV</b><br><small style="color:#94a3b8;">Bundesliga</small></td>
+            <td>Empate no Válido (Local) - Eintracht Frankfurt</td>
+            <td>@1.46</td>
+            <td>S/ 4.50</td>
+            <td>-</td>
+            <td><b style="color:#10b981;">✅ GANADO (+2.07)</b></td>
+        </tr>
+        
+        <tr>
+            <td>-</td>
+            <td><b>Moreirense vs Estrela</b><br><small style="color:#94a3b8;">Primeira Liga</small></td>
+            <td>Menos de 11.5 Córners Totales</td>
+            <td>@1.52</td>
+            <td>S/ 4.50</td>
+            <td>2-1</td>
+            <td><b style="color:#10b981;">✅ GANADO (+2.34)</b></td>
+        </tr>
+        
+        <tr>
+            <td>-</td>
+            <td><b>Marseille vs Toulouse</b><br><small style="color:#94a3b8;">Ligue 1</small></td>
+            <td>Menos de 11.5 Córners Totales</td>
+            <td>@1.52</td>
+            <td>S/ 4.50</td>
+            <td>-</td>
+            <td><b style="color:#10b981;">✅ GANADO (+2.34)</b></td>
+        </tr>
+        
+        <tr>
+            <td>-</td>
+            <td><b>Cruz Azul vs León</b><br><small style="color:#94a3b8;">Liga MX</small></td>
+            <td>Empate no Válido (Local) - Cruz Azul</td>
+            <td>@1.47</td>
+            <td>S/ 2.50</td>
+            <td>-</td>
+            <td><b style="color:#10b981;">✅ GANADO (+1.17)</b></td>
+        </tr>
+        
+        <tr>
+            <td>-</td>
+            <td><b>Santos vs Necaxa</b><br><small style="color:#94a3b8;">Liga MX</small></td>
+            <td>Empate no Válido (Local) - Santos</td>
+            <td>@1.60</td>
+            <td>S/ 4.50</td>
+            <td>-</td>
+            <td><b style="color:#10b981;">✅ GANADO (+2.70)</b></td>
+        </tr>
+        
+        <tr>
+            <td>-</td>
+            <td><b>América vs Toluca</b><br><small style="color:#94a3b8;">Liga MX</small></td>
+            <td>Ambos Equipos Anotan (Sí)</td>
+            <td>@1.57</td>
+            <td>S/ 2.50</td>
+            <td>2-2</td>
+            <td><b style="color:#10b981;">✅ GANADO (+1.43)</b></td>
+        </tr>
+        
+        <tr>
+            <td>-</td>
+            <td><b>Bayern Munich vs Borussia Dortmund</b><br><small style="color:#94a3b8;">Bundesliga</small></td>
+            <td>Ambos Equipos Anotan (Sí)</td>
+            <td>@1.60</td>
+            <td>S/ 2.50</td>
+            <td>2-2</td>
+            <td><b style="color:#10b981;">✅ GANADO (+1.50)</b></td>
+        </tr>
+        
+        <tr>
+            <td>-</td>
+            <td><b>Lanús vs Gimnasia (Mendoza)</b><br><small style="color:#94a3b8;">Liga Argentina</small></td>
+            <td>Menos de 2.5 Goles (Under 2.5)</td>
+            <td>@1.73</td>
+            <td>S/ 2.50</td>
+            <td>-</td>
+            <td><b style="color:#10b981;">✅ GANADO (+1.82)</b></td>
+        </tr>
+        
+        <tr>
+            <td>-</td>
+            <td><b>Sassuolo vs Fiorentina</b><br><small style="color:#94a3b8;">Serie A</small></td>
+            <td>Doble Oportunidad Fiorentina o Empate (X2)</td>
+            <td>@1.45</td>
+            <td>S/ 4.50</td>
+            <td>-</td>
+            <td><b style="color:#10b981;">✅ GANADO (+2.02)</b></td>
+        </tr>
+        
+        <tr>
+            <td>-</td>
+            <td><b>RB Leipzig vs Manchester City</b><br><small style="color:#94a3b8;">Champions League</small></td>
+            <td>Empate no Válido (Visita) - Manchester City</td>
+            <td>@1.45</td>
+            <td>S/ 4.50</td>
+            <td>-</td>
+            <td><b style="color:#f59e0b;">⏳ PENDIENTE (+0.00)</b></td>
+        </tr>
+        
+        <tr>
+            <td>-</td>
+            <td><b>Villarreal vs Paris Saint-Germain</b><br><small style="color:#94a3b8;">Champions League</small></td>
+            <td>Empate no Válido (Visita) - Paris Saint-Germain</td>
+            <td>@1.46</td>
+            <td>S/ 4.50</td>
+            <td>-</td>
+            <td><b style="color:#10b981;">✅ GANADO (+2.07)</b></td>
+        </tr>
+        
+        <tr>
+            <td>-</td>
+            <td><b>Internacional vs Coritiba</b><br><small style="color:#94a3b8;">Brasileirao</small></td>
+            <td>Empate no Válido (Local) - Internacional</td>
+            <td>@1.47</td>
+            <td>S/ 4.50</td>
+            <td>-</td>
+            <td><b style="color:#f59e0b;">⏳ PENDIENTE (+0.00)</b></td>
+        </tr>
+        
+        <tr>
+            <td>-</td>
+            <td><b>Benfica vs Alverca</b><br><small style="color:#94a3b8;">Primeira Liga</small></td>
+            <td>Menos de 12.5 Córners Totales</td>
+            <td>@1.52</td>
+            <td>S/ 4.50</td>
+            <td>-</td>
+            <td><b style="color:#ef4444;">❌ PERDIDO (-4.50)</b></td>
+        </tr>
+        
+        <tr>
+            <td>-</td>
+            <td><b>Newcastle United vs Everton</b><br><small style="color:#94a3b8;">Premier League</small></td>
+            <td>Menos de 11.5 Tiros al Arco</td>
+            <td>@1.54</td>
+            <td>S/ 4.50</td>
+            <td>-</td>
+            <td><b style="color:#10b981;">✅ GANADO (+2.43)</b></td>
+        </tr>
+        
+        <tr>
+            <td>-</td>
+            <td><b>Lorient vs Brest</b><br><small style="color:#94a3b8;">Ligue 1</small></td>
+            <td>Menos de 12.5 Córners Totales</td>
+            <td>@1.52</td>
+            <td>S/ 4.50</td>
+            <td>-</td>
+            <td><b style="color:#10b981;">✅ GANADO (+2.34)</b></td>
+        </tr>
+        
+        <tr>
+            <td>-</td>
+            <td><b>Atalanta vs Parma</b><br><small style="color:#94a3b8;">Serie A</small></td>
+            <td>Menos de 11.5 Córners Totales</td>
+            <td>@1.52</td>
+            <td>S/ 4.50</td>
+            <td>-</td>
+            <td><b style="color:#ef4444;">❌ PERDIDO (-4.50)</b></td>
+        </tr>
+        
+        <tr>
+            <td>-</td>
+            <td><b>Borussia Dortmund vs Real Betis</b><br><small style="color:#94a3b8;">Champions League</small></td>
+            <td>Empate no Válido (Local) - Borussia Dortmund</td>
+            <td>@1.55</td>
+            <td>S/ 4.50</td>
+            <td>-</td>
+            <td><b style="color:#f59e0b;">⏳ PENDIENTE (+0.00)</b></td>
+        </tr>
+        
+        <tr>
+            <td>-</td>
+            <td><b>Feyenoord Rotterdam vs Internazionale</b><br><small style="color:#94a3b8;">Champions League</small></td>
+            <td>Empate no Válido (Visita) - Internazionale</td>
+            <td>@1.62</td>
+            <td>S/ 4.50</td>
+            <td>-</td>
+            <td><b style="color:#10b981;">✅ GANADO (+2.79)</b></td>
+        </tr>
+        
+        <tr>
+            <td>-</td>
+            <td><b>FC Porto vs Napoli</b><br><small style="color:#94a3b8;">Champions League</small></td>
+            <td>Empate no Válido (Local) - FC Porto</td>
+            <td>@1.72</td>
+            <td>S/ 4.50</td>
+            <td>-</td>
+            <td><b style="color:#f59e0b;">⏳ PENDIENTE (+0.00)</b></td>
+        </tr>
+        
+        <tr>
+            <td>-</td>
+            <td><b>Chapecoense vs Mirassol</b><br><small style="color:#94a3b8;">Brasileirao</small></td>
+            <td>Empate no Válido (Visita) - Mirassol</td>
+            <td>@1.74</td>
+            <td>S/ 4.50</td>
+            <td>-</td>
+            <td><b style="color:#f59e0b;">⏳ PENDIENTE (+0.00)</b></td>
+        </tr>
+        
+        <tr>
+            <td>-</td>
+            <td><b>Shakhtar Donetsk vs Sporting CP</b><br><small style="color:#94a3b8;">Champions League</small></td>
+            <td>Empate no Válido (Visita) - Sporting CP</td>
+            <td>@1.73</td>
+            <td>S/ 4.00</td>
+            <td>-</td>
+            <td><b style="color:#10b981;">✅ GANADO (+2.92)</b></td>
+        </tr>
+        
+        <tr>
+            <td>-</td>
+            <td><b>Defensa y Justicia vs Independiente</b><br><small style="color:#94a3b8;">Liga Argentina</small></td>
+            <td>Empate no Válido (Local) - Defensa y Justicia</td>
+            <td>@1.81</td>
+            <td>S/ 3.00</td>
+            <td>-</td>
+            <td><b style="color:#f59e0b;">⏳ PENDIENTE (+0.00)</b></td>
+        </tr>
+        
+        <tr>
+            <td>-</td>
+            <td><b>Torreense vs Ararat-Armenia</b><br><small style="color:#94a3b8;">Europa League</small></td>
+            <td>Empate no Válido (Local) - Torreense</td>
+            <td>@1.54</td>
+            <td>S/ 4.50</td>
+            <td>-</td>
+            <td><b style="color:#f59e0b;">⏳ PENDIENTE (+0.00)</b></td>
+        </tr>
+        
+        <tr>
+            <td>-</td>
+            <td><b>NEC Nijmegen vs Omonia Nicosia</b><br><small style="color:#94a3b8;">Europa League</small></td>
+            <td>Empate no Válido (Local) - NEC Nijmegen</td>
+            <td>@1.57</td>
+            <td>S/ 4.50</td>
+            <td>-</td>
+            <td><b style="color:#f59e0b;">⏳ PENDIENTE (+0.00)</b></td>
+        </tr>
+        
+        <tr>
+            <td>-</td>
+            <td><b>Gimnasia La Plata vs Belgrano (Córdoba)</b><br><small style="color:#94a3b8;">Liga Argentina</small></td>
+            <td>Menos de 2.5 Goles (Under 2.5)</td>
+            <td>@1.81</td>
+            <td>S/ 2.50</td>
+            <td>2-1</td>
+            <td><b style="color:#ef4444;">❌ PERDIDO (-2.50)</b></td>
+        </tr>
+        
+        <tr>
+            <td>-</td>
+            <td><b>Manchester United vs AS Roma</b><br><small style="color:#94a3b8;">Champions League</small></td>
+            <td>Empate no Válido (Visita) - AS Roma</td>
+            <td>@1.66</td>
+            <td>S/ 4.50</td>
+            <td>-</td>
+            <td><b style="color:#ef4444;">❌ PERDIDO (-4.50)</b></td>
+        </tr>
+        
+        <tr>
+            <td>-</td>
+            <td><b>Real Sociedad vs Lyon</b><br><small style="color:#94a3b8;">Europa League</small></td>
+            <td>Empate no Válido (Local) - Real Sociedad</td>
+            <td>@1.62</td>
+            <td>S/ 4.50</td>
+            <td>-</td>
+            <td><b style="color:#f59e0b;">⏳ PENDIENTE (+0.00)</b></td>
+        </tr>
+        
+        <tr>
+            <td>-</td>
+            <td><b>Cruzeiro vs Bahia</b><br><small style="color:#94a3b8;">Brasileirao</small></td>
+            <td>Empate no Válido (Local) - Cruzeiro</td>
+            <td>@1.50</td>
+            <td>S/ 2.50</td>
+            <td>-</td>
+            <td><b style="color:#f59e0b;">⏳ PENDIENTE (+0.00)</b></td>
+        </tr>
+        
+        <tr>
+            <td>-</td>
+            <td><b>Crystal Palace vs TSG Hoffenheim</b><br><small style="color:#94a3b8;">Europa League</small></td>
+            <td>Empate no Válido (Local) - Crystal Palace</td>
+            <td>@1.69</td>
+            <td>S/ 4.00</td>
+            <td>-</td>
+            <td><b style="color:#f59e0b;">⏳ PENDIENTE (+0.00)</b></td>
+        </tr>
+        
+        <tr>
+            <td>-</td>
+            <td><b>Levski Sofia vs Jagiellonia Bialystok</b><br><small style="color:#94a3b8;">Europa League</small></td>
+            <td>Empate no Válido (Local) - Levski Sofia</td>
+            <td>@1.68</td>
+            <td>S/ 3.50</td>
+            <td>-</td>
+            <td><b style="color:#f59e0b;">⏳ PENDIENTE (+0.00)</b></td>
+        </tr>
+        
+        <tr>
+            <td>-</td>
+            <td><b>AZ Alkmaar vs Juventus</b><br><small style="color:#94a3b8;">Europa League</small></td>
+            <td>Empate no Válido (Visita) - Juventus</td>
+            <td>@1.74</td>
+            <td>S/ 4.00</td>
+            <td>-</td>
+            <td><b style="color:#f59e0b;">⏳ PENDIENTE (+0.00)</b></td>
+        </tr>
+        
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
 
 <script>
-const PICKS = [{"event_id": "401915530", "clave_partido": "torree_ararat", "liga": "Europa League", "partido": "Torreense vs Ararat-Armenia", "dia_tag": "05/11 · 15:00", "filtro_dia": "PROXIMOS", "marcador_vivo": "0 - 0", "reloj": "Scheduled", "categoria": "DOBLE", "fuente": "Matchbook", "fuente_xg": "Market Implied xG", "nota_regresion": "xG calibrado mediante liquidez B2B", "mercado": "Empate no Válido (Local) - Torreense", "cuota": 1.55, "prob_real": 75.3, "confianza": 75.2, "edge": 10.7, "stake": 4.5, "tier_cod": "TIER S", "tier_label": "💎 TIER S (Blindado +EV)", "prioridad": 1, "resumen_hist": "Córners: 9.6 | Tiros Arco: 9.0 | xG Total: 2.52", "xg_loc": "1.69", "xg_vis": "0.82", "p_1x": "83", "p_x2": "42", "p_btts": "46", "cor_esp": "9.6", "sot_esp": "9.0", "exactos": "1-0 (14%) | 2-0 (12%) | 1-1 (11%)", "score": 160.6378439909961}, {"event_id": "401915304", "clave_partido": "dortmu_betis", "liga": "Champions League", "partido": "Borussia Dortmund vs Real Betis", "dia_tag": "MAÑANA · 15:00", "filtro_dia": "MANANA", "marcador_vivo": "0 - 0", "reloj": "Scheduled", "categoria": "DOBLE", "fuente": "1xBet", "fuente_xg": "Market Implied xG", "nota_regresion": "xG calibrado mediante liquidez B2B", "mercado": "Empate no Válido (Local) - Borussia Dortmund", "cuota": 1.55, "prob_real": 74.6, "confianza": 74.8, "edge": 10.1, "stake": 4.5, "tier_cod": "TIER S", "tier_label": "💎 TIER S (Blindado +EV)", "prioridad": 1, "resumen_hist": "Córners: 9.9 | Tiros Arco: 9.5 | xG Total: 2.52", "xg_loc": "1.69", "xg_vis": "0.83", "p_1x": "83", "p_x2": "42", "p_btts": "47", "cor_esp": "9.9", "sot_esp": "9.5", "exactos": "1-0 (14%) | 2-0 (12%) | 1-1 (11%)", "score": 160.28162049939772}, {"event_id": "401915535", "clave_partido": "nec ni_omonia", "liga": "Europa League", "partido": "NEC Nijmegen vs Omonia Nicosia", "dia_tag": "05/11 · 12:45", "filtro_dia": "PROXIMOS", "marcador_vivo": "0 - 0", "reloj": "Scheduled", "categoria": "DOBLE", "fuente": "Kambi B2B (Betsson/Direct)", "fuente_xg": "Market Implied xG", "nota_regresion": "xG calibrado mediante liquidez B2B", "mercado": "Empate no Válido (Local) - NEC Nijmegen", "cuota": 1.57, "prob_real": 72.4, "confianza": 73.4, "edge": 8.7, "stake": 4.5, "tier_cod": "TIER S", "tier_label": "💎 TIER S (Blindado +EV)", "prioridad": 1, "resumen_hist": "Córners: 9.6 | Tiros Arco: 9.0 | xG Total: 2.51", "xg_loc": "1.65", "xg_vis": "0.87", "p_1x": "81", "p_x2": "44", "p_btts": "47", "cor_esp": "9.6", "sot_esp": "9.0", "exactos": "1-0 (13%) | 1-1 (12%) | 2-0 (11%)", "score": 159.0742605680192}, {"event_id": "401915537", "clave_partido": "socied_lyon", "liga": "Europa League", "partido": "Real Sociedad vs Lyon", "dia_tag": "05/11 · 12:45", "filtro_dia": "PROXIMOS", "marcador_vivo": "0 - 0", "reloj": "Scheduled", "categoria": "DOBLE", "fuente": "Unibet (NL)", "fuente_xg": "Market Implied xG", "nota_regresion": "xG calibrado mediante liquidez B2B", "mercado": "Empate no Válido (Local) - Real Sociedad", "cuota": 1.62, "prob_real": 72.2, "confianza": 73.3, "edge": 10.4, "stake": 4.5, "tier_cod": "TIER S", "tier_label": "💎 TIER S (Blindado +EV)", "prioridad": 1, "resumen_hist": "Córners: 9.6 | Tiros Arco: 9.0 | xG Total: 2.51", "xg_loc": "1.64", "xg_vis": "0.87", "p_1x": "81", "p_x2": "45", "p_btts": "48", "cor_esp": "9.6", "sot_esp": "9.0", "exactos": "1-0 (13%) | 1-1 (12%) | 2-0 (11%)", "score": 158.94616145321896}, {"event_id": "401841303", "clave_partido": "cruzei_bahia", "liga": "Brasileirao", "partido": "Cruzeiro vs Bahia", "dia_tag": "05/11 · 19:30", "filtro_dia": "PROXIMOS", "marcador_vivo": "0 - 0", "reloj": "Scheduled", "categoria": "DOBLE", "fuente": "Coral", "fuente_xg": "Shot-Quality xG", "nota_regresion": "Rendimiento alineado con su curva de Goles Esperados (xG)", "mercado": "Empate no Válido (Local) - Cruzeiro", "cuota": 1.5, "prob_real": 70.8, "confianza": 72.5, "edge": 4.1, "stake": 2.5, "tier_cod": "TIER S", "tier_label": "💎 TIER S (Blindado +EV)", "prioridad": 1, "resumen_hist": "Córners: 10.3 | Tiros Arco: 8.8 | xG Total: 2.80", "xg_loc": "1.72", "xg_vis": "1.09", "p_1x": "77", "p_x2": "48", "p_btts": "55", "cor_esp": "10.3", "sot_esp": "8.8", "exactos": "1-1 (11%) | 1-0 (10%) | 2-1 (10%)", "score": 158.16458552683534}, {"event_id": "401915301", "clave_partido": "porto_napoli", "liga": "Champions League", "partido": "FC Porto vs Napoli", "dia_tag": "MAÑANA · 15:00", "filtro_dia": "MANANA", "marcador_vivo": "0 - 0", "reloj": "Scheduled", "categoria": "DOBLE", "fuente": "Smarkets", "fuente_xg": "Market Implied xG", "nota_regresion": "xG calibrado mediante liquidez B2B", "mercado": "Empate no Válido (Local) - FC Porto", "cuota": 1.71, "prob_real": 68.6, "confianza": 71.1, "edge": 10.1, "stake": 4.5, "tier_cod": "TIER S", "tier_label": "💎 TIER S (Blindado +EV)", "prioridad": 1, "resumen_hist": "Córners: 9.9 | Tiros Arco: 9.5 | xG Total: 2.51", "xg_loc": "1.57", "xg_vis": "0.94", "p_1x": "78", "p_x2": "48", "p_btts": "49", "cor_esp": "9.9", "sot_esp": "9.5", "exactos": "1-0 (13%) | 1-1 (12%) | 2-0 (10%)", "score": 156.95283457331314}, {"event_id": "401915526", "clave_partido": "crysta_tsg ho", "liga": "Europa League", "partido": "Crystal Palace vs TSG Hoffenheim", "dia_tag": "05/11 · 12:45", "filtro_dia": "PROXIMOS", "marcador_vivo": "0 - 0", "reloj": "Scheduled", "categoria": "DOBLE", "fuente": "Betfair", "fuente_xg": "Market Implied xG", "nota_regresion": "xG calibrado mediante liquidez B2B", "mercado": "Empate no Válido (Local) - Crystal Palace", "cuota": 1.69, "prob_real": 67.5, "confianza": 70.5, "edge": 8.3, "stake": 4.0, "tier_cod": "TIER S", "tier_label": "💎 TIER S (Blindado +EV)", "prioridad": 1, "resumen_hist": "Córners: 9.6 | Tiros Arco: 9.0 | xG Total: 2.51", "xg_loc": "1.55", "xg_vis": "0.96", "p_1x": "78", "p_x2": "49", "p_btts": "49", "cor_esp": "9.6", "sot_esp": "9.0", "exactos": "1-0 (13%) | 1-1 (12%) | 2-0 (10%)", "score": 156.35719420603465}, {"event_id": "401915536", "clave_partido": "levski_jagiel", "liga": "Europa League", "partido": "Levski Sofia vs Jagiellonia Bialystok", "dia_tag": "05/11 · 12:45", "filtro_dia": "PROXIMOS", "marcador_vivo": "0 - 0", "reloj": "Scheduled", "categoria": "DOBLE", "fuente": "Kambi B2B (Betsson/Direct)", "fuente_xg": "Market Implied xG", "nota_regresion": "xG calibrado mediante liquidez B2B", "mercado": "Empate no Válido (Local) - Levski Sofia", "cuota": 1.68, "prob_real": 67.1, "confianza": 70.2, "edge": 7.6, "stake": 3.5, "tier_cod": "TIER S", "tier_label": "💎 TIER S (Blindado +EV)", "prioridad": 1, "resumen_hist": "Córners: 9.6 | Tiros Arco: 9.0 | xG Total: 2.51", "xg_loc": "1.54", "xg_vis": "0.97", "p_1x": "77", "p_x2": "49", "p_btts": "49", "cor_esp": "9.6", "sot_esp": "9.0", "exactos": "1-0 (13%) | 1-1 (12%) | 2-0 (10%)", "score": 156.1406530791921}, {"event_id": "401915529", "clave_partido": "az alk_juvent", "liga": "Europa League", "partido": "AZ Alkmaar vs Juventus", "dia_tag": "05/11 · 15:00", "filtro_dia": "PROXIMOS", "marcador_vivo": "0 - 0", "reloj": "Scheduled", "categoria": "DOBLE", "fuente": "Unibet (NL)", "fuente_xg": "Market Implied xG", "nota_regresion": "xG calibrado mediante liquidez B2B", "mercado": "Empate no Válido (Visita) - Juventus", "cuota": 1.75, "prob_real": 65.4, "confianza": 68.8, "edge": 8.2, "stake": 4.0, "tier_cod": "TIER S", "tier_label": "💎 TIER S (Blindado +EV)", "prioridad": 1, "resumen_hist": "Córners: 9.6 | Tiros Arco: 9.0 | xG Total: 2.49", "xg_loc": "1.00", "xg_vis": "1.49", "p_1x": "51", "p_x2": "76", "p_btts": "50", "cor_esp": "9.6", "sot_esp": "9.0", "exactos": "0-1 (12%) | 1-1 (12%) | 0-2 (9%)", "score": 154.84951812321654}, {"event_id": "401841667", "clave_partido": "gimnas_belgra", "liga": "Liga Argentina", "partido": "Gimnasia La Plata vs Belgrano (Córdoba)", "dia_tag": "05/11 · 17:15", "filtro_dia": "PROXIMOS", "marcador_vivo": "0 - 0", "reloj": "Scheduled", "categoria": "GOLES", "fuente": "1xBet", "fuente_xg": "Shot-Quality xG", "nota_regresion": "Rendimiento alineado con su curva de Goles Esperados (xG)", "mercado": "Menos de 2.5 Goles (Under 2.5)", "cuota": 1.81, "prob_real": 59.1, "confianza": 65.1, "edge": 3.9, "stake": 2.5, "tier_cod": "TIER A", "tier_label": "🥇 TIER A (Alta Ventaja)", "prioridad": 2, "resumen_hist": "Córners: 9.1 | Tiros Arco: 8.1 | xG Total: 2.33", "xg_loc": "1.20", "xg_vis": "1.13", "p_1x": "67", "p_x2": "63", "p_btts": "48", "cor_esp": "9.1", "sot_esp": "8.1", "exactos": "1-1 (13%) | 1-0 (12%) | 0-1 (11%)", "score": 136.41127}];
-const CATALOGO = [{"liga": "Brasileirao", "partido": "Chapecoense vs Mirassol", "dia_tag": "HOY · 17:30", "xg_loc": "0.85", "xg_vis": "1.85", "p1": "16", "px": "23", "p2": "61", "po25": "50", "pbtts": "49", "exactos": "0-1 (12%) | 0-2 (12%) | 1-1 (11%)", "resumen": "Córners: 10.3 | Tiros Arco: 8.8 | xG Total: 2.70"}, {"liga": "Brasileirao", "partido": "Internacional vs Coritiba", "dia_tag": "HOY · 19:30", "xg_loc": "1.68", "xg_vis": "0.95", "p1": "55", "px": "25", "p2": "20", "po25": "48", "pbtts": "50", "exactos": "1-0 (12%) | 1-1 (12%) | 2-0 (10%)", "resumen": "Córners: 10.3 | Tiros Arco: 8.8 | xG Total: 2.62"}, {"liga": "Brasileirao", "partido": "Athletico-PR vs Vasco da Gama", "dia_tag": "MAÑANA · 17:30", "xg_loc": "1.58", "xg_vis": "1.29", "p1": "44", "px": "25", "p2": "31", "po25": "54", "pbtts": "58", "exactos": "1-1 (12%) | 2-1 (9%) | 1-0 (9%)", "resumen": "Córners: 10.3 | Tiros Arco: 8.8 | xG Total: 2.87"}, {"liga": "Brasileirao", "partido": "Flamengo vs Grêmio", "dia_tag": "MAÑANA · 17:30", "xg_loc": "2.25", "xg_vis": "0.45", "p1": "79", "px": "16", "p2": "5", "po25": "50", "pbtts": "33", "exactos": "2-0 (17%) | 1-0 (15%) | 3-0 (13%)", "resumen": "Córners: 10.3 | Tiros Arco: 8.8 | xG Total: 2.70"}, {"liga": "Brasileirao", "partido": "Botafogo vs Atlético-MG", "dia_tag": "MAÑANA · 19:30", "xg_loc": "1.33", "xg_vis": "1.17", "p1": "40", "px": "28", "p2": "32", "po25": "46", "pbtts": "52", "exactos": "1-1 (13%) | 1-0 (11%) | 0-1 (10%)", "resumen": "Córners: 10.3 | Tiros Arco: 8.8 | xG Total: 2.51"}, {"liga": "Brasileirao", "partido": "São Paulo vs Corinthians", "dia_tag": "MAÑANA · 19:30", "xg_loc": "1.49", "xg_vis": "1.02", "p1": "48", "px": "27", "p2": "25", "po25": "46", "pbtts": "50", "exactos": "1-1 (12%) | 1-0 (12%) | 2-1 (9%)", "resumen": "Córners: 10.3 | Tiros Arco: 8.8 | xG Total: 2.51"}, {"liga": "Brasileirao", "partido": "Palmeiras vs Remo", "dia_tag": "05/11 · 17:30", "xg_loc": "1.79", "xg_vis": "0.68", "p1": "64", "px": "23", "p2": "13", "po25": "45", "pbtts": "42", "exactos": "1-0 (15%) | 2-0 (13%) | 1-1 (10%)", "resumen": "Córners: 10.4 | Tiros Arco: 9.1 | xG Total: 2.47"}, {"liga": "Brasileirao", "partido": "Cruzeiro vs Bahia", "dia_tag": "05/11 · 19:30", "xg_loc": "1.72", "xg_vis": "1.09", "p1": "52", "px": "25", "p2": "23", "po25": "53", "pbtts": "55", "exactos": "1-1 (11%) | 1-0 (10%) | 2-1 (10%)", "resumen": "Córners: 10.3 | Tiros Arco: 8.8 | xG Total: 2.80"}, {"liga": "Liga Argentina", "partido": "Aldosivi vs River Plate", "dia_tag": "05/11 · 13:00", "xg_loc": "0.81", "xg_vis": "1.75", "p1": "16", "px": "24", "p2": "60", "po25": "47", "pbtts": "47", "exactos": "0-1 (14%) | 0-2 (12%) | 1-1 (11%)", "resumen": "Córners: 9.6 | Tiros Arco: 8.6 | xG Total: 2.56"}, {"liga": "Liga Argentina", "partido": "Gimnasia La Plata vs Belgrano (Córdoba)", "dia_tag": "05/11 · 17:15", "xg_loc": "1.20", "xg_vis": "1.13", "p1": "37", "px": "29", "p2": "33", "po25": "41", "pbtts": "48", "exactos": "1-1 (13%) | 1-0 (12%) | 0-1 (11%)", "resumen": "Córners: 9.1 | Tiros Arco: 8.1 | xG Total: 2.33"}, {"liga": "Liga 1 Peru", "partido": "Alianza Lima vs Cienciano del Cusco", "dia_tag": "HOY · 20:00", "xg_loc": "1.49", "xg_vis": "1.02", "p1": "48", "px": "27", "p2": "25", "po25": "45", "pbtts": "50", "exactos": "1-1 (12%) | 1-0 (12%) | 2-1 (9%)", "resumen": "Córners: 9.2 | Tiros Arco: 8.4 | xG Total: 2.51"}, {"liga": "Liga 1 Peru", "partido": "Universitario vs Sport Boys", "dia_tag": "MAÑANA · 20:30", "xg_loc": "1.49", "xg_vis": "1.02", "p1": "48", "px": "27", "p2": "25", "po25": "45", "pbtts": "50", "exactos": "1-1 (12%) | 1-0 (12%) | 2-1 (9%)", "resumen": "Córners: 9.2 | Tiros Arco: 8.4 | xG Total: 2.51"}, {"liga": "Champions League", "partido": "AEK Athens vs Real Madrid", "dia_tag": "MAÑANA · 12:45", "xg_loc": "0.60", "xg_vis": "2.12", "p1": "8", "px": "18", "p2": "73", "po25": "51", "pbtts": "40", "exactos": "0-2 (15%) | 0-1 (14%) | 0-3 (10%)", "resumen": "Córners: 9.9 | Tiros Arco: 9.5 | xG Total: 2.72"}, {"liga": "Champions League", "partido": "Fenerbahce vs Liverpool", "dia_tag": "MAÑANA · 12:45", "xg_loc": "0.64", "xg_vis": "1.84", "p1": "11", "px": "22", "p2": "67", "po25": "45", "pbtts": "40", "exactos": "0-1 (15%) | 0-2 (14%) | 1-1 (10%)", "resumen": "Córners: 9.9 | Tiros Arco: 9.5 | xG Total: 2.48"}, {"liga": "Champions League", "partido": "Borussia Dortmund vs Real Betis", "dia_tag": "MAÑANA · 15:00", "xg_loc": "1.69", "xg_vis": "0.83", "p1": "58", "px": "25", "p2": "17", "po25": "46", "pbtts": "47", "exactos": "1-0 (14%) | 2-0 (12%) | 1-1 (11%)", "resumen": "Córners: 9.9 | Tiros Arco: 9.5 | xG Total: 2.52"}, {"liga": "Champions League", "partido": "FC Porto vs Napoli", "dia_tag": "MAÑANA · 15:00", "xg_loc": "1.57", "xg_vis": "0.94", "p1": "52", "px": "26", "p2": "22", "po25": "46", "pbtts": "49", "exactos": "1-0 (13%) | 1-1 (12%) | 2-0 (10%)", "resumen": "Córners: 9.9 | Tiros Arco: 9.5 | xG Total: 2.51"}, {"liga": "Champions League", "partido": "Lens vs Como", "dia_tag": "MAÑANA · 15:00", "xg_loc": "1.06", "xg_vis": "1.43", "p1": "27", "px": "27", "p2": "45", "po25": "45", "pbtts": "50", "exactos": "1-1 (13%) | 0-1 (12%) | 1-2 (9%)", "resumen": "Córners: 9.9 | Tiros Arco: 9.5 | xG Total: 2.49"}, {"liga": "Champions League", "partido": "PSV Eindhoven vs Club Brugge", "dia_tag": "MAÑANA · 15:00", "xg_loc": "1.48", "xg_vis": "1.03", "p1": "47", "px": "27", "p2": "25", "po25": "45", "pbtts": "50", "exactos": "1-1 (12%) | 1-0 (12%) | 2-1 (9%)", "resumen": "Córners: 9.9 | Tiros Arco: 9.5 | xG Total: 2.51"}, {"liga": "Champions League", "partido": "RB Leipzig vs Manchester City", "dia_tag": "MAÑANA · 15:00", "xg_loc": "0.69", "xg_vis": "1.79", "p1": "13", "px": "23", "p2": "64", "po25": "45", "pbtts": "42", "exactos": "0-1 (15%) | 0-2 (13%) | 1-1 (10%)", "resumen": "Córners: 9.9 | Tiros Arco: 9.5 | xG Total: 2.48"}, {"liga": "Champions League", "partido": "Slavia Prague vs Arsenal", "dia_tag": "MAÑANA · 15:00", "xg_loc": "0.60", "xg_vis": "2.10", "p1": "8", "px": "19", "p2": "73", "po25": "50", "pbtts": "40", "exactos": "0-2 (15%) | 0-1 (14%) | 0-3 (10%)", "resumen": "Córners: 9.9 | Tiros Arco: 9.5 | xG Total: 2.70"}, {"liga": "Champions League", "partido": "Viking FK vs Sabah FK", "dia_tag": "MAÑANA · 15:00", "xg_loc": "1.96", "xg_vis": "0.56", "p1": "71", "px": "20", "p2": "9", "po25": "46", "pbtts": "38", "exactos": "1-0 (16%) | 2-0 (15%) | 3-0 (10%)", "resumen": "Córners: 9.9 | Tiros Arco: 9.5 | xG Total: 2.53"}, {"liga": "Europa League", "partido": "Stade Rennais vs Olympiacos", "dia_tag": "MAÑANA · 10:30", "xg_loc": "1.44", "xg_vis": "1.07", "p1": "45", "px": "27", "p2": "27", "po25": "45", "pbtts": "51", "exactos": "1-1 (13%) | 1-0 (12%) | 2-1 (9%)", "resumen": "Córners: 9.6 | Tiros Arco: 9.0 | xG Total: 2.51"}, {"liga": "Europa League", "partido": "AC Milan vs Ferencvaros", "dia_tag": "05/11 · 12:45", "xg_loc": "2.05", "xg_vis": "0.48", "p1": "75", "px": "18", "p2": "7", "po25": "46", "pbtts": "34", "exactos": "2-0 (17%) | 1-0 (16%) | 3-0 (11%)", "resumen": "Córners: 9.6 | Tiros Arco: 9.0 | xG Total: 2.53"}, {"liga": "Europa League", "partido": "Anderlecht vs RB Salzburg", "dia_tag": "05/11 · 12:45", "xg_loc": "1.49", "xg_vis": "1.02", "p1": "48", "px": "27", "p2": "25", "po25": "45", "pbtts": "50", "exactos": "1-1 (12%) | 1-0 (12%) | 2-1 (9%)", "resumen": "Córners: 9.6 | Tiros Arco: 9.0 | xG Total: 2.51"}, {"liga": "Europa League", "partido": "Crystal Palace vs TSG Hoffenheim", "dia_tag": "05/11 · 12:45", "xg_loc": "1.55", "xg_vis": "0.96", "p1": "51", "px": "26", "p2": "22", "po25": "46", "pbtts": "49", "exactos": "1-0 (13%) | 1-1 (12%) | 2-0 (10%)", "resumen": "Córners: 9.6 | Tiros Arco: 9.0 | xG Total: 2.51"}, {"liga": "Europa League", "partido": "Levski Sofia vs Jagiellonia Bialystok", "dia_tag": "05/11 · 12:45", "xg_loc": "1.54", "xg_vis": "0.97", "p1": "51", "px": "26", "p2": "23", "po25": "46", "pbtts": "49", "exactos": "1-0 (13%) | 1-1 (12%) | 2-0 (10%)", "resumen": "Córners: 9.6 | Tiros Arco: 9.0 | xG Total: 2.51"}, {"liga": "Europa League", "partido": "Lillestrom vs Viktoria Plzen", "dia_tag": "05/11 · 12:45", "xg_loc": "1.09", "xg_vis": "1.40", "p1": "29", "px": "28", "p2": "44", "po25": "45", "pbtts": "51", "exactos": "1-1 (13%) | 0-1 (12%) | 1-0 (9%)", "resumen": "Córners: 9.6 | Tiros Arco: 9.0 | xG Total: 2.49"}, {"liga": "Europa League", "partido": "NEC Nijmegen vs Omonia Nicosia", "dia_tag": "05/11 · 12:45", "xg_loc": "1.65", "xg_vis": "0.87", "p1": "56", "px": "25", "p2": "19", "po25": "46", "pbtts": "47", "exactos": "1-0 (13%) | 1-1 (12%) | 2-0 (11%)", "resumen": "Córners: 9.6 | Tiros Arco: 9.0 | xG Total: 2.51"}, {"liga": "Europa League", "partido": "Real Sociedad vs Lyon", "dia_tag": "05/11 · 12:45", "xg_loc": "1.64", "xg_vis": "0.87", "p1": "55", "px": "25", "p2": "19", "po25": "46", "pbtts": "48", "exactos": "1-0 (13%) | 1-1 (12%) | 2-0 (11%)", "resumen": "Córners: 9.6 | Tiros Arco: 9.0 | xG Total: 2.51"}, {"liga": "Europa League", "partido": "Sparta Prague vs AFC Bournemouth", "dia_tag": "05/11 · 12:45", "xg_loc": "0.63", "xg_vis": "1.85", "p1": "11", "px": "22", "p2": "67", "po25": "45", "pbtts": "40", "exactos": "0-1 (16%) | 0-2 (14%) | 1-1 (10%)", "resumen": "Córners: 9.6 | Tiros Arco: 9.0 | xG Total: 2.47"}, {"liga": "Europa League", "partido": "AZ Alkmaar vs Juventus", "dia_tag": "05/11 · 15:00", "xg_loc": "1.00", "xg_vis": "1.49", "p1": "24", "px": "27", "p2": "49", "po25": "45", "pbtts": "50", "exactos": "0-1 (12%) | 1-1 (12%) | 0-2 (9%)", "resumen": "Córners: 9.6 | Tiros Arco: 9.0 | xG Total: 2.49"}, {"liga": "Europa League", "partido": "Bayer Leverkusen vs Marseille", "dia_tag": "05/11 · 15:00", "xg_loc": "1.99", "xg_vis": "0.53", "p1": "73", "px": "19", "p2": "8", "po25": "46", "pbtts": "36", "exactos": "1-0 (16%) | 2-0 (16%) | 3-0 (11%)", "resumen": "Córners: 9.6 | Tiros Arco: 9.0 | xG Total: 2.53"}, {"liga": "Europa League", "partido": "Benfica vs Lech Poznan", "dia_tag": "05/11 · 15:00", "xg_loc": "2.27", "xg_vis": "0.45", "p1": "80", "px": "15", "p2": "5", "po25": "51", "pbtts": "33", "exactos": "2-0 (17%) | 1-0 (15%) | 3-0 (13%)", "resumen": "Córners: 9.6 | Tiros Arco: 9.0 | xG Total: 2.72"}, {"liga": "Europa League", "partido": "Celta Vigo vs Union St.-Gilloise", "dia_tag": "05/11 · 15:00", "xg_loc": "1.42", "xg_vis": "1.08", "p1": "45", "px": "28", "p2": "28", "po25": "45", "pbtts": "51", "exactos": "1-1 (13%) | 1-0 (12%) | 2-1 (9%)", "resumen": "Córners: 9.6 | Tiros Arco: 9.0 | xG Total: 2.51"}, {"liga": "Europa League", "partido": "Celtic vs Besiktas", "dia_tag": "05/11 · 15:00", "xg_loc": "1.09", "xg_vis": "1.41", "p1": "28", "px": "28", "p2": "44", "po25": "45", "pbtts": "51", "exactos": "1-1 (13%) | 0-1 (12%) | 1-0 (9%)", "resumen": "Córners: 9.6 | Tiros Arco: 9.0 | xG Total: 2.49"}, {"liga": "Europa League", "partido": "Hapoel Be'er vs OFI Crete", "dia_tag": "05/11 · 15:00", "xg_loc": "1.49", "xg_vis": "1.02", "p1": "48", "px": "27", "p2": "25", "po25": "46", "pbtts": "50", "exactos": "1-1 (12%) | 1-0 (12%) | 2-1 (9%)", "resumen": "Córners: 9.6 | Tiros Arco: 9.0 | xG Total: 2.51"}, {"liga": "Europa League", "partido": "SK Sturm Graz vs NK Celje", "dia_tag": "05/11 · 15:00", "xg_loc": "1.84", "xg_vis": "0.68", "p1": "65", "px": "22", "p2": "12", "po25": "46", "pbtts": "42", "exactos": "1-0 (15%) | 2-0 (14%) | 1-1 (10%)", "resumen": "Córners: 9.6 | Tiros Arco: 9.0 | xG Total: 2.52"}, {"liga": "Europa League", "partido": "Sunderland vs Dinamo Zagreb", "dia_tag": "05/11 · 15:00", "xg_loc": "1.91", "xg_vis": "0.61", "p1": "69", "px": "21", "p2": "10", "po25": "46", "pbtts": "40", "exactos": "1-0 (15%) | 2-0 (15%) | 1-1 (9%)", "resumen": "Córners: 9.6 | Tiros Arco: 9.0 | xG Total: 2.53"}, {"liga": "Europa League", "partido": "Torreense vs Ararat-Armenia", "dia_tag": "05/11 · 15:00", "xg_loc": "1.69", "xg_vis": "0.82", "p1": "58", "px": "25", "p2": "17", "po25": "46", "pbtts": "46", "exactos": "1-0 (14%) | 2-0 (12%) | 1-1 (11%)", "resumen": "Córners: 9.6 | Tiros Arco: 9.0 | xG Total: 2.52"}];
-const HISTORIAL = [{"event_id": "401915529", "clave_partido": "az alk_juvent", "liga": "Europa League", "partido": "AZ Alkmaar vs Juventus", "mercado": "Empate no Válido (Visita) - Juventus", "cuota": 1.74, "stake": 4.0, "tier": "TIER S", "estado": "PENDIENTE", "marcador_final": "05/11 · 15:00", "profit": 0.0, "version": "Pro2.6-Audited"}, {"event_id": "401915536", "clave_partido": "levski_jagiel", "liga": "Europa League", "partido": "Levski Sofia vs Jagiellonia Bialystok", "mercado": "Empate no Válido (Local) - Levski Sofia", "cuota": 1.68, "stake": 3.5, "tier": "TIER S", "estado": "PENDIENTE", "marcador_final": "05/11 · 12:45", "profit": 0.0, "version": "Pro2.6-Audited"}, {"event_id": "401915526", "clave_partido": "crysta_tsg ho", "liga": "Europa League", "partido": "Crystal Palace vs TSG Hoffenheim", "mercado": "Empate no Válido (Local) - Crystal Palace", "cuota": 1.69, "stake": 4.0, "tier": "TIER S", "estado": "PENDIENTE", "marcador_final": "05/11 · 12:45", "profit": 0.0, "version": "Pro2.6-Audited"}, {"event_id": "401841303", "clave_partido": "cruzei_bahia", "liga": "Brasileirao", "partido": "Cruzeiro vs Bahia", "mercado": "Empate no Válido (Local) - Cruzeiro", "cuota": 1.5, "stake": 2.5, "tier": "TIER S", "estado": "PENDIENTE", "marcador_final": "05/11 · 19:30", "profit": 0.0, "version": "Pro2.6-Audited"}, {"event_id": "401915537", "clave_partido": "socied_lyon", "liga": "Europa League", "partido": "Real Sociedad vs Lyon", "mercado": "Empate no Válido (Local) - Real Sociedad", "cuota": 1.62, "stake": 4.5, "tier": "TIER S", "estado": "PENDIENTE", "marcador_final": "05/11 · 12:45", "profit": 0.0, "version": "Pro2.6-Audited"}, {"event_id": "401915308", "clave_partido": "man un_roma", "liga": "Champions League", "partido": "Manchester United vs AS Roma", "mercado": "Empate no Válido (Visita) - AS Roma", "cuota": 1.66, "stake": 4.5, "tier": "TIER S", "estado": "PERDIDO", "marcador_final": "3-2 (Final)", "profit": -4.5, "version": "Pro2.6-Audited"}, {"event_id": "401841667", "clave_partido": "gimnas_belgra", "liga": "Liga Argentina", "partido": "Gimnasia La Plata vs Belgrano (Córdoba)", "mercado": "Menos de 2.5 Goles (Under 2.5)", "cuota": 1.81, "stake": 2.5, "tier": "TIER A", "estado": "PENDIENTE", "marcador_final": "05/11 · 17:15", "profit": 0.0, "version": "Pro2.6-Audited"}, {"event_id": "401915535", "clave_partido": "nec ni_omonia", "liga": "Europa League", "partido": "NEC Nijmegen vs Omonia Nicosia", "mercado": "Empate no Válido (Local) - NEC Nijmegen", "cuota": 1.57, "stake": 4.5, "tier": "TIER S", "estado": "PENDIENTE", "marcador_final": "05/11 · 12:45", "profit": 0.0, "version": "Pro2.6-Audited"}, {"event_id": "401915530", "clave_partido": "torree_ararat", "liga": "Europa League", "partido": "Torreense vs Ararat-Armenia", "mercado": "Empate no Válido (Local) - Torreense", "cuota": 1.54, "stake": 4.5, "tier": "TIER S", "estado": "PENDIENTE", "marcador_final": "05/11 · 15:00", "profit": 0.0, "version": "Pro2.6-Audited"}, {"event_id": "401841657", "clave_partido": "defens_indepe", "liga": "Liga Argentina", "partido": "Defensa y Justicia vs Independiente", "mercado": "Empate no Válido (Local) - Defensa y Justicia", "cuota": 1.81, "stake": 3.0, "tier": "TIER A", "estado": "REEMBOLSO", "marcador_final": "1-1 (Reembolso)", "profit": 0.0, "version": "Pro2.6-Audited"}, {"event_id": "401915310", "clave_partido": "shakht_sp lis", "liga": "Champions League", "partido": "Shakhtar Donetsk vs Sporting CP", "mercado": "Empate no Válido (Visita) - Sporting CP", "cuota": 1.73, "stake": 4.0, "tier": "TIER S", "estado": "GANADO", "marcador_final": "0-1 (Final)", "profit": 2.92, "version": "Pro2.6-Audited"}, {"event_id": "401841304", "clave_partido": "chapec_mirass", "liga": "Brasileirao", "partido": "Chapecoense vs Mirassol", "mercado": "Empate no Válido (Visita) - Mirassol", "cuota": 1.74, "stake": 4.5, "tier": "TIER S", "estado": "PENDIENTE", "marcador_final": "EN VIVO 1-2 (87')", "profit": 0.0, "version": "Pro2.6-Audited"}, {"event_id": "401915301", "clave_partido": "porto_napoli", "liga": "Champions League", "partido": "FC Porto vs Napoli", "mercado": "Empate no Válido (Local) - FC Porto", "cuota": 1.72, "stake": 4.5, "tier": "TIER S", "estado": "PENDIENTE", "marcador_final": "04/11 · 15:00", "profit": 0.0, "version": "Pro2.6-Audited"}, {"event_id": "401915307", "clave_partido": "feyeno_inter", "liga": "Champions League", "partido": "Feyenoord Rotterdam vs Internazionale", "mercado": "Empate no Válido (Visita) - Internazionale", "cuota": 1.62, "stake": 4.5, "tier": "TIER S", "estado": "GANADO", "marcador_final": "0-3 (Final)", "profit": 2.79, "version": "Pro2.6-Audited"}, {"event_id": "401915304", "clave_partido": "dortmu_betis", "liga": "Champions League", "partido": "Borussia Dortmund vs Real Betis", "mercado": "Empate no Válido (Local) - Borussia Dortmund", "cuota": 1.55, "stake": 4.5, "tier": "TIER S", "estado": "PENDIENTE", "marcador_final": "04/11 · 15:00", "profit": 0.0, "version": "Pro2.6-Audited"}, {"event_id": "401874971", "clave_partido": "atalan_parma", "liga": "Serie A", "partido": "Atalanta vs Parma", "mercado": "Menos de 11.5 Córners Totales", "cuota": 1.52, "stake": 4.5, "tier": "TIER S", "estado": "PERDIDO", "marcador_final": "0-3 (Final · 13 Córners)", "profit": -4.5, "version": "Pro2.6-Audited"}, {"event_id": "401876419", "clave_partido": "lorien_brest", "liga": "Ligue 1", "partido": "Lorient vs Brest", "mercado": "Menos de 12.5 Córners Totales", "cuota": 1.52, "stake": 4.5, "tier": "TIER S", "estado": "GANADO", "marcador_final": "0-2 (Final · 10 Córners)", "profit": 2.34, "version": "Pro2.6-Audited"}, {"event_id": "401878762", "clave_partido": "newcas_everto", "liga": "Premier League", "partido": "Newcastle United vs Everton", "mercado": "Menos de 11.5 Tiros al Arco", "cuota": 1.54, "stake": 4.5, "tier": "TIER S", "estado": "GANADO", "marcador_final": "0-1 (Final · 7 SOT)", "profit": 2.43, "version": "Pro2.6-Audited"}, {"event_id": "401885403", "clave_partido": "benfic_alverc", "liga": "Primeira Liga", "partido": "Benfica vs Alverca", "mercado": "Menos de 12.5 Córners Totales", "cuota": 1.52, "stake": 4.5, "tier": "TIER S", "estado": "PERDIDO", "marcador_final": "1-0 (Final · 13 Córners)", "profit": -4.5, "version": "Pro2.6-Audited"}, {"event_id": "401841301", "clave_partido": "intern_coriti", "liga": "Brasileirao", "partido": "Internacional vs Coritiba", "mercado": "Empate no Válido (Local) - Internacional", "cuota": 1.47, "stake": 4.5, "tier": "TIER S", "estado": "PENDIENTE", "marcador_final": "MAÑANA · 19:30", "profit": 0.0, "version": "Pro2.6-Audited"}, {"event_id": "401915309", "clave_partido": "villar_paris ", "liga": "Champions League", "partido": "Villarreal vs Paris Saint-Germain", "mercado": "Empate no Válido (Visita) - Paris Saint-Germain", "cuota": 1.46, "stake": 4.5, "tier": "TIER S", "estado": "GANADO", "marcador_final": "0-6 (Final)", "profit": 2.07, "version": "Pro2.6-Audited"}, {"event_id": "401915306", "clave_partido": "rb lei_man ci", "liga": "Champions League", "partido": "RB Leipzig vs Manchester City", "mercado": "Empate no Válido (Visita) - Manchester City", "cuota": 1.45, "stake": 4.5, "tier": "TIER S", "estado": "PENDIENTE", "marcador_final": "04/11 · 15:00", "profit": 0.0, "version": "Pro2.6-Audited"}, {"event_id": "401874963", "clave_partido": "sassuo_fioren", "liga": "Serie A", "partido": "Sassuolo vs Fiorentina", "mercado": "Doble Oportunidad Fiorentina o Empate (X2)", "cuota": 1.45, "stake": 4.5, "tier": "TIER S", "estado": "GANADO", "marcador_final": "2-4 (Final)", "profit": 2.02, "version": "Pro2.6-Audited"}, {"event_id": "401841651", "clave_partido": "lanus_gimnas", "liga": "Liga Argentina", "partido": "Lanús vs Gimnasia (Mendoza)", "mercado": "Menos de 2.5 Goles (Under 2.5)", "cuota": 1.73, "stake": 2.5, "tier": "TIER A", "estado": "GANADO", "marcador_final": "1-1 (Final)", "profit": 1.82, "version": "Pro2.6-Audited"}, {"event_id": "401884754", "clave_partido": "bayern_dortmu", "liga": "Bundesliga", "partido": "Bayern Munich vs Borussia Dortmund", "mercado": "Ambos Equipos Anotan (Sí)", "cuota": 1.6, "stake": 2.5, "tier": "TIER S", "estado": "PENDIENTE", "marcador_final": "MAÑANA · 12:30", "profit": 0.0, "version": "Pro2.6-Audited"}, {"event_id": "401876913", "clave_partido": "americ_toluca", "liga": "Liga MX", "partido": "América vs Toluca", "mercado": "Ambos Equipos Anotan (Sí)", "cuota": 1.57, "stake": 2.5, "tier": "TIER S", "estado": "PENDIENTE", "marcador_final": "MAÑANA · 22:10", "profit": 0.0, "version": "Pro2.6-Audited"}, {"event_id": "401876912", "clave_partido": "santos_necaxa", "liga": "Liga MX", "partido": "Santos vs Necaxa", "mercado": "Empate no Válido (Local) - Santos", "cuota": 1.6, "stake": 4.5, "tier": "TIER S", "estado": "GANADO", "marcador_final": "1-0 (Final)", "profit": 2.7, "version": "Pro2.6-Audited"}, {"event_id": "401876911", "clave_partido": "cruz a_leon", "liga": "Liga MX", "partido": "Cruz Azul vs León", "mercado": "Empate no Válido (Local) - Cruz Azul", "cuota": 1.47, "stake": 2.5, "tier": "TIER S", "estado": "GANADO", "marcador_final": "2-1 (Final)", "profit": 1.17, "version": "Pro2.6-Audited"}, {"event_id": "401876417", "clave_partido": "marsei_toulou", "liga": "Ligue 1", "partido": "Marseille vs Toulouse", "mercado": "Menos de 11.5 Córners Totales", "cuota": 1.52, "stake": 4.5, "tier": "TIER S", "estado": "GANADO", "marcador_final": "2-0 (Final · 7 Córners)", "profit": 2.34, "version": "Pro2.6-Audited"}, {"event_id": "401885405", "clave_partido": "moreir_estrel", "liga": "Primeira Liga", "partido": "Moreirense vs Estrela", "mercado": "Menos de 11.5 Córners Totales", "cuota": 1.52, "stake": 4.5, "tier": "TIER S", "estado": "PENDIENTE", "marcador_final": "MAÑANA · 10:30", "profit": 0.0, "version": "Pro2.6-Audited"}, {"event_id": "401884752", "clave_partido": "ein fr_hambur", "liga": "Bundesliga", "partido": "Eintracht Frankfurt vs Hamburg SV", "mercado": "Empate no Válido (Local) - Eintracht Frankfurt", "cuota": 1.46, "stake": 4.5, "tier": "TIER S", "estado": "GANADO", "marcador_final": "3-1 (Final)", "profit": 2.07, "version": "Pro2.6-Audited"}, {"event_id": "401885409", "clave_partido": "braga_famali", "liga": "Primeira Liga", "partido": "Braga vs FC Famalicao", "mercado": "Menos de 10.5 Tiros al Arco", "cuota": 1.54, "stake": 4.5, "tier": "TIER S", "estado": "GANADO", "marcador_final": "3-0 (Final · 5 SOT)", "profit": 2.43, "version": "Pro2.6-Audited"}, {"event_id": "401875562", "clave_partido": "ajax a_az alk", "liga": "Eredivisie", "partido": "Ajax Amsterdam vs AZ Alkmaar", "mercado": "Menos de 11.5 Tiros al Arco", "cuota": 1.54, "stake": 4.5, "tier": "TIER S", "estado": "PENDIENTE", "marcador_final": "MAÑANA · 15:00", "profit": 0.0, "version": "Pro2.6-Audited"}, {"event_id": "401878761", "clave_partido": "totten_crysta", "liga": "Premier League", "partido": "Tottenham Hotspur vs Crystal Palace", "mercado": "Menos de 12.5 Córners Totales", "cuota": 1.52, "stake": 4.5, "tier": "TIER S", "estado": "PENDIENTE", "marcador_final": "MAÑANA · 12:30", "profit": 0.0, "version": "Pro2.6-Audited"}, {"event_id": "401841658", "clave_partido": "boca j_river ", "liga": "Liga Argentina", "partido": "Boca Juniors vs River Plate", "mercado": "Menos de 10.5 Tiros al Arco", "cuota": 1.54, "stake": 4.5, "tier": "TIER S", "estado": "GANADO", "marcador_final": "1-0 (Final · 6 SOT)", "profit": 2.43, "version": "Pro2.6-Audited"}, {"event_id": "401874798", "clave_partido": "bologn_monza", "liga": "Serie A", "partido": "Bologna vs Monza", "mercado": "Menos de 10.5 Tiros al Arco", "cuota": 1.54, "stake": 4.5, "tier": "TIER S", "estado": "PENDIENTE", "marcador_final": "MAÑANA · 09:00", "profit": 0.0, "version": "Pro2.6-Audited"}, {"event_id": "401885404", "clave_partido": "porto_estori", "liga": "Primeira Liga", "partido": "FC Porto vs Estoril", "mercado": "Menos de 11.5 Córners Totales", "cuota": 1.52, "stake": 4.5, "tier": "TIER S", "estado": "PENDIENTE", "marcador_final": "MAÑANA · 15:30", "profit": 0.0, "version": "Pro2.6-Audited"}, {"event_id": "401876414", "clave_partido": "strasb_aj aux", "liga": "Ligue 1", "partido": "Strasbourg vs AJ Auxerre", "mercado": "Menos de 9.5 Tiros al Arco", "cuota": 1.56, "stake": 5.0, "tier": "TIER S", "estado": "GANADO", "marcador_final": "5-1 (Final · 8 SOT)", "profit": 2.8, "version": "Pro2.5-Open"}, {"event_id": "401841650", "clave_partido": "newell_union ", "liga": "Liga Argentina", "partido": "Newell's Old Boys vs Unión (Santa Fe)", "mercado": "Menos de 9.5 Tiros al Arco", "cuota": 1.56, "stake": 5.0, "tier": "TIER S", "estado": "GANADO", "marcador_final": "1-1 (Final · 7 SOT)", "profit": 2.8, "version": "Pro2.5-Open"}, {"event_id": "401879246", "clave_partido": "liverp_arsena", "liga": "Premier League", "partido": "Liverpool vs Arsenal", "mercado": "Más de 8.5 Tiros al Arco", "cuota": 1.56, "stake": 5.0, "tier": "TIER S", "estado": "PERDIDO", "marcador_final": "0-1 (Final · 3 SOT)", "profit": -5.0, "version": "Pro2.5-Open"}, {"event_id": "401882823", "clave_partido": "elche_valenc", "liga": "LaLiga", "partido": "Elche vs Valencia", "mercado": "Menos de 9.5 Córners Totales", "cuota": 1.54, "stake": 5.0, "tier": "TIER S", "estado": "GANADO", "marcador_final": "0-1 (Final · 8 Córners)", "profit": 2.7, "version": "Pro2.5-Open"}, {"event_id": "401875558", "clave_partido": "telsta_utrech", "liga": "Eredivisie", "partido": "Telstar vs FC Utrecht", "mercado": "Menos de 4.5 Tarjetas Totales", "cuota": 1.56, "stake": 5.0, "tier": "TIER S", "estado": "GANADO", "marcador_final": "4-2 (Final · 2 Tarj)", "profit": 2.8, "version": "Pro2.5-Open"}, {"event_id": "401875559", "clave_partido": "excels_twente", "liga": "Eredivisie", "partido": "Excelsior vs FC Twente", "mercado": "Menos de 3.5 Tarjetas Totales", "cuota": 1.56, "stake": 5.0, "tier": "TIER S", "estado": "GANADO", "marcador_final": "0-9 (Final · 3 Tarj)", "profit": 2.8, "version": "Pro2.5-Open"}, {"event_id": "401841646", "clave_partido": "velez _san lo", "liga": "Liga Argentina", "partido": "Vélez Sarsfield vs San Lorenzo", "mercado": "Empate no Válido (Local) - Vélez Sarsfield", "cuota": 1.63, "stake": 5.0, "tier": "TIER S", "estado": "PENDIENTE", "marcador_final": "31/10 · 17:15", "profit": 0.0, "version": "Pro2.1-Multi"}, {"event_id": "401841647", "clave_partido": "sarmie_rosari", "liga": "Liga Argentina", "partido": "Sarmiento (Junín) vs Rosario Central", "mercado": "Empate no Válido (Visita) - Rosario Central", "cuota": 1.66, "stake": 5.0, "tier": "TIER S", "estado": "GANADO", "marcador_final": "1-2 (Final)", "profit": 3.3, "version": "Pro2.1-Multi"}, {"event_id": "401882817", "clave_partido": "villar_espano", "liga": "LaLiga", "partido": "Villarreal vs Espanyol", "mercado": "Menos de 10.5 Tiros al Arco", "cuota": 1.56, "stake": 5.0, "tier": "TIER S", "estado": "GANADO", "marcador_final": "0-1 (Final · 7 SOT)", "profit": 2.8, "version": "Pro2.1-Multi"}, {"event_id": "401876420", "clave_partido": "lille_lens", "liga": "Ligue 1", "partido": "Lille vs Lens", "mercado": "Menos de 26.5 Faltas Totales", "cuota": 1.56, "stake": 5.0, "tier": "TIER S", "estado": "GANADO", "marcador_final": "1-0 (Final · 21 Faltas)", "profit": 2.8, "version": "Pro2.1-Multi"}, {"event_id": "401882822", "clave_partido": "barcel_alaves", "liga": "LaLiga", "partido": "Barcelona vs Alavés", "mercado": "Más de 8.5 Tiros al Arco", "cuota": 1.56, "stake": 5.0, "tier": "TIER S", "estado": "PENDIENTE", "marcador_final": "31/10 · 15:00", "profit": 0.0, "version": "Pro2.1-Multi"}, {"event_id": "401876919", "clave_partido": "atleti_atlas", "liga": "Liga MX", "partido": "Atlético de San Luis vs Atlas", "mercado": "Menos de 11.5 Córners Totales", "cuota": 1.54, "stake": 5.0, "tier": "TIER S", "estado": "GANADO", "marcador_final": "0-1 (Final · 11 Córners)", "profit": 2.7, "version": "Pro2.1-Multi"}, {"event_id": "401884751", "clave_partido": "augsbu_freibu", "liga": "Bundesliga", "partido": "FC Augsburg vs SC Freiburg", "mercado": "Menos de 10.5 Córners Totales", "cuota": 1.54, "stake": 5.0, "tier": "TIER S", "estado": "PENDIENTE", "marcador_final": "31/10 · 09:30", "profit": 0.0, "version": "Pro2.1-Multi"}];
-
-function showTab(t) {
-  ['p', 'r', 'h'].forEach(k => {
-    document.getElementById('sec-' + k).classList.toggle('hidden', k !== t);
-    document.getElementById('btn-' + k).classList.toggle('active', k === t);
-  });
+function cambiarTab(id, btn) {
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    btn.classList.add('active');
 }
 
-function toggleBox(id) {
-  const el = document.getElementById(id);
-  if (el) el.style.display = (el.style.display === 'block') ? 'none' : 'block';
-}
-
-function checkOdd(idx, prob, ref) {
-  const inp = document.getElementById('inp-' + idx);
-  const out = document.getElementById('out-' + idx);
-  const val = parseFloat(inp.value);
-  if (isNaN(val) || val <= 1.01) return;
-  const p = prob / 100.0;
-  const ev = ((p * val) - 1.0) * 100.0;
-
-  if (val < 1.38) {
-    out.innerHTML = '❌ <b>Cuota muy baja (@' + val.toFixed(2) + '):</b> La casa comprimió el pago. No arriesgar en cuotas menores a @1.40.';
-    out.style.color = '#ef4444';
-  } else if ((val - ref) >= 0.18) {
-    out.innerHTML = '⚠️ <b>ALERTA DE TRAMPA DE LÍNEA (@' + val.toFixed(2) + ' vs @' + ref.toFixed(2) + '):</b> Tu casa paga demasiado alto porque esa línea no tiene colchón en vivo (50/50). Pide 1.5 puntos más de margen o NO apuestes.';
-    out.style.color = '#f59e0b';
-  } else if (ev >= 1.5) {
-    out.innerHTML = '✅ <b>Rentable (+' + ev.toFixed(1) + '% EV)</b> — Cuota verificada y alineada con el modelo.';
-    out.style.color = '#10b981';
-  } else {
-    out.innerHTML = '❌ <b>Sin valor (' + ev.toFixed(1) + '% EV):</b> Exige cuota mínima de @' + (1.02/p).toFixed(2);
-    out.style.color = '#ef4444';
-  }
-}
-
-async function sincronizarTarjetaVivo(p, idx) {
-  if (!p.event_id) return;
-  try {
-    const r = await fetch('https://site.api.espn.com/apis/site/v2/sports/soccer/all/summary?event=' + p.event_id);
-    if (!r.ok) return;
-    const data = await r.json();
-    const headerComp = (data.header && data.header.competitions && data.header.competitions[0]) || null;
-    const teams = (data.boxscore && data.boxscore.teams) || [];
-
-    const getSt = (t, name) => {
-      const s = ((t && t.statistics) || []).find(x => x.name === name);
-      return s ? parseFloat(s.displayValue || '0') : 0;
-    };
-
-    if (teams.length === 2) {
-      const tL = teams[0], tV = teams[1];
-      const box = document.getElementById('live-esp-' + p.event_id + '-' + idx);
-      if (box) {
-        box.innerHTML =
-          '<div class="stat-line"><span>Posesión de Balón:</span><b>' + getSt(tL,'possessionPct') + '% — ' + getSt(tV,'possessionPct') + '%</b></div>' +
-          '<div class="stat-line"><span>Tiros Totales (Al Arco):</span><b>' + getSt(tL,'totalShots') + ' (' + getSt(tL,'shotsOnTarget') + ') — ' + getSt(tV,'totalShots') + ' (' + getSt(tV,'shotsOnTarget') + ')</b></div>' +
-          '<div class="stat-line"><span>Córners:</span><b>' + getSt(tL,'wonCorners') + ' — ' + getSt(tV,'wonCorners') + '</b></div>' +
-          '<div class="stat-line"><span>Faltas Cometidas:</span><b>' + getSt(tL,'foulsCommitted') + ' — ' + getSt(tV,'foulsCommitted') + '</b></div>' +
-          '<div class="stat-line"><span>Tarjetas Amarillas:</span><b>' + getSt(tL,'yellowCards') + ' — ' + getSt(tV,'yellowCards') + '</b></div>';
-      }
-
-      if (headerComp) {
-        const stObj = headerComp.status || {};
-        const state = (stObj.type && stObj.type.state) || 'pre';
-        const detail = (stObj.type && stObj.type.shortDetail) || '';
-        const comps = headerComp.competitors || [];
-        if (comps.length === 2) {
-          const cH = comps.find(c => c.homeAway === 'home') || comps[0];
-          const cA = comps.find(c => c.homeAway === 'away') || comps[1];
-          const gH = parseInt(cH.score || '0'), gA = parseInt(cA.score || '0');
-          const pill = document.getElementById('pill-' + p.event_id + '-' + idx);
-          if (pill) {
-            pill.innerText = (state === 'post' ? '🏁 Final: ' : (state === 'in' ? '🔴 ' : '⏳ ')) + gH + '-' + gA + ' (' + detail + ')';
-          }
-
-          const totCorners = getSt(tL,'wonCorners') + getSt(tV,'wonCorners');
-          const totSot = getSt(tL,'shotsOnTarget') + getSt(tV,'shotsOnTarget');
-          const trk = document.getElementById('trk-txt-' + p.event_id + '-' + idx);
-          const bar = document.getElementById('trk-bar-' + p.event_id + '-' + idx);
-          const m = p.mercado || '';
-          const matchNum = m.match(/(\d+\.\d+)/);
-          const lineVal = matchNum ? parseFloat(matchNum[1]) : 0;
-
-          if (state !== 'pre' && trk && bar) {
-            if (m.includes('Córners') && lineVal > 0) {
-              const pct = Math.min(100, Math.round((totCorners / lineVal) * 100));
-              trk.innerText = '📡 EN VIVO (' + detail + '): Actual ' + totCorners + ' Córners (' + pct + '%)';
-              bar.style.width = pct + '%';
-            } else if (m.includes('Tiros al Arco') && lineVal > 0) {
-              const pct = Math.min(100, Math.round((totSot / lineVal) * 100));
-              trk.innerText = '📡 EN VIVO (' + detail + '): Actual ' + totSot + ' Tiros al Arco (' + pct + '%)';
-              bar.style.width = pct + '%';
-            } else {
-              trk.innerText = '📡 EN VIVO (' + detail + '): Marcador ' + gH + ' - ' + gA + ' (' + totSot + ' SOT | ' + totCorners + ' Córners)';
-              bar.style.width = (state === 'post' ? '100%' : '65%');
-            }
-          }
+function filtrarPicks(f) {
+    document.querySelectorAll('.pick-card').forEach(c => {
+        const dia = c.getAttribute('data-dia');
+        const cat = c.getAttribute('data-cat');
+        if (f === 'TODOS' || dia === f || cat.includes(f) || (f === 'CORNERS' && (cat === 'CORNERS' || cat === 'TIROS AL ARCO'))) {
+            c.style.display = 'block';
+        } else {
+            c.style.display = 'none';
         }
-      }
+    });
+}
+
+function verificarCuotaCasa(input, probReal, cuotaJusta, targetId) {
+    const val = parseFloat(input.value);
+    const el = document.getElementById(targetId);
+    if (!val || val <= 1.01) { el.textContent = "Esperando cuota..."; el.style.color = "#94a3b8"; return; }
+    const diff = val - cuotaJusta;
+    const ev = ((probReal / 100.0) * val - 1.0) * 100.0;
+    if (diff >= 0.22) {
+        el.textContent = "⚠️ ALERTA DE TRAMPA: Línea movida por la casa. ¡No apostar!";
+        el.style.color = "#ef4444";
+    } else if (ev >= 1.5) {
+        el.textContent = "✅ RENTABLE (+EV " + ev.toFixed(1) + "%). Apto para entrar.";
+        el.style.color = "#10b981";
+    } else {
+        el.textContent = "❌ Cuota castigada sin valor (" + ev.toFixed(1) + "%). Descartar.";
+        el.style.color = "#f59e0b";
     }
-  } catch (e) {}
 }
 
-function renderPicks() {
-  const fDia = document.getElementById('f-dia').value;
-  const fTier = document.getElementById('f-tier').value;
-  const fCat = document.getElementById('f-cat').value;
-  const cp = document.getElementById('list-picks');
-
-  const fil = PICKS.filter(p => {
-    if (fDia !== 'TODOS' && p.filtro_dia !== fDia) return false;
-    if (fTier !== 'TODOS' && p.tier_cod !== fTier) return false;
-    if (fCat !== 'TODOS' && p.categoria !== fCat) return false;
-    return true;
-  });
-
-  if (!fil.length) {
-    cp.innerHTML = '<div class="pick-card">ℹ️ No hay pronósticos activos para este filtro específico. Selecciona "Todos los Mercados".</div>';
-    return;
-  }
-
-  cp.innerHTML = fil.map((p, idx) => {
-    const tCls = p.tier_cod === 'TIER S' ? 'tier-s' : (p.tier_cod === 'TIER A' ? 'tier-a' : 'tier-b');
-    return `
-      <div class="pick-card">
-        <div>
-          <div class="card-top">
-            <span>📅 ${p.dia_tag} &nbsp;·&nbsp; ${p.liga}</span>
-            <span class="tier-pill ${tCls}">${p.tier_label}</span>
-          </div>
-          <div class="match-row">
-            <div class="match-title">${p.partido}</div>
-            <span class="live-pill" id="pill-${p.event_id}-${idx}">⏳ ${p.reloj}</span>
-          </div>
-          <div class="pick-box">
-            <div>
-              <div style="font-size:0.67rem;color:#94a3b8;font-weight:700;">PRONÓSTICO AUDITADO (${p.categoria} · ${p.fuente})</div>
-              <div class="pick-val">${p.mercado}</div>
-            </div>
-            <div class="odd-val">@${p.cuota.toFixed(2)}</div>
-          </div>
-          <div class="live-tracker">
-            <div class="live-tracker-txt">
-              <span id="trk-txt-${p.event_id}-${idx}">📡 Telemetría en Tiempo Real: Meta ${p.mercado}</span>
-            </div>
-            <div class="prog-bg"><div class="prog-fill" id="trk-bar-${p.event_id}-${idx}" style="width:18%"></div></div>
-          </div>
-          <button class="acc-btn" onclick="toggleBox('live-box-${idx}'); sincronizarTarjetaVivo(PICKS[${idx}], ${idx})">
-            <span>📊 Estadísticas del Partido en Tiempo Real (Posesión, Tiros, Córners, Faltas y Tarjetas)</span>
-            <span style="color:#38bdf8;">VIVO ▼</span>
-          </button>
-          <div class="acc-content" id="live-box-${idx}">
-            <div id="live-esp-${p.event_id}-${idx}">Sincronizando con ESPN Summary API...</div>
-          </div>
-          <div class="grid-4">
-            <div><div class="m-title">Confianza IA</div><div class="m-val" style="color:#10b981;">${p.confianza.toFixed(1)}%</div></div>
-            <div><div class="m-title">Prob. Real</div><div class="m-val">${p.prob_real.toFixed(1)}%</div></div>
-            <div><div class="m-title">Edge (+EV)</div><div class="m-val" style="color:#38bdf8;">+${p.edge.toFixed(1)}%</div></div>
-            <div><div class="m-title">Stake Seguro</div><div class="m-val">S/ ${p.stake.toFixed(2)}</div></div>
-          </div>
-          <div class="hist-strip">📊 ${p.resumen_hist} &nbsp;·&nbsp; 🎯 <b>${p.fuente_xg}</b></div>
-          <div class="val-box">
-            <div class="val-row">
-              <span>🧮 ¿Qué cuota paga tu casa de apuestas?</span>
-              <input type="number" step="0.01" class="val-input" id="inp-${idx}" value="${p.cuota.toFixed(2)}" oninput="checkOdd(${idx}, ${p.prob_real}, ${p.cuota})">
-            </div>
-            <div id="out-${idx}" style="color:#10b981;">✅ <b>Rentable (+${p.edge.toFixed(1)}% EV)</b> — Cuota mínima justa: @${(100/p.prob_real).toFixed(2)}</div>
-          </div>
-          <button class="acc-btn" onclick="toggleBox('rad-box-${idx}')">
-            <span>🔬 Abrir Radar Understat xG + Regresión + Marcadores Exactos</span>
-            <span>▼</span>
-          </button>
-          <div class="acc-content" id="rad-box-${idx}">
-            <div class="stat-line"><span>⚽ Goles Esperados (xG Real):</span><b>${p.xg_loc} vs ${p.xg_vis} (BTTS: ${p.p_btts}%)</b></div>
-            <div class="stat-line"><span>📈 Diagnóstico de Regresión xG:</span><b>${p.nota_regresion}</b></div>
-            <div class="stat-line"><span>🛡️ Doble Oportunidad (1X / X2):</span><b>1X: ${p.p_1x}% | X2: ${p.p_x2}%</b></div>
-            <div class="stat-line"><span>🚩 Proyección Córners / 🎯 SOT:</span><b>${p.cor_esp} Córners | ${p.sot_esp} Tiros al Arco</b></div>
-            <div class="stat-line"><span>🎯 Marcadores Exactos:</span><b>${p.exactos}</b></div>
-          </div>
-        </div>
-      </div>`;
-  }).join('');
-
-  fil.forEach((p, i) => sincronizarTarjetaVivo(p, i));
+function calcularDutcherManual() {
+    const c1 = parseFloat(document.getElementById('dut-c1').value);
+    const c2 = parseFloat(document.getElementById('dut-c2').value);
+    const bank = parseFloat(document.getElementById('dut-bank').value) || 100;
+    const res = document.getElementById('dut-res');
+    if (!c1 || !c2 || c1 <= 1 || c2 <= 1) return;
+    const inv = (1/c1) + (1/c2);
+    const rating = (1/inv) * 100;
+    const s1 = Math.round(bank * ((1/c1) / inv));
+    const s2 = Math.round(bank - s1);
+    const minRet = Math.min(s1 * c1, s2 * c2);
+    const net = minRet - bank;
+    res.style.color = rating >= 100 ? "#10b981" : "#f59e0b";
+    res.textContent = `Rating: ${rating.toFixed(2)}% | Apostar S/ ${s1} a Casa 1 y S/ ${s2} a Casa 2 | Retorno Neto: S/ ${net.toFixed(2)}`;
 }
 
-function renderCatalogo() {
-  const q = (document.getElementById('q-search').value || '').toLowerCase();
-  const cr = document.getElementById('list-cat');
-  const fil = CATALOGO.filter(c => c.partido.toLowerCase().includes(q) || c.liga.toLowerCase().includes(q));
-  cr.innerHTML = fil.map(c => `
-    <div class="pick-card">
-      <div class="card-top"><span>📅 ${c.dia_tag} · ${c.liga}</span><span style="color:#38bdf8;">xG: ${c.xg_loc} - ${c.xg_vis}</span></div>
-      <div class="match-title" style="margin-bottom:8px;">${c.partido}</div>
-      <div class="hist-strip">${c.resumen}</div>
-      <div style="font-size:0.78rem;color:#cbd5e1;">
-        🏆 <b>1:</b> ${c.p1}% | <b>X:</b> ${c.px}% | <b>2:</b> ${c.p2}% &nbsp;·&nbsp;
-        ⚽ <b>O2.5:</b> ${c.po25}% | <b>BTTS:</b> ${c.pbtts}% &nbsp;·&nbsp; 🎯 <b>Exactos:</b> ${c.exactos}
-      </div>
-    </div>`).join('');
+const EVENT_IDS = ["401884740", "401874974", "401884744"];
+async function refrescarTelemetriaVivo() {
+    for (const eid of EVENT_IDS) {
+        const box = document.getElementById('live-box-' + eid);
+        if (!box) continue;
+        try {
+            const r = await fetch('https://site.api.espn.com/apis/site/v2/sports/soccer/all/summary?event=' + eid);
+            if (!r.ok) continue;
+            const d = await r.json();
+            const comp = (d.header && d.header.competitions && d.header.competitions[0]) || {};
+            const st = (comp.status && comp.status.type && comp.status.type.shortDetail) || 'Pre-partido';
+            box.textContent = '📡 Estado ESPN en Vivo: ' + st + ' (Auto-refresco 30s activo)';
+        } catch (e) {}
+    }
 }
-
-function renderHistorial() {
-  const ch = document.getElementById('list-hist');
-  if (!HISTORIAL.length) {
-    ch.innerHTML = '<div class="pick-card">📋 El historial auditado registrará automáticamente el resultado (GANADO / PERDIDO) al finalizar cada encuentro.</div>';
-    return;
-  }
-  ch.innerHTML = HISTORIAL.map(h => {
-    const est = h.estado || 'PENDIENTE';
-    const cls = est === 'GANADO' ? 'st-won' : (est === 'PERDIDO' ? 'st-lost' : 'st-pend');
-    const ic = est === 'GANADO' ? '✅ GANADO' : (est === 'PERDIDO' ? '❌ PERDIDO' : '⏳ PENDIENTE');
-    const pr = Number(h.profit || 0);
-    const col = pr > 0 ? '#10b981' : (pr < 0 ? '#ef4444' : '#94a3b8');
-    return `
-      <div class="hist-item">
-        <div class="hist-top">
-          <span>${h.liga || 'Torneo'} · ${h.partido || ''}</span>
-          <span class="badge-status ${cls}">${ic} (${h.marcador_final || 'En espera'})</span>
-        </div>
-        <div style="display:flex;justify-content:space-between;font-weight:700;font-size:0.86rem;margin-top:4px;">
-          <span style="color:#38bdf8;">${h.mercado || ''} (@${Number(h.cuota || 1.6).toFixed(2)})</span>
-          <span style="color:${col};">Retorno: ${pr >= 0 ? '+' : ''}S/ ${pr.toFixed(2)}</span>
-        </div>
-      </div>`;
-  }).join('');
-}
-
-renderPicks();
-renderCatalogo();
-renderHistorial();
-
-setInterval(() => {
-  const fDia = document.getElementById('f-dia').value;
-  const fTier = document.getElementById('f-tier').value;
-  const fCat = document.getElementById('f-cat').value;
-  const fil = PICKS.filter(p => {
-    if (fDia !== 'TODOS' && p.filtro_dia !== fDia) return false;
-    if (fTier !== 'TODOS' && p.tier_cod !== fTier) return false;
-    if (fCat !== 'TODOS' && p.categoria !== fCat) return false;
-    return true;
-  });
-  fil.forEach((p, i) => sincronizarTarjetaVivo(p, i));
-}, 30000);
+refrescarTelemetriaVivo();
+setInterval(refrescarTelemetriaVivo, 30000);
 </script>
 </body>
 </html>

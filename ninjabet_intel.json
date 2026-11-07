@@ -1,0 +1,26 @@
+{
+  "actualizado": "2026-11-06 19:22",
+  "motor_scrapling": "ACTIVO (TLS Chrome Impersonation)",
+  "surebet_yield_ref": "+2.4% por operación",
+  "valuebet_yield_ref": "+5.1% auditado",
+  "bonos_activos": [
+    {
+      "casa": "Betano Perú / Latam",
+      "tipo": "Bono Bienvenida / Freebet",
+      "ganancia_est": "S/ 120 - S/ 250",
+      "estrategia": "Usar Oddsmatcher con Rating >= 95%"
+    },
+    {
+      "casa": "Betsson / Inkabet (Kambi)",
+      "tipo": "Apuesta Cero Riesgo / Recarga",
+      "ganancia_est": "S/ 50 - S/ 100",
+      "estrategia": "Cubrir en Dutcher Mercados 2-Vías (Over/Under 2.5)"
+    },
+    {
+      "casa": "Apuesta Total / DoradoBet",
+      "tipo": "Club Freebets Semanal",
+      "ganancia_est": "S/ 40 - S/ 80",
+      "estrategia": "Convertir Freebet en cuota alta (@3.00+) vs Exchange"
+    }
+  ]
+}

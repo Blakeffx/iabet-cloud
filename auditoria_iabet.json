@@ -1,13 +1,48 @@
 {
   "bankroll_inicial": 100.0,
-  "bankroll_actual": 131.04,
-  "ganancia_neta": 31.04,
-  "roi_pct": 21.0,
-  "win_rate": 78.8,
-  "ganados": 26,
-  "perdidos": 7,
-  "racha": 0,
+  "bankroll_actual": 148.99,
+  "ganados": 41,
+  "perdidos": 10,
+  "win_rate": 80.4,
+  "roi": 22.6,
+  "racha": "1W 🔥",
   "historial": [
+    {
+      "event_id": "401884744",
+      "fecha": "2026-11-06",
+      "partido": "RB Leipzig vs FC Augsburg",
+      "liga": "Bundesliga",
+      "mercado": "Más de 8.5 Tiros al Arco",
+      "cuota": 1.68,
+      "stake": 3.2,
+      "estado": "PENDIENTE",
+      "resultado_final": "-",
+      "profit": 0.0
+    },
+    {
+      "event_id": "401874974",
+      "fecha": "2026-11-06",
+      "partido": "Parma vs Bologna",
+      "liga": "Serie A Italia",
+      "mercado": "Menos de 9.5 Tiros al Arco",
+      "cuota": 1.64,
+      "stake": 3.34,
+      "estado": "PENDIENTE",
+      "resultado_final": "-",
+      "profit": 0.0
+    },
+    {
+      "event_id": "401884740",
+      "fecha": "2026-11-06",
+      "partido": "Mainz vs Bayern Munich",
+      "liga": "Bundesliga",
+      "mercado": "Ambos Equipos Anotan (Sí)",
+      "cuota": 1.49,
+      "stake": 3.0,
+      "estado": "PENDIENTE",
+      "resultado_final": "-",
+      "profit": 0.0
+    },
     {
       "event_id": "401928517",
       "fecha": "2026-10-28",
@@ -123,10 +158,11 @@
       "cuota": 1.58,
       "stake": 3.0,
       "tier": "TIER A",
-      "estado": "PENDIENTE",
+      "estado": "GANADO",
       "marcador_final": "2026-10-30 · 13:00",
-      "profit": 0.0,
-      "version": "Pro2.1"
+      "profit": 1.74,
+      "version": "Pro2.1",
+      "resultado_final": "1-5"
     },
     {
       "event_id": "401876918",
@@ -137,10 +173,11 @@
       "cuota": 1.4,
       "stake": 2.5,
       "tier": "TIER S",
-      "estado": "PENDIENTE",
+      "estado": "GANADO",
       "marcador_final": "2026-10-30 · 20:00",
-      "profit": 0.0,
-      "version": "Pro2.1"
+      "profit": 1.0,
+      "version": "Pro2.1",
+      "resultado_final": "3-1"
     },
     {
       "event_id": "401882822",
@@ -151,10 +188,11 @@
       "cuota": 1.4,
       "stake": 2.5,
       "tier": "TIER S",
-      "estado": "PENDIENTE",
+      "estado": "GANADO",
       "marcador_final": "2026-10-31 · 15:00",
-      "profit": 0.0,
-      "version": "Pro2.1"
+      "profit": 1.0,
+      "version": "Pro2.1",
+      "resultado_final": "6-1"
     },
     {
       "event_id": "401875565",
@@ -165,10 +203,11 @@
       "cuota": 1.4,
       "stake": 2.5,
       "tier": "TIER S",
-      "estado": "PENDIENTE",
+      "estado": "GANADO",
       "marcador_final": "2026-10-31 · 10:30",
-      "profit": 0.0,
-      "version": "Pro2.1"
+      "profit": 1.0,
+      "version": "Pro2.1",
+      "resultado_final": "1-1"
     },
     {
       "event_id": "401882825",
@@ -193,10 +232,11 @@
       "cuota": 1.58,
       "stake": 3.0,
       "tier": "TIER A",
-      "estado": "PENDIENTE",
+      "estado": "GANADO",
       "marcador_final": "2026-10-31 · 09:00",
-      "profit": 0.0,
-      "version": "Pro2.1"
+      "profit": 1.74,
+      "version": "Pro2.1",
+      "resultado_final": "2-1"
     },
     {
       "event_id": "401879250",
@@ -263,10 +303,11 @@
       "cuota": 1.56,
       "stake": 5.0,
       "tier": "TIER S",
-      "estado": "PENDIENTE",
+      "estado": "GANADO",
       "marcador_final": "31/10 · 10:30",
-      "profit": 0.0,
-      "version": "Pro2.1-Multi"
+      "profit": 2.8,
+      "version": "Pro2.1-Multi",
+      "resultado_final": "2-1"
     },
     {
       "event_id": "401874990",
@@ -277,10 +318,11 @@
       "cuota": 1.56,
       "stake": 5.0,
       "tier": "TIER S",
-      "estado": "PENDIENTE",
+      "estado": "PERDIDO",
       "marcador_final": "31/10 · 12:00",
-      "profit": 0.0,
-      "version": "Pro2.1-Multi"
+      "profit": -5.0,
+      "version": "Pro2.1-Multi",
+      "resultado_final": "2-5"
     },
     {
       "event_id": "401876421",
@@ -305,10 +347,11 @@
       "cuota": 1.54,
       "stake": 5.0,
       "tier": "TIER S",
-      "estado": "PENDIENTE",
+      "estado": "GANADO",
       "marcador_final": "31/10 · 14:00",
-      "profit": 0.0,
-      "version": "Pro2.1-Multi"
+      "profit": 2.7,
+      "version": "Pro2.1-Multi",
+      "resultado_final": "2-0"
     },
     {
       "event_id": "401841295",
@@ -333,10 +376,11 @@
       "cuota": 1.54,
       "stake": 5.0,
       "tier": "TIER S",
-      "estado": "PENDIENTE",
+      "estado": "GANADO",
       "marcador_final": "31/10 · 09:30",
-      "profit": 0.0,
-      "version": "Pro2.1-Multi"
+      "profit": 2.7,
+      "version": "Pro2.1-Multi",
+      "resultado_final": "1-2"
     },
     {
       "event_id": "401876919",
@@ -361,10 +405,11 @@
       "cuota": 1.56,
       "stake": 5.0,
       "tier": "TIER S",
-      "estado": "PENDIENTE",
+      "estado": "GANADO",
       "marcador_final": "31/10 · 15:00",
-      "profit": 0.0,
-      "version": "Pro2.1-Multi"
+      "profit": 2.8,
+      "version": "Pro2.1-Multi",
+      "resultado_final": "6-1"
     },
     {
       "event_id": "401876420",
@@ -515,10 +560,11 @@
       "cuota": 1.52,
       "stake": 4.5,
       "tier": "TIER S",
-      "estado": "PENDIENTE",
+      "estado": "GANADO",
       "marcador_final": "MAÑANA · 15:30",
-      "profit": 0.0,
-      "version": "Pro2.6-Audited"
+      "profit": 2.34,
+      "version": "Pro2.6-Audited",
+      "resultado_final": "4-0"
     },
     {
       "event_id": "401874798",
@@ -529,10 +575,11 @@
       "cuota": 1.54,
       "stake": 4.5,
       "tier": "TIER S",
-      "estado": "PENDIENTE",
+      "estado": "GANADO",
       "marcador_final": "MAÑANA · 09:00",
-      "profit": 0.0,
-      "version": "Pro2.6-Audited"
+      "profit": 2.43,
+      "version": "Pro2.6-Audited",
+      "resultado_final": "2-1"
     },
     {
       "event_id": "401841658",
@@ -557,10 +604,11 @@
       "cuota": 1.52,
       "stake": 4.5,
       "tier": "TIER S",
-      "estado": "PENDIENTE",
+      "estado": "PERDIDO",
       "marcador_final": "MAÑANA · 12:30",
-      "profit": 0.0,
-      "version": "Pro2.6-Audited"
+      "profit": -4.5,
+      "version": "Pro2.6-Audited",
+      "resultado_final": "2-0"
     },
     {
       "event_id": "401875562",
@@ -571,10 +619,11 @@
       "cuota": 1.54,
       "stake": 4.5,
       "tier": "TIER S",
-      "estado": "PENDIENTE",
+      "estado": "GANADO",
       "marcador_final": "MAÑANA · 15:00",
-      "profit": 0.0,
-      "version": "Pro2.6-Audited"
+      "profit": 2.43,
+      "version": "Pro2.6-Audited",
+      "resultado_final": "1-0"
     },
     {
       "event_id": "401885409",
@@ -613,10 +662,11 @@
       "cuota": 1.52,
       "stake": 4.5,
       "tier": "TIER S",
-      "estado": "PENDIENTE",
+      "estado": "GANADO",
       "marcador_final": "MAÑANA · 10:30",
-      "profit": 0.0,
-      "version": "Pro2.6-Audited"
+      "profit": 2.34,
+      "version": "Pro2.6-Audited",
+      "resultado_final": "2-1"
     },
     {
       "event_id": "401876417",
@@ -669,10 +719,11 @@
       "cuota": 1.57,
       "stake": 2.5,
       "tier": "TIER S",
-      "estado": "PENDIENTE",
+      "estado": "GANADO",
       "marcador_final": "MAÑANA · 22:10",
-      "profit": 0.0,
-      "version": "Pro2.6-Audited"
+      "profit": 1.43,
+      "version": "Pro2.6-Audited",
+      "resultado_final": "2-2"
     },
     {
       "event_id": "401884754",
@@ -683,10 +734,11 @@
       "cuota": 1.6,
       "stake": 2.5,
       "tier": "TIER S",
-      "estado": "PENDIENTE",
+      "estado": "GANADO",
       "marcador_final": "MAÑANA · 12:30",
-      "profit": 0.0,
-      "version": "Pro2.6-Audited"
+      "profit": 1.5,
+      "version": "Pro2.6-Audited",
+      "resultado_final": "2-2"
     },
     {
       "event_id": "401841651",
@@ -935,10 +987,11 @@
       "cuota": 1.81,
       "stake": 2.5,
       "tier": "TIER A",
-      "estado": "PENDIENTE",
+      "estado": "PERDIDO",
       "marcador_final": "05/11 · 17:15",
-      "profit": 0.0,
-      "version": "Pro2.6-Audited"
+      "profit": -2.5,
+      "version": "Pro2.6-Audited",
+      "resultado_final": "2-1"
     },
     {
       "event_id": "401915308",
