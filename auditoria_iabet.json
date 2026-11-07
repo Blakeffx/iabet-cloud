@@ -1,10 +1,10 @@
 {
   "bankroll_inicial": 100.0,
-  "bankroll_actual": 148.99,
-  "ganados": 41,
+  "bankroll_actual": 149.83,
+  "ganados": 42,
   "perdidos": 10,
-  "win_rate": 80.4,
-  "roi": 22.6,
+  "win_rate": 80.8,
+  "roi": 22.8,
   "racha": "1W 🔥",
   "historial": [
     {
@@ -218,10 +218,11 @@
       "cuota": 1.42,
       "stake": 2.0,
       "tier": "TIER S",
-      "estado": "PENDIENTE",
+      "estado": "GANADO",
       "marcador_final": "2026-10-31 · 12:30",
-      "profit": 0.0,
-      "version": "Pro2.1"
+      "profit": 0.84,
+      "version": "Pro2.1",
+      "resultado_final": "2-1"
     },
     {
       "event_id": "401874798",
