@@ -9,7 +9,7 @@
     "edge": 6.8,
     "stake_pct": 3.54,
     "tier_label": "💎 TIER S (Fija Blindada)",
-    "timestamp": "2026-11-07 13:24"
+    "timestamp": "2026-11-07 15:01"
   },
   "401875018": {
     "partido": "Genoa vs AC Milan",
@@ -21,7 +21,7 @@
     "edge": 6.8,
     "stake_pct": 3.54,
     "tier_label": "💎 TIER S (Fija Blindada)",
-    "timestamp": "2026-11-07 13:24"
+    "timestamp": "2026-11-07 15:01"
   },
   "401874808": {
     "partido": "Internazionale vs Como",
@@ -33,18 +33,6 @@
     "edge": 6.8,
     "stake_pct": 3.54,
     "tier_label": "💎 TIER S (Fija Blindada)",
-    "timestamp": "2026-11-07 13:24"
-  },
-  "401874974": {
-    "partido": "Parma vs Bologna",
-    "liga": "Serie A Italia",
-    "dia_tag": "HOY · 12:00",
-    "mercado": "Menos de 9.5 Tiros al Arco",
-    "cuota": 1.64,
-    "prob_real": 67.5,
-    "edge": 6.5,
-    "stake_pct": 3.34,
-    "tier_label": "💎 TIER S (Fija Blindada)",
-    "timestamp": "2026-11-07 13:24"
+    "timestamp": "2026-11-07 15:01"
   }
 }
