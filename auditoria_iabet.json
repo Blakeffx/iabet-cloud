@@ -8,6 +8,42 @@
   "racha": "1W 🔥",
   "historial": [
     {
+      "event_id": "401874808",
+      "fecha": "2026-11-07",
+      "partido": "Internazionale vs Como",
+      "liga": "Serie A Italia",
+      "mercado": "Menos de 10.5 Córners",
+      "cuota": 1.62,
+      "stake": 3.54,
+      "estado": "PENDIENTE",
+      "resultado_final": "-",
+      "profit": 0.0
+    },
+    {
+      "event_id": "401875018",
+      "fecha": "2026-11-07",
+      "partido": "Genoa vs AC Milan",
+      "liga": "Serie A Italia",
+      "mercado": "Menos de 10.5 Córners",
+      "cuota": 1.62,
+      "stake": 3.54,
+      "estado": "PENDIENTE",
+      "resultado_final": "-",
+      "profit": 0.0
+    },
+    {
+      "event_id": "401874810",
+      "fecha": "2026-11-07",
+      "partido": "Napoli vs Lazio",
+      "liga": "Serie A Italia",
+      "mercado": "Menos de 10.5 Córners",
+      "cuota": 1.62,
+      "stake": 3.54,
+      "estado": "PENDIENTE",
+      "resultado_final": "-",
+      "profit": 0.0
+    },
+    {
       "event_id": "401884744",
       "fecha": "2026-11-06",
       "partido": "RB Leipzig vs FC Augsburg",

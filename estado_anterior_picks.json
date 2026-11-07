@@ -1,38 +1,74 @@
 {
+  "401874810": {
+    "partido": "Napoli vs Lazio",
+    "liga": "Serie A Italia",
+    "dia_tag": "MAÑANA · 06:30",
+    "mercado": "Menos de 10.5 Córners",
+    "cuota": 1.62,
+    "prob_real": 68.5,
+    "edge": 6.8,
+    "stake_pct": 3.54,
+    "tier_label": "💎 TIER S (Fija Blindada)",
+    "timestamp": "2026-11-07 01:35"
+  },
+  "401875018": {
+    "partido": "Genoa vs AC Milan",
+    "liga": "Serie A Italia",
+    "dia_tag": "MAÑANA · 09:00",
+    "mercado": "Menos de 10.5 Córners",
+    "cuota": 1.62,
+    "prob_real": 68.5,
+    "edge": 6.8,
+    "stake_pct": 3.54,
+    "tier_label": "💎 TIER S (Fija Blindada)",
+    "timestamp": "2026-11-07 01:35"
+  },
+  "401874808": {
+    "partido": "Internazionale vs Como",
+    "liga": "Serie A Italia",
+    "dia_tag": "MAÑANA · 12:00",
+    "mercado": "Menos de 10.5 Córners",
+    "cuota": 1.62,
+    "prob_real": 68.5,
+    "edge": 6.8,
+    "stake_pct": 3.54,
+    "tier_label": "💎 TIER S (Fija Blindada)",
+    "timestamp": "2026-11-07 01:35"
+  },
   "401874974": {
     "partido": "Parma vs Bologna",
     "liga": "Serie A Italia",
-    "dia_tag": "MAÑANA · 12:00",
+    "dia_tag": "HOY · 12:00",
     "mercado": "Menos de 9.5 Tiros al Arco",
     "cuota": 1.64,
     "prob_real": 67.5,
     "edge": 6.5,
     "stake_pct": 3.34,
     "tier_label": "💎 TIER S (Fija Blindada)",
-    "timestamp": "2026-11-06 23:38"
+    "timestamp": "2026-11-07 01:35"
   },
   "401884740": {
     "partido": "Mainz vs Bayern Munich",
     "liga": "Bundesliga",
-    "dia_tag": "MAÑANA · 09:30",
+    "dia_tag": "HOY · 09:30",
     "mercado": "Más de 8.5 Tiros al Arco",
     "cuota": 1.68,
     "prob_real": 66.0,
     "edge": 6.5,
     "stake_pct": 3.2,
     "tier_label": "💎 TIER S (Fija Blindada)",
-    "timestamp": "2026-11-06 23:38"
+    "timestamp": "2026-11-07 01:35"
   },
   "401884744": {
     "partido": "RB Leipzig vs FC Augsburg",
     "liga": "Bundesliga",
-    "dia_tag": "MAÑANA · 09:30",
+    "dia_tag": "HOY · 09:30",
     "mercado": "Más de 8.5 Tiros al Arco",
     "cuota": 1.68,
     "prob_real": 66.0,
     "edge": 6.5,
     "stake_pct": 3.2,
     "tier_label": "💎 TIER S (Fija Blindada)",
-    "timestamp": "2026-11-06 23:38"
+    "timestamp": "2026-11-07 01:35"
   }
 }
