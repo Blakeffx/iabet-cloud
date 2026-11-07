@@ -11,9 +11,9 @@
       {
         "nombre": "Gana Local (1)",
         "cat": "1X2",
-        "prob": 48.5,
+        "prob": 48.4,
         "justa": 2.06,
-        "cuota_ref": 1.96
+        "cuota_ref": 1.97
       },
       {
         "nombre": "Gana Visita (2)",
@@ -27,19 +27,19 @@
         "cat": "DOBLE OPORTUNIDAD",
         "prob": 73.8,
         "justa": 1.35,
-        "cuota_ref": 1.28
+        "cuota_ref": 1.29
       },
       {
         "nombre": "Visita o Empate (X2)",
         "cat": "DOBLE OPORTUNIDAD",
-        "prob": 51.5,
+        "prob": 51.6,
         "justa": 1.94,
         "cuota_ref": 1.84
       },
       {
         "nombre": "Más de 1.5 Goles (Over 1.5)",
         "cat": "GOLES",
-        "prob": 73.7,
+        "prob": 73.6,
         "justa": 1.36,
         "cuota_ref": 1.31
       },
@@ -47,20 +47,20 @@
         "nombre": "Más de 2.5 Goles (Over 2.5)",
         "cat": "GOLES",
         "prob": 48.7,
-        "justa": 2.05,
-        "cuota_ref": 1.95
+        "justa": 2.06,
+        "cuota_ref": 1.96
       },
       {
         "nombre": "Menos de 2.5 Goles (Under 2.5)",
         "cat": "GOLES",
         "prob": 51.3,
         "justa": 1.95,
-        "cuota_ref": 1.86
+        "cuota_ref": 1.85
       },
       {
         "nombre": "Menos de 3.5 Goles (Under 3.5)",
         "cat": "GOLES",
-        "prob": 73.1,
+        "prob": 73.2,
         "justa": 1.37,
         "cuota_ref": 1.31
       },
@@ -114,7 +114,7 @@
         "nombre": "Gana Local (1)",
         "cat": "1X2",
         "prob": 55.7,
-        "justa": 1.79,
+        "justa": 1.8,
         "cuota_ref": 1.71
       },
       {
@@ -141,21 +141,21 @@
       {
         "nombre": "Más de 1.5 Goles (Over 1.5)",
         "cat": "GOLES",
-        "prob": 75.6,
+        "prob": 75.7,
         "justa": 1.32,
         "cuota_ref": 1.27
       },
       {
         "nombre": "Más de 2.5 Goles (Over 2.5)",
         "cat": "GOLES",
-        "prob": 51.4,
+        "prob": 51.3,
         "justa": 1.95,
         "cuota_ref": 1.85
       },
       {
         "nombre": "Menos de 2.5 Goles (Under 2.5)",
         "cat": "GOLES",
-        "prob": 48.6,
+        "prob": 48.7,
         "justa": 2.06,
         "cuota_ref": 1.96
       },
@@ -169,7 +169,7 @@
       {
         "nombre": "Ambos Equipos Anotan (Sí)",
         "cat": "BTTS",
-        "prob": 51.5,
+        "prob": 51.6,
         "justa": 1.94,
         "cuota_ref": 2.0
       }
@@ -187,16 +187,16 @@
       {
         "nombre": "Gana Local (1)",
         "cat": "1X2",
-        "prob": 40.4,
-        "justa": 2.48,
-        "cuota_ref": 2.36
+        "prob": 40.5,
+        "justa": 2.47,
+        "cuota_ref": 2.35
       },
       {
         "nombre": "Gana Visita (2)",
         "cat": "1X2",
         "prob": 34.1,
-        "justa": 2.93,
-        "cuota_ref": 2.79
+        "justa": 2.94,
+        "cuota_ref": 2.8
       },
       {
         "nombre": "Local o Empate (1X)",
@@ -208,15 +208,15 @@
       {
         "nombre": "Visita o Empate (X2)",
         "cat": "DOBLE OPORTUNIDAD",
-        "prob": 59.6,
+        "prob": 59.5,
         "justa": 1.68,
-        "cuota_ref": 1.59
+        "cuota_ref": 1.6
       },
       {
         "nombre": "Más de 1.5 Goles (Over 1.5)",
         "cat": "GOLES",
-        "prob": 76.1,
-        "justa": 1.31,
+        "prob": 76.0,
+        "justa": 1.32,
         "cuota_ref": 1.26
       },
       {
@@ -244,7 +244,7 @@
         "nombre": "Ambos Equipos Anotan (Sí)",
         "cat": "BTTS",
         "prob": 55.7,
-        "justa": 1.8,
+        "justa": 1.79,
         "cuota_ref": 1.85
       },
       {
@@ -296,15 +296,15 @@
       {
         "nombre": "Gana Visita (2)",
         "cat": "1X2",
-        "prob": 38.5,
+        "prob": 38.4,
         "justa": 2.6,
-        "cuota_ref": 2.47
+        "cuota_ref": 2.48
       },
       {
         "nombre": "Local o Empate (1X)",
         "cat": "DOBLE OPORTUNIDAD",
-        "prob": 61.5,
-        "justa": 1.63,
+        "prob": 61.6,
+        "justa": 1.62,
         "cuota_ref": 1.54
       },
       {
@@ -312,41 +312,41 @@
         "cat": "DOBLE OPORTUNIDAD",
         "prob": 64.7,
         "justa": 1.55,
-        "cuota_ref": 1.46
+        "cuota_ref": 1.47
       },
       {
         "nombre": "Más de 1.5 Goles (Over 1.5)",
         "cat": "GOLES",
-        "prob": 73.9,
+        "prob": 74.0,
         "justa": 1.35,
         "cuota_ref": 1.3
       },
       {
         "nombre": "Más de 2.5 Goles (Over 2.5)",
         "cat": "GOLES",
-        "prob": 49.1,
+        "prob": 49.0,
         "justa": 2.04,
         "cuota_ref": 1.94
       },
       {
         "nombre": "Menos de 2.5 Goles (Under 2.5)",
         "cat": "GOLES",
-        "prob": 50.9,
+        "prob": 51.0,
         "justa": 1.96,
         "cuota_ref": 1.87
       },
       {
         "nombre": "Menos de 3.5 Goles (Under 3.5)",
         "cat": "GOLES",
-        "prob": 72.7,
+        "prob": 72.9,
         "justa": 1.37,
         "cuota_ref": 1.32
       },
       {
         "nombre": "Ambos Equipos Anotan (Sí)",
         "cat": "BTTS",
-        "prob": 53.7,
-        "justa": 1.86,
+        "prob": 53.6,
+        "justa": 1.87,
         "cuota_ref": 1.92
       },
       {
@@ -392,20 +392,20 @@
         "nombre": "Gana Local (1)",
         "cat": "1X2",
         "prob": 46.0,
-        "justa": 2.17,
+        "justa": 2.18,
         "cuota_ref": 2.07
       },
       {
         "nombre": "Gana Visita (2)",
         "cat": "1X2",
-        "prob": 28.6,
-        "justa": 3.49,
+        "prob": 28.7,
+        "justa": 3.48,
         "cuota_ref": 3.32
       },
       {
         "nombre": "Local o Empate (1X)",
         "cat": "DOBLE OPORTUNIDAD",
-        "prob": 71.4,
+        "prob": 71.3,
         "justa": 1.4,
         "cuota_ref": 1.33
       },
@@ -414,7 +414,7 @@
         "cat": "DOBLE OPORTUNIDAD",
         "prob": 54.0,
         "justa": 1.85,
-        "cuota_ref": 1.75
+        "cuota_ref": 1.76
       },
       {
         "nombre": "Más de 1.5 Goles (Over 1.5)",
@@ -441,7 +441,7 @@
         "nombre": "Menos de 3.5 Goles (Under 3.5)",
         "cat": "GOLES",
         "prob": 71.7,
-        "justa": 1.39,
+        "justa": 1.4,
         "cuota_ref": 1.34
       },
       {
@@ -466,8 +466,8 @@
         "nombre": "Gana Local (1)",
         "cat": "1X2",
         "prob": 33.8,
-        "justa": 2.96,
-        "cuota_ref": 2.82
+        "justa": 2.95,
+        "cuota_ref": 2.81
       },
       {
         "nombre": "Gana Visita (2)",
@@ -493,9 +493,9 @@
       {
         "nombre": "Más de 1.5 Goles (Over 1.5)",
         "cat": "GOLES",
-        "prob": 76.1,
-        "justa": 1.31,
-        "cuota_ref": 1.26
+        "prob": 75.9,
+        "justa": 1.32,
+        "cuota_ref": 1.27
       },
       {
         "nombre": "Más de 2.5 Goles (Over 2.5)",
@@ -508,13 +508,13 @@
         "nombre": "Menos de 2.5 Goles (Under 2.5)",
         "cat": "GOLES",
         "prob": 48.2,
-        "justa": 2.08,
-        "cuota_ref": 1.98
+        "justa": 2.07,
+        "cuota_ref": 1.97
       },
       {
         "nombre": "Menos de 3.5 Goles (Under 3.5)",
         "cat": "GOLES",
-        "prob": 70.3,
+        "prob": 70.4,
         "justa": 1.42,
         "cuota_ref": 1.37
       },
@@ -539,29 +539,29 @@
       {
         "nombre": "Gana Local (1)",
         "cat": "1X2",
-        "prob": 44.0,
-        "justa": 2.27,
-        "cuota_ref": 2.16
+        "prob": 43.9,
+        "justa": 2.28,
+        "cuota_ref": 2.17
       },
       {
         "nombre": "Gana Visita (2)",
         "cat": "1X2",
-        "prob": 31.7,
+        "prob": 31.8,
         "justa": 3.15,
         "cuota_ref": 3.0
       },
       {
         "nombre": "Local o Empate (1X)",
         "cat": "DOBLE OPORTUNIDAD",
-        "prob": 68.3,
-        "justa": 1.46,
+        "prob": 68.2,
+        "justa": 1.47,
         "cuota_ref": 1.39
       },
       {
         "nombre": "Visita o Empate (X2)",
         "cat": "DOBLE OPORTUNIDAD",
-        "prob": 56.0,
-        "justa": 1.79,
+        "prob": 56.1,
+        "justa": 1.78,
         "cuota_ref": 1.69
       },
       {
@@ -574,21 +574,21 @@
       {
         "nombre": "Más de 2.5 Goles (Over 2.5)",
         "cat": "GOLES",
-        "prob": 56.3,
+        "prob": 56.2,
         "justa": 1.78,
-        "cuota_ref": 1.69
+        "cuota_ref": 1.7
       },
       {
         "nombre": "Menos de 2.5 Goles (Under 2.5)",
         "cat": "GOLES",
-        "prob": 43.7,
-        "justa": 2.29,
-        "cuota_ref": 2.18
+        "prob": 43.8,
+        "justa": 2.28,
+        "cuota_ref": 2.17
       },
       {
         "nombre": "Menos de 3.5 Goles (Under 3.5)",
         "cat": "GOLES",
-        "prob": 66.1,
+        "prob": 66.2,
         "justa": 1.51,
         "cuota_ref": 1.45
       },
@@ -641,7 +641,7 @@
       {
         "nombre": "Gana Local (1)",
         "cat": "1X2",
-        "prob": 31.2,
+        "prob": 31.3,
         "justa": 3.2,
         "cuota_ref": 3.05
       },
@@ -650,19 +650,19 @@
         "cat": "1X2",
         "prob": 44.0,
         "justa": 2.27,
-        "cuota_ref": 2.16
+        "cuota_ref": 2.17
       },
       {
         "nombre": "Local o Empate (1X)",
         "cat": "DOBLE OPORTUNIDAD",
         "prob": 56.0,
-        "justa": 1.79,
-        "cuota_ref": 1.7
+        "justa": 1.78,
+        "cuota_ref": 1.69
       },
       {
         "nombre": "Visita o Empate (X2)",
         "cat": "DOBLE OPORTUNIDAD",
-        "prob": 68.8,
+        "prob": 68.7,
         "justa": 1.45,
         "cuota_ref": 1.38
       },
@@ -677,14 +677,14 @@
         "nombre": "Más de 2.5 Goles (Over 2.5)",
         "cat": "GOLES",
         "prob": 54.2,
-        "justa": 1.84,
+        "justa": 1.85,
         "cuota_ref": 1.76
       },
       {
         "nombre": "Menos de 2.5 Goles (Under 2.5)",
         "cat": "GOLES",
         "prob": 45.8,
-        "justa": 2.19,
+        "justa": 2.18,
         "cuota_ref": 2.08
       },
       {
@@ -697,7 +697,7 @@
       {
         "nombre": "Ambos Equipos Anotan (Sí)",
         "cat": "BTTS",
-        "prob": 57.1,
+        "prob": 57.2,
         "justa": 1.75,
         "cuota_ref": 1.8
       },
@@ -799,7 +799,7 @@
       {
         "nombre": "Ambos Equipos Anotan (Sí)",
         "cat": "BTTS",
-        "prob": 52.1,
+        "prob": 52.2,
         "justa": 1.92,
         "cuota_ref": 1.98
       }
@@ -817,9 +817,9 @@
       {
         "nombre": "Gana Local (1)",
         "cat": "1X2",
-        "prob": 38.9,
+        "prob": 39.0,
         "justa": 2.57,
-        "cuota_ref": 2.45
+        "cuota_ref": 2.44
       },
       {
         "nombre": "Gana Visita (2)",
@@ -838,7 +838,7 @@
       {
         "nombre": "Visita o Empate (X2)",
         "cat": "DOBLE OPORTUNIDAD",
-        "prob": 61.1,
+        "prob": 61.0,
         "justa": 1.64,
         "cuota_ref": 1.55
       },
@@ -866,14 +866,14 @@
       {
         "nombre": "Menos de 3.5 Goles (Under 3.5)",
         "cat": "GOLES",
-        "prob": 75.3,
+        "prob": 75.2,
         "justa": 1.33,
         "cuota_ref": 1.28
       },
       {
         "nombre": "Ambos Equipos Anotan (Sí)",
         "cat": "BTTS",
-        "prob": 51.3,
+        "prob": 51.2,
         "justa": 1.95,
         "cuota_ref": 2.01
       },
@@ -947,7 +947,7 @@
       {
         "nombre": "Más de 1.5 Goles (Over 1.5)",
         "cat": "GOLES",
-        "prob": 67.2,
+        "prob": 67.3,
         "justa": 1.49,
         "cuota_ref": 1.43
       },
@@ -975,8 +975,8 @@
       {
         "nombre": "Ambos Equipos Anotan (Sí)",
         "cat": "BTTS",
-        "prob": 47.0,
-        "justa": 2.13,
+        "prob": 47.1,
+        "justa": 2.12,
         "cuota_ref": 2.19
       },
       {
@@ -1021,30 +1021,30 @@
       {
         "nombre": "Gana Local (1)",
         "cat": "1X2",
-        "prob": 56.0,
-        "justa": 1.78,
+        "prob": 55.9,
+        "justa": 1.79,
         "cuota_ref": 1.7
       },
       {
         "nombre": "Gana Visita (2)",
         "cat": "1X2",
-        "prob": 20.8,
-        "justa": 4.8,
+        "prob": 20.9,
+        "justa": 4.79,
         "cuota_ref": 4.57
       },
       {
         "nombre": "Local o Empate (1X)",
         "cat": "DOBLE OPORTUNIDAD",
-        "prob": 79.2,
+        "prob": 79.1,
         "justa": 1.26,
         "cuota_ref": 1.2
       },
       {
         "nombre": "Visita o Empate (X2)",
         "cat": "DOBLE OPORTUNIDAD",
-        "prob": 44.0,
+        "prob": 44.1,
         "justa": 2.27,
-        "cuota_ref": 2.16
+        "cuota_ref": 2.15
       },
       {
         "nombre": "Más de 1.5 Goles (Over 1.5)",
@@ -1123,7 +1123,7 @@
       {
         "nombre": "Gana Local (1)",
         "cat": "1X2",
-        "prob": 57.1,
+        "prob": 57.2,
         "justa": 1.75,
         "cuota_ref": 1.67
       },
@@ -1131,7 +1131,7 @@
         "nombre": "Gana Visita (2)",
         "cat": "1X2",
         "prob": 21.2,
-        "justa": 4.72,
+        "justa": 4.73,
         "cuota_ref": 4.5
       },
       {
@@ -1144,8 +1144,8 @@
       {
         "nombre": "Visita o Empate (X2)",
         "cat": "DOBLE OPORTUNIDAD",
-        "prob": 42.9,
-        "justa": 2.33,
+        "prob": 42.8,
+        "justa": 2.34,
         "cuota_ref": 2.21
       },
       {
@@ -1158,21 +1158,21 @@
       {
         "nombre": "Más de 2.5 Goles (Over 2.5)",
         "cat": "GOLES",
-        "prob": 59.5,
+        "prob": 59.6,
         "justa": 1.68,
         "cuota_ref": 1.6
       },
       {
         "nombre": "Menos de 2.5 Goles (Under 2.5)",
         "cat": "GOLES",
-        "prob": 40.5,
-        "justa": 2.47,
-        "cuota_ref": 2.35
+        "prob": 40.4,
+        "justa": 2.48,
+        "cuota_ref": 2.36
       },
       {
         "nombre": "Menos de 3.5 Goles (Under 3.5)",
         "cat": "GOLES",
-        "prob": 62.9,
+        "prob": 62.8,
         "justa": 1.59,
         "cuota_ref": 1.53
       },
@@ -1199,28 +1199,28 @@
         "cat": "1X2",
         "prob": 24.2,
         "justa": 4.13,
-        "cuota_ref": 3.94
+        "cuota_ref": 3.93
       },
       {
         "nombre": "Gana Visita (2)",
         "cat": "1X2",
         "prob": 56.2,
         "justa": 1.78,
-        "cuota_ref": 1.69
+        "cuota_ref": 1.7
       },
       {
         "nombre": "Local o Empate (1X)",
         "cat": "DOBLE OPORTUNIDAD",
         "prob": 43.8,
         "justa": 2.28,
-        "cuota_ref": 2.17
+        "cuota_ref": 2.16
       },
       {
         "nombre": "Visita o Empate (X2)",
         "cat": "DOBLE OPORTUNIDAD",
         "prob": 75.8,
         "justa": 1.32,
-        "cuota_ref": 1.25
+        "cuota_ref": 1.26
       },
       {
         "nombre": "Más de 1.5 Goles (Over 1.5)",
@@ -1248,12 +1248,12 @@
         "cat": "GOLES",
         "prob": 46.8,
         "justa": 2.14,
-        "cuota_ref": 2.06
+        "cuota_ref": 2.05
       },
       {
         "nombre": "Ambos Equipos Anotan (Sí)",
         "cat": "BTTS",
-        "prob": 70.0,
+        "prob": 70.1,
         "justa": 1.43,
         "cuota_ref": 1.47
       },
@@ -1300,8 +1300,8 @@
         "nombre": "Gana Local (1)",
         "cat": "1X2",
         "prob": 48.7,
-        "justa": 2.05,
-        "cuota_ref": 1.95
+        "justa": 2.06,
+        "cuota_ref": 1.96
       },
       {
         "nombre": "Gana Visita (2)",
@@ -1315,7 +1315,7 @@
         "cat": "DOBLE OPORTUNIDAD",
         "prob": 71.1,
         "justa": 1.41,
-        "cuota_ref": 1.33
+        "cuota_ref": 1.34
       },
       {
         "nombre": "Visita o Empate (X2)",
@@ -1327,7 +1327,7 @@
       {
         "nombre": "Más de 1.5 Goles (Over 1.5)",
         "cat": "GOLES",
-        "prob": 83.8,
+        "prob": 83.9,
         "justa": 1.19,
         "cuota_ref": 1.15
       },
@@ -1355,7 +1355,7 @@
       {
         "nombre": "Ambos Equipos Anotan (Sí)",
         "cat": "BTTS",
-        "prob": 63.7,
+        "prob": 63.8,
         "justa": 1.57,
         "cuota_ref": 1.62
       },
@@ -1401,9 +1401,9 @@
       {
         "nombre": "Gana Local (1)",
         "cat": "1X2",
-        "prob": 47.8,
-        "justa": 2.09,
-        "cuota_ref": 1.99
+        "prob": 47.7,
+        "justa": 2.1,
+        "cuota_ref": 2.0
       },
       {
         "nombre": "Gana Visita (2)",
@@ -1417,47 +1417,47 @@
         "cat": "DOBLE OPORTUNIDAD",
         "prob": 71.1,
         "justa": 1.41,
-        "cuota_ref": 1.33
+        "cuota_ref": 1.34
       },
       {
         "nombre": "Visita o Empate (X2)",
         "cat": "DOBLE OPORTUNIDAD",
-        "prob": 52.2,
-        "justa": 1.92,
-        "cuota_ref": 1.82
+        "prob": 52.3,
+        "justa": 1.91,
+        "cuota_ref": 1.81
       },
       {
         "nombre": "Más de 1.5 Goles (Over 1.5)",
         "cat": "GOLES",
-        "prob": 81.1,
+        "prob": 81.2,
         "justa": 1.23,
-        "cuota_ref": 1.19
+        "cuota_ref": 1.18
       },
       {
         "nombre": "Más de 2.5 Goles (Over 2.5)",
         "cat": "GOLES",
-        "prob": 59.3,
-        "justa": 1.69,
-        "cuota_ref": 1.61
+        "prob": 59.4,
+        "justa": 1.68,
+        "cuota_ref": 1.6
       },
       {
         "nombre": "Menos de 2.5 Goles (Under 2.5)",
         "cat": "GOLES",
-        "prob": 40.7,
+        "prob": 40.6,
         "justa": 2.46,
-        "cuota_ref": 2.34
+        "cuota_ref": 2.35
       },
       {
         "nombre": "Menos de 3.5 Goles (Under 3.5)",
         "cat": "GOLES",
-        "prob": 63.1,
-        "justa": 1.58,
-        "cuota_ref": 1.52
+        "prob": 63.0,
+        "justa": 1.59,
+        "cuota_ref": 1.53
       },
       {
         "nombre": "Ambos Equipos Anotan (Sí)",
         "cat": "BTTS",
-        "prob": 60.6,
+        "prob": 60.7,
         "justa": 1.65,
         "cuota_ref": 1.7
       }
@@ -1475,7 +1475,7 @@
       {
         "nombre": "Gana Local (1)",
         "cat": "1X2",
-        "prob": 60.2,
+        "prob": 60.1,
         "justa": 1.66,
         "cuota_ref": 1.58
       },
@@ -1483,8 +1483,8 @@
         "nombre": "Gana Visita (2)",
         "cat": "1X2",
         "prob": 19.2,
-        "justa": 5.22,
-        "cuota_ref": 4.97
+        "justa": 5.2,
+        "cuota_ref": 4.95
       },
       {
         "nombre": "Local o Empate (1X)",
@@ -1496,9 +1496,9 @@
       {
         "nombre": "Visita o Empate (X2)",
         "cat": "DOBLE OPORTUNIDAD",
-        "prob": 39.8,
+        "prob": 39.9,
         "justa": 2.51,
-        "cuota_ref": 2.38
+        "cuota_ref": 2.37
       },
       {
         "nombre": "Más de 1.5 Goles (Over 1.5)",
@@ -1510,28 +1510,28 @@
       {
         "nombre": "Más de 2.5 Goles (Over 2.5)",
         "cat": "GOLES",
-        "prob": 61.7,
-        "justa": 1.62,
-        "cuota_ref": 1.54
+        "prob": 61.5,
+        "justa": 1.63,
+        "cuota_ref": 1.55
       },
       {
         "nombre": "Menos de 2.5 Goles (Under 2.5)",
         "cat": "GOLES",
-        "prob": 38.3,
-        "justa": 2.61,
-        "cuota_ref": 2.48
+        "prob": 38.5,
+        "justa": 2.6,
+        "cuota_ref": 2.47
       },
       {
         "nombre": "Menos de 3.5 Goles (Under 3.5)",
         "cat": "GOLES",
-        "prob": 60.6,
-        "justa": 1.65,
-        "cuota_ref": 1.59
+        "prob": 60.8,
+        "justa": 1.64,
+        "cuota_ref": 1.58
       },
       {
         "nombre": "Ambos Equipos Anotan (Sí)",
         "cat": "BTTS",
-        "prob": 58.3,
+        "prob": 58.2,
         "justa": 1.72,
         "cuota_ref": 1.77
       },
@@ -1606,7 +1606,7 @@
         "nombre": "Más de 1.5 Goles (Over 1.5)",
         "cat": "GOLES",
         "prob": 71.7,
-        "justa": 1.4,
+        "justa": 1.39,
         "cuota_ref": 1.34
       },
       {
@@ -1679,56 +1679,56 @@
       {
         "nombre": "Gana Local (1)",
         "cat": "1X2",
-        "prob": 60.6,
+        "prob": 60.5,
         "justa": 1.65,
         "cuota_ref": 1.57
       },
       {
         "nombre": "Gana Visita (2)",
         "cat": "1X2",
-        "prob": 18.2,
-        "justa": 5.48,
-        "cuota_ref": 5.22
+        "prob": 18.3,
+        "justa": 5.47,
+        "cuota_ref": 5.21
       },
       {
         "nombre": "Local o Empate (1X)",
         "cat": "DOBLE OPORTUNIDAD",
-        "prob": 81.8,
+        "prob": 81.7,
         "justa": 1.22,
         "cuota_ref": 1.16
       },
       {
         "nombre": "Visita o Empate (X2)",
         "cat": "DOBLE OPORTUNIDAD",
-        "prob": 39.4,
-        "justa": 2.54,
+        "prob": 39.5,
+        "justa": 2.53,
         "cuota_ref": 2.4
       },
       {
         "nombre": "Más de 1.5 Goles (Over 1.5)",
         "cat": "GOLES",
-        "prob": 80.0,
+        "prob": 79.9,
         "justa": 1.25,
         "cuota_ref": 1.2
       },
       {
         "nombre": "Más de 2.5 Goles (Over 2.5)",
         "cat": "GOLES",
-        "prob": 57.6,
+        "prob": 57.5,
         "justa": 1.74,
-        "cuota_ref": 1.65
+        "cuota_ref": 1.66
       },
       {
         "nombre": "Menos de 2.5 Goles (Under 2.5)",
         "cat": "GOLES",
-        "prob": 42.4,
-        "justa": 2.36,
+        "prob": 42.5,
+        "justa": 2.35,
         "cuota_ref": 2.24
       },
       {
         "nombre": "Menos de 3.5 Goles (Under 3.5)",
         "cat": "GOLES",
-        "prob": 64.8,
+        "prob": 64.9,
         "justa": 1.54,
         "cuota_ref": 1.48
       },
@@ -1736,7 +1736,7 @@
         "nombre": "Ambos Equipos Anotan (Sí)",
         "cat": "BTTS",
         "prob": 54.5,
-        "justa": 1.83,
+        "justa": 1.84,
         "cuota_ref": 1.89
       }
     ]
@@ -1753,83 +1753,9 @@
       {
         "nombre": "Gana Local (1)",
         "cat": "1X2",
-        "prob": 45.9,
-        "justa": 2.18,
-        "cuota_ref": 2.08
-      },
-      {
-        "nombre": "Gana Visita (2)",
-        "cat": "1X2",
-        "prob": 28.7,
-        "justa": 3.49,
-        "cuota_ref": 3.32
-      },
-      {
-        "nombre": "Local o Empate (1X)",
-        "cat": "DOBLE OPORTUNIDAD",
-        "prob": 71.3,
-        "justa": 1.4,
-        "cuota_ref": 1.33
-      },
-      {
-        "nombre": "Visita o Empate (X2)",
-        "cat": "DOBLE OPORTUNIDAD",
-        "prob": 54.1,
-        "justa": 1.85,
-        "cuota_ref": 1.75
-      },
-      {
-        "nombre": "Más de 1.5 Goles (Over 1.5)",
-        "cat": "GOLES",
-        "prob": 74.8,
-        "justa": 1.34,
-        "cuota_ref": 1.29
-      },
-      {
-        "nombre": "Más de 2.5 Goles (Over 2.5)",
-        "cat": "GOLES",
-        "prob": 50.2,
-        "justa": 1.99,
-        "cuota_ref": 1.9
-      },
-      {
-        "nombre": "Menos de 2.5 Goles (Under 2.5)",
-        "cat": "GOLES",
-        "prob": 49.8,
-        "justa": 2.01,
-        "cuota_ref": 1.91
-      },
-      {
-        "nombre": "Menos de 3.5 Goles (Under 3.5)",
-        "cat": "GOLES",
-        "prob": 71.7,
-        "justa": 1.39,
-        "cuota_ref": 1.34
-      },
-      {
-        "nombre": "Ambos Equipos Anotan (Sí)",
-        "cat": "BTTS",
-        "prob": 53.7,
-        "justa": 1.86,
-        "cuota_ref": 1.92
-      }
-    ]
-  },
-  {
-    "event_id": "401886143",
-    "partido": "FC Cajamarca vs Alianza Atlético",
-    "liga": "Liga 1 Perú",
-    "dia_tag": "MAÑANA · 15:30",
-    "lam_l": 1.53,
-    "lam_v": 1.15,
-    "casa_ref": "Consenso B2B / ESPN",
-    "mercados": [
-      {
-        "nombre": "Gana Local (1)",
-        "cat": "1X2",
-        "prob": 45.9,
-        "justa": 2.18,
-        "cuota_ref": 2.08
+        "prob": 46.0,
+        "justa": 2.17,
+        "cuota_ref": 2.07
       },
       {
         "nombre": "Gana Visita (2)",
@@ -1848,7 +1774,81 @@
       {
         "nombre": "Visita o Empate (X2)",
         "cat": "DOBLE OPORTUNIDAD",
-        "prob": 54.1,
+        "prob": 54.0,
+        "justa": 1.85,
+        "cuota_ref": 1.76
+      },
+      {
+        "nombre": "Más de 1.5 Goles (Over 1.5)",
+        "cat": "GOLES",
+        "prob": 74.9,
+        "justa": 1.34,
+        "cuota_ref": 1.28
+      },
+      {
+        "nombre": "Más de 2.5 Goles (Over 2.5)",
+        "cat": "GOLES",
+        "prob": 50.3,
+        "justa": 1.99,
+        "cuota_ref": 1.9
+      },
+      {
+        "nombre": "Menos de 2.5 Goles (Under 2.5)",
+        "cat": "GOLES",
+        "prob": 49.7,
+        "justa": 2.01,
+        "cuota_ref": 1.91
+      },
+      {
+        "nombre": "Menos de 3.5 Goles (Under 3.5)",
+        "cat": "GOLES",
+        "prob": 71.8,
+        "justa": 1.39,
+        "cuota_ref": 1.34
+      },
+      {
+        "nombre": "Ambos Equipos Anotan (Sí)",
+        "cat": "BTTS",
+        "prob": 53.6,
+        "justa": 1.87,
+        "cuota_ref": 1.92
+      }
+    ]
+  },
+  {
+    "event_id": "401886143",
+    "partido": "FC Cajamarca vs Alianza Atlético",
+    "liga": "Liga 1 Perú",
+    "dia_tag": "MAÑANA · 15:30",
+    "lam_l": 1.53,
+    "lam_v": 1.15,
+    "casa_ref": "Consenso B2B / ESPN",
+    "mercados": [
+      {
+        "nombre": "Gana Local (1)",
+        "cat": "1X2",
+        "prob": 46.0,
+        "justa": 2.18,
+        "cuota_ref": 2.07
+      },
+      {
+        "nombre": "Gana Visita (2)",
+        "cat": "1X2",
+        "prob": 28.7,
+        "justa": 3.49,
+        "cuota_ref": 3.32
+      },
+      {
+        "nombre": "Local o Empate (1X)",
+        "cat": "DOBLE OPORTUNIDAD",
+        "prob": 71.3,
+        "justa": 1.4,
+        "cuota_ref": 1.33
+      },
+      {
+        "nombre": "Visita o Empate (X2)",
+        "cat": "DOBLE OPORTUNIDAD",
+        "prob": 54.0,
         "justa": 1.85,
         "cuota_ref": 1.75
       },
@@ -1871,13 +1871,13 @@
         "cat": "GOLES",
         "prob": 49.7,
         "justa": 2.01,
-        "cuota_ref": 1.92
+        "cuota_ref": 1.91
       },
       {
         "nombre": "Menos de 3.5 Goles (Under 3.5)",
         "cat": "GOLES",
-        "prob": 71.7,
-        "justa": 1.4,
+        "prob": 71.8,
+        "justa": 1.39,
         "cuota_ref": 1.34
       },
       {
@@ -1936,14 +1936,14 @@
       {
         "nombre": "Más de 2.5 Goles (Over 2.5)",
         "cat": "GOLES",
-        "prob": 50.3,
+        "prob": 50.2,
         "justa": 1.99,
-        "cuota_ref": 1.89
+        "cuota_ref": 1.9
       },
       {
         "nombre": "Menos de 2.5 Goles (Under 2.5)",
         "cat": "GOLES",
-        "prob": 49.7,
+        "prob": 49.8,
         "justa": 2.01,
         "cuota_ref": 1.91
       },
@@ -1957,7 +1957,7 @@
       {
         "nombre": "Ambos Equipos Anotan (Sí)",
         "cat": "BTTS",
-        "prob": 53.6,
+        "prob": 53.7,
         "justa": 1.86,
         "cuota_ref": 1.92
       }
@@ -1968,80 +1968,6 @@
     "partido": "Cienciano del Cusco vs Sport Huancayo",
     "liga": "Liga 1 Perú",
     "dia_tag": "MAÑANA · 20:30",
-    "lam_l": 1.53,
-    "lam_v": 1.15,
-    "casa_ref": "Consenso B2B / ESPN",
-    "mercados": [
-      {
-        "nombre": "Gana Local (1)",
-        "cat": "1X2",
-        "prob": 45.9,
-        "justa": 2.18,
-        "cuota_ref": 2.07
-      },
-      {
-        "nombre": "Gana Visita (2)",
-        "cat": "1X2",
-        "prob": 28.6,
-        "justa": 3.5,
-        "cuota_ref": 3.33
-      },
-      {
-        "nombre": "Local o Empate (1X)",
-        "cat": "DOBLE OPORTUNIDAD",
-        "prob": 71.4,
-        "justa": 1.4,
-        "cuota_ref": 1.33
-      },
-      {
-        "nombre": "Visita o Empate (X2)",
-        "cat": "DOBLE OPORTUNIDAD",
-        "prob": 54.1,
-        "justa": 1.85,
-        "cuota_ref": 1.75
-      },
-      {
-        "nombre": "Más de 1.5 Goles (Over 1.5)",
-        "cat": "GOLES",
-        "prob": 74.9,
-        "justa": 1.34,
-        "cuota_ref": 1.28
-      },
-      {
-        "nombre": "Más de 2.5 Goles (Over 2.5)",
-        "cat": "GOLES",
-        "prob": 50.3,
-        "justa": 1.99,
-        "cuota_ref": 1.89
-      },
-      {
-        "nombre": "Menos de 2.5 Goles (Under 2.5)",
-        "cat": "GOLES",
-        "prob": 49.7,
-        "justa": 2.01,
-        "cuota_ref": 1.91
-      },
-      {
-        "nombre": "Menos de 3.5 Goles (Under 3.5)",
-        "cat": "GOLES",
-        "prob": 71.8,
-        "justa": 1.39,
-        "cuota_ref": 1.34
-      },
-      {
-        "nombre": "Ambos Equipos Anotan (Sí)",
-        "cat": "BTTS",
-        "prob": 53.6,
-        "justa": 1.86,
-        "cuota_ref": 1.92
-      }
-    ]
-  },
-  {
-    "event_id": "401876910",
-    "partido": "Atlético de San Luis vs FC Juárez",
-    "liga": "Liga MX",
-    "dia_tag": "HOY · 20:00",
     "lam_l": 1.53,
     "lam_v": 1.15,
     "casa_ref": "Consenso B2B / ESPN",
@@ -2105,8 +2031,82 @@
       {
         "nombre": "Ambos Equipos Anotan (Sí)",
         "cat": "BTTS",
-        "prob": 53.6,
-        "justa": 1.87,
+        "prob": 53.7,
+        "justa": 1.86,
+        "cuota_ref": 1.92
+      }
+    ]
+  },
+  {
+    "event_id": "401876910",
+    "partido": "Atlético de San Luis vs FC Juárez",
+    "liga": "Liga MX",
+    "dia_tag": "HOY · 20:00",
+    "lam_l": 1.53,
+    "lam_v": 1.15,
+    "casa_ref": "Consenso B2B / ESPN",
+    "mercados": [
+      {
+        "nombre": "Gana Local (1)",
+        "cat": "1X2",
+        "prob": 45.9,
+        "justa": 2.18,
+        "cuota_ref": 2.07
+      },
+      {
+        "nombre": "Gana Visita (2)",
+        "cat": "1X2",
+        "prob": 28.7,
+        "justa": 3.49,
+        "cuota_ref": 3.32
+      },
+      {
+        "nombre": "Local o Empate (1X)",
+        "cat": "DOBLE OPORTUNIDAD",
+        "prob": 71.3,
+        "justa": 1.4,
+        "cuota_ref": 1.33
+      },
+      {
+        "nombre": "Visita o Empate (X2)",
+        "cat": "DOBLE OPORTUNIDAD",
+        "prob": 54.1,
+        "justa": 1.85,
+        "cuota_ref": 1.75
+      },
+      {
+        "nombre": "Más de 1.5 Goles (Over 1.5)",
+        "cat": "GOLES",
+        "prob": 74.8,
+        "justa": 1.34,
+        "cuota_ref": 1.28
+      },
+      {
+        "nombre": "Más de 2.5 Goles (Over 2.5)",
+        "cat": "GOLES",
+        "prob": 50.3,
+        "justa": 1.99,
+        "cuota_ref": 1.89
+      },
+      {
+        "nombre": "Menos de 2.5 Goles (Under 2.5)",
+        "cat": "GOLES",
+        "prob": 49.7,
+        "justa": 2.01,
+        "cuota_ref": 1.91
+      },
+      {
+        "nombre": "Menos de 3.5 Goles (Under 3.5)",
+        "cat": "GOLES",
+        "prob": 71.8,
+        "justa": 1.39,
+        "cuota_ref": 1.34
+      },
+      {
+        "nombre": "Ambos Equipos Anotan (Sí)",
+        "cat": "BTTS",
+        "prob": 53.7,
+        "justa": 1.86,
         "cuota_ref": 1.92
       }
     ]
@@ -2123,7 +2123,81 @@
       {
         "nombre": "Gana Local (1)",
         "cat": "1X2",
-        "prob": 46.0,
+        "prob": 45.9,
+        "justa": 2.18,
+        "cuota_ref": 2.08
+      },
+      {
+        "nombre": "Gana Visita (2)",
+        "cat": "1X2",
+        "prob": 28.7,
+        "justa": 3.49,
+        "cuota_ref": 3.32
+      },
+      {
+        "nombre": "Local o Empate (1X)",
+        "cat": "DOBLE OPORTUNIDAD",
+        "prob": 71.3,
+        "justa": 1.4,
+        "cuota_ref": 1.33
+      },
+      {
+        "nombre": "Visita o Empate (X2)",
+        "cat": "DOBLE OPORTUNIDAD",
+        "prob": 54.1,
+        "justa": 1.85,
+        "cuota_ref": 1.75
+      },
+      {
+        "nombre": "Más de 1.5 Goles (Over 1.5)",
+        "cat": "GOLES",
+        "prob": 74.8,
+        "justa": 1.34,
+        "cuota_ref": 1.28
+      },
+      {
+        "nombre": "Más de 2.5 Goles (Over 2.5)",
+        "cat": "GOLES",
+        "prob": 50.2,
+        "justa": 1.99,
+        "cuota_ref": 1.9
+      },
+      {
+        "nombre": "Menos de 2.5 Goles (Under 2.5)",
+        "cat": "GOLES",
+        "prob": 49.8,
+        "justa": 2.01,
+        "cuota_ref": 1.91
+      },
+      {
+        "nombre": "Menos de 3.5 Goles (Under 3.5)",
+        "cat": "GOLES",
+        "prob": 71.8,
+        "justa": 1.39,
+        "cuota_ref": 1.34
+      },
+      {
+        "nombre": "Ambos Equipos Anotan (Sí)",
+        "cat": "BTTS",
+        "prob": 53.7,
+        "justa": 1.86,
+        "cuota_ref": 1.92
+      }
+    ]
+  },
+  {
+    "event_id": "401876908",
+    "partido": "Atlante vs Santos",
+    "liga": "Liga MX",
+    "dia_tag": "HOY · 22:00",
+    "lam_l": 1.53,
+    "lam_v": 1.15,
+    "casa_ref": "Consenso B2B / ESPN",
+    "mercados": [
+      {
+        "nombre": "Gana Local (1)",
+        "cat": "1X2",
+        "prob": 45.9,
         "justa": 2.18,
         "cuota_ref": 2.07
       },
@@ -2132,6 +2206,154 @@
         "cat": "1X2",
         "prob": 28.7,
         "justa": 3.48,
+        "cuota_ref": 3.32
+      },
+      {
+        "nombre": "Local o Empate (1X)",
+        "cat": "DOBLE OPORTUNIDAD",
+        "prob": 71.3,
+        "justa": 1.4,
+        "cuota_ref": 1.33
+      },
+      {
+        "nombre": "Visita o Empate (X2)",
+        "cat": "DOBLE OPORTUNIDAD",
+        "prob": 54.1,
+        "justa": 1.85,
+        "cuota_ref": 1.75
+      },
+      {
+        "nombre": "Más de 1.5 Goles (Over 1.5)",
+        "cat": "GOLES",
+        "prob": 74.8,
+        "justa": 1.34,
+        "cuota_ref": 1.28
+      },
+      {
+        "nombre": "Más de 2.5 Goles (Over 2.5)",
+        "cat": "GOLES",
+        "prob": 50.2,
+        "justa": 1.99,
+        "cuota_ref": 1.9
+      },
+      {
+        "nombre": "Menos de 2.5 Goles (Under 2.5)",
+        "cat": "GOLES",
+        "prob": 49.8,
+        "justa": 2.01,
+        "cuota_ref": 1.91
+      },
+      {
+        "nombre": "Menos de 3.5 Goles (Under 3.5)",
+        "cat": "GOLES",
+        "prob": 71.7,
+        "justa": 1.39,
+        "cuota_ref": 1.34
+      },
+      {
+        "nombre": "Ambos Equipos Anotan (Sí)",
+        "cat": "BTTS",
+        "prob": 53.6,
+        "justa": 1.86,
+        "cuota_ref": 1.92
+      }
+    ]
+  },
+  {
+    "event_id": "401876907",
+    "partido": "Atlas vs Pachuca",
+    "liga": "Liga MX",
+    "dia_tag": "MAÑANA · 18:00",
+    "lam_l": 1.53,
+    "lam_v": 1.15,
+    "casa_ref": "Consenso B2B / ESPN",
+    "mercados": [
+      {
+        "nombre": "Gana Local (1)",
+        "cat": "1X2",
+        "prob": 46.0,
+        "justa": 2.18,
+        "cuota_ref": 2.07
+      },
+      {
+        "nombre": "Gana Visita (2)",
+        "cat": "1X2",
+        "prob": 28.7,
+        "justa": 3.49,
+        "cuota_ref": 3.32
+      },
+      {
+        "nombre": "Local o Empate (1X)",
+        "cat": "DOBLE OPORTUNIDAD",
+        "prob": 71.3,
+        "justa": 1.4,
+        "cuota_ref": 1.33
+      },
+      {
+        "nombre": "Visita o Empate (X2)",
+        "cat": "DOBLE OPORTUNIDAD",
+        "prob": 54.0,
+        "justa": 1.85,
+        "cuota_ref": 1.75
+      },
+      {
+        "nombre": "Más de 1.5 Goles (Over 1.5)",
+        "cat": "GOLES",
+        "prob": 74.9,
+        "justa": 1.34,
+        "cuota_ref": 1.28
+      },
+      {
+        "nombre": "Más de 2.5 Goles (Over 2.5)",
+        "cat": "GOLES",
+        "prob": 50.3,
+        "justa": 1.99,
+        "cuota_ref": 1.89
+      },
+      {
+        "nombre": "Menos de 2.5 Goles (Under 2.5)",
+        "cat": "GOLES",
+        "prob": 49.7,
+        "justa": 2.01,
+        "cuota_ref": 1.92
+      },
+      {
+        "nombre": "Menos de 3.5 Goles (Under 3.5)",
+        "cat": "GOLES",
+        "prob": 71.8,
+        "justa": 1.39,
+        "cuota_ref": 1.34
+      },
+      {
+        "nombre": "Ambos Equipos Anotan (Sí)",
+        "cat": "BTTS",
+        "prob": 53.7,
+        "justa": 1.86,
+        "cuota_ref": 1.92
+      }
+    ]
+  },
+  {
+    "event_id": "401876906",
+    "partido": "Tigres UANL vs Cruz Azul",
+    "liga": "Liga MX",
+    "dia_tag": "MAÑANA · 20:00",
+    "lam_l": 1.53,
+    "lam_v": 1.15,
+    "casa_ref": "Consenso B2B / ESPN",
+    "mercados": [
+      {
+        "nombre": "Gana Local (1)",
+        "cat": "1X2",
+        "prob": 46.0,
+        "justa": 2.18,
+        "cuota_ref": 2.07
+      },
+      {
+        "nombre": "Gana Visita (2)",
+        "cat": "1X2",
+        "prob": 28.7,
+        "justa": 3.49,
         "cuota_ref": 3.32
       },
       {
@@ -2172,7 +2394,7 @@
       {
         "nombre": "Menos de 3.5 Goles (Under 3.5)",
         "cat": "GOLES",
-        "prob": 71.8,
+        "prob": 71.7,
         "justa": 1.39,
         "cuota_ref": 1.34
       },
@@ -2181,228 +2403,6 @@
         "cat": "BTTS",
         "prob": 53.6,
         "justa": 1.87,
-        "cuota_ref": 1.92
-      }
-    ]
-  },
-  {
-    "event_id": "401876908",
-    "partido": "Atlante vs Santos",
-    "liga": "Liga MX",
-    "dia_tag": "HOY · 22:00",
-    "lam_l": 1.53,
-    "lam_v": 1.15,
-    "casa_ref": "Consenso B2B / ESPN",
-    "mercados": [
-      {
-        "nombre": "Gana Local (1)",
-        "cat": "1X2",
-        "prob": 46.0,
-        "justa": 2.17,
-        "cuota_ref": 2.07
-      },
-      {
-        "nombre": "Gana Visita (2)",
-        "cat": "1X2",
-        "prob": 28.7,
-        "justa": 3.49,
-        "cuota_ref": 3.32
-      },
-      {
-        "nombre": "Local o Empate (1X)",
-        "cat": "DOBLE OPORTUNIDAD",
-        "prob": 71.3,
-        "justa": 1.4,
-        "cuota_ref": 1.33
-      },
-      {
-        "nombre": "Visita o Empate (X2)",
-        "cat": "DOBLE OPORTUNIDAD",
-        "prob": 54.0,
-        "justa": 1.85,
-        "cuota_ref": 1.76
-      },
-      {
-        "nombre": "Más de 1.5 Goles (Over 1.5)",
-        "cat": "GOLES",
-        "prob": 74.9,
-        "justa": 1.34,
-        "cuota_ref": 1.28
-      },
-      {
-        "nombre": "Más de 2.5 Goles (Over 2.5)",
-        "cat": "GOLES",
-        "prob": 50.3,
-        "justa": 1.99,
-        "cuota_ref": 1.89
-      },
-      {
-        "nombre": "Menos de 2.5 Goles (Under 2.5)",
-        "cat": "GOLES",
-        "prob": 49.7,
-        "justa": 2.01,
-        "cuota_ref": 1.92
-      },
-      {
-        "nombre": "Menos de 3.5 Goles (Under 3.5)",
-        "cat": "GOLES",
-        "prob": 71.7,
-        "justa": 1.4,
-        "cuota_ref": 1.34
-      },
-      {
-        "nombre": "Ambos Equipos Anotan (Sí)",
-        "cat": "BTTS",
-        "prob": 53.7,
-        "justa": 1.86,
-        "cuota_ref": 1.92
-      }
-    ]
-  },
-  {
-    "event_id": "401876907",
-    "partido": "Atlas vs Pachuca",
-    "liga": "Liga MX",
-    "dia_tag": "MAÑANA · 18:00",
-    "lam_l": 1.53,
-    "lam_v": 1.15,
-    "casa_ref": "Consenso B2B / ESPN",
-    "mercados": [
-      {
-        "nombre": "Gana Local (1)",
-        "cat": "1X2",
-        "prob": 45.9,
-        "justa": 2.18,
-        "cuota_ref": 2.07
-      },
-      {
-        "nombre": "Gana Visita (2)",
-        "cat": "1X2",
-        "prob": 28.7,
-        "justa": 3.48,
-        "cuota_ref": 3.32
-      },
-      {
-        "nombre": "Local o Empate (1X)",
-        "cat": "DOBLE OPORTUNIDAD",
-        "prob": 71.3,
-        "justa": 1.4,
-        "cuota_ref": 1.33
-      },
-      {
-        "nombre": "Visita o Empate (X2)",
-        "cat": "DOBLE OPORTUNIDAD",
-        "prob": 54.1,
-        "justa": 1.85,
-        "cuota_ref": 1.75
-      },
-      {
-        "nombre": "Más de 1.5 Goles (Over 1.5)",
-        "cat": "GOLES",
-        "prob": 74.9,
-        "justa": 1.34,
-        "cuota_ref": 1.28
-      },
-      {
-        "nombre": "Más de 2.5 Goles (Over 2.5)",
-        "cat": "GOLES",
-        "prob": 50.2,
-        "justa": 1.99,
-        "cuota_ref": 1.9
-      },
-      {
-        "nombre": "Menos de 2.5 Goles (Under 2.5)",
-        "cat": "GOLES",
-        "prob": 49.8,
-        "justa": 2.01,
-        "cuota_ref": 1.91
-      },
-      {
-        "nombre": "Menos de 3.5 Goles (Under 3.5)",
-        "cat": "GOLES",
-        "prob": 71.8,
-        "justa": 1.39,
-        "cuota_ref": 1.34
-      },
-      {
-        "nombre": "Ambos Equipos Anotan (Sí)",
-        "cat": "BTTS",
-        "prob": 53.7,
-        "justa": 1.86,
-        "cuota_ref": 1.92
-      }
-    ]
-  },
-  {
-    "event_id": "401876906",
-    "partido": "Tigres UANL vs Cruz Azul",
-    "liga": "Liga MX",
-    "dia_tag": "MAÑANA · 20:00",
-    "lam_l": 1.53,
-    "lam_v": 1.15,
-    "casa_ref": "Consenso B2B / ESPN",
-    "mercados": [
-      {
-        "nombre": "Gana Local (1)",
-        "cat": "1X2",
-        "prob": 45.9,
-        "justa": 2.18,
-        "cuota_ref": 2.07
-      },
-      {
-        "nombre": "Gana Visita (2)",
-        "cat": "1X2",
-        "prob": 28.7,
-        "justa": 3.49,
-        "cuota_ref": 3.32
-      },
-      {
-        "nombre": "Local o Empate (1X)",
-        "cat": "DOBLE OPORTUNIDAD",
-        "prob": 71.3,
-        "justa": 1.4,
-        "cuota_ref": 1.33
-      },
-      {
-        "nombre": "Visita o Empate (X2)",
-        "cat": "DOBLE OPORTUNIDAD",
-        "prob": 54.1,
-        "justa": 1.85,
-        "cuota_ref": 1.75
-      },
-      {
-        "nombre": "Más de 1.5 Goles (Over 1.5)",
-        "cat": "GOLES",
-        "prob": 74.8,
-        "justa": 1.34,
-        "cuota_ref": 1.28
-      },
-      {
-        "nombre": "Más de 2.5 Goles (Over 2.5)",
-        "cat": "GOLES",
-        "prob": 50.3,
-        "justa": 1.99,
-        "cuota_ref": 1.89
-      },
-      {
-        "nombre": "Menos de 2.5 Goles (Under 2.5)",
-        "cat": "GOLES",
-        "prob": 49.7,
-        "justa": 2.01,
-        "cuota_ref": 1.92
-      },
-      {
-        "nombre": "Menos de 3.5 Goles (Under 3.5)",
-        "cat": "GOLES",
-        "prob": 71.7,
-        "justa": 1.39,
-        "cuota_ref": 1.34
-      },
-      {
-        "nombre": "Ambos Equipos Anotan (Sí)",
-        "cat": "BTTS",
-        "prob": 53.7,
-        "justa": 1.86,
         "cuota_ref": 1.92
       }
     ]
@@ -2475,8 +2475,8 @@
       {
         "nombre": "Ambos Equipos Anotan (Sí)",
         "cat": "BTTS",
-        "prob": 53.7,
-        "justa": 1.86,
+        "prob": 53.6,
+        "justa": 1.87,
         "cuota_ref": 1.92
       }
     ]
@@ -2494,7 +2494,7 @@
         "nombre": "Gana Local (1)",
         "cat": "1X2",
         "prob": 46.0,
-        "justa": 2.17,
+        "justa": 2.18,
         "cuota_ref": 2.07
       },
       {
@@ -2521,9 +2521,9 @@
       {
         "nombre": "Más de 1.5 Goles (Over 1.5)",
         "cat": "GOLES",
-        "prob": 74.8,
+        "prob": 74.9,
         "justa": 1.34,
-        "cuota_ref": 1.29
+        "cuota_ref": 1.28
       },
       {
         "nombre": "Más de 2.5 Goles (Over 2.5)",
@@ -2542,15 +2542,15 @@
       {
         "nombre": "Menos de 3.5 Goles (Under 3.5)",
         "cat": "GOLES",
-        "prob": 71.8,
+        "prob": 71.7,
         "justa": 1.39,
         "cuota_ref": 1.34
       },
       {
         "nombre": "Ambos Equipos Anotan (Sí)",
         "cat": "BTTS",
-        "prob": 53.6,
-        "justa": 1.87,
+        "prob": 53.7,
+        "justa": 1.86,
         "cuota_ref": 1.92
       }
     ]
