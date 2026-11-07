@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-11-06 19:55",
+  "actualizado": "2026-11-06 20:37",
   "motor_scrapling": "ACTIVO (TLS Chrome Impersonation)",
   "surebet_yield_ref": "+2.4% por operación",
   "valuebet_yield_ref": "+5.1% auditado",
@@ -20,7 +20,7 @@
       "casa": "Apuesta Total / DoradoBet",
       "tipo": "Club Freebets Semanal",
       "ganancia_est": "S/ 40 - S/ 80",
-      "estrategia": "Activar modo 'Freebet SNR' en la calculadora Ninja de arriba"
+      "estrategia": "Activar modo 'Freebet SNR' en la calculadora Ninja"
     }
   ]
 }

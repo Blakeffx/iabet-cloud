@@ -1,16 +1,4 @@
 {
-  "401884740": {
-    "partido": "Mainz vs Bayern Munich",
-    "liga": "Bundesliga",
-    "dia_tag": "MAÑANA · 09:30",
-    "mercado": "Ambos Equipos Anotan (Sí)",
-    "cuota": 1.49,
-    "prob_real": 70.1,
-    "edge": 3.0,
-    "stake_pct": 3.0,
-    "tier_label": "💎 TIER S (Fija Blindada)",
-    "timestamp": "2026-11-06 19:55"
-  },
   "401874974": {
     "partido": "Parma vs Bologna",
     "liga": "Serie A Italia",
@@ -21,7 +9,19 @@
     "edge": 6.5,
     "stake_pct": 3.34,
     "tier_label": "💎 TIER S (Fija Blindada)",
-    "timestamp": "2026-11-06 19:55"
+    "timestamp": "2026-11-06 20:37"
+  },
+  "401884740": {
+    "partido": "Mainz vs Bayern Munich",
+    "liga": "Bundesliga",
+    "dia_tag": "MAÑANA · 09:30",
+    "mercado": "Más de 8.5 Tiros al Arco",
+    "cuota": 1.68,
+    "prob_real": 66.0,
+    "edge": 6.5,
+    "stake_pct": 3.2,
+    "tier_label": "💎 TIER S (Fija Blindada)",
+    "timestamp": "2026-11-06 20:37"
   },
   "401884744": {
     "partido": "RB Leipzig vs FC Augsburg",
@@ -33,6 +33,6 @@
     "edge": 6.5,
     "stake_pct": 3.2,
     "tier_label": "💎 TIER S (Fija Blindada)",
-    "timestamp": "2026-11-06 19:55"
+    "timestamp": "2026-11-06 20:37"
   }
 }
