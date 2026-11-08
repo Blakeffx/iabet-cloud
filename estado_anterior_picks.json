@@ -1,74 +1,26 @@
 {
-  "401876410": {
-    "partido": "Brest vs Lyon",
-    "liga": "Ligue 1 Francia",
-    "dia_tag": "HOY · 11:15",
+  "401875018": {
+    "partido": "Genoa vs AC Milan",
+    "liga": "Serie A Italia",
+    "dia_tag": "HOY · 09:00",
     "mercado": "Menos de 10.5 Córners",
     "cuota": 1.62,
     "prob_real": 68.5,
     "edge": 6.8,
     "stake_pct": 3.54,
     "tier_label": "💎 TIER S (Fija Blindada)",
-    "timestamp": "2026-11-08 07:28"
+    "timestamp": "2026-11-08 09:28"
   },
-  "401882810": {
-    "partido": "Real Sociedad vs Rayo Vallecano",
-    "liga": "LaLiga España",
-    "dia_tag": "HOY · 10:15",
-    "mercado": "Menos de 9.5 Tiros al Arco",
-    "cuota": 1.64,
-    "prob_real": 67.5,
-    "edge": 6.5,
-    "stake_pct": 3.34,
+  "401874808": {
+    "partido": "Internazionale vs Como",
+    "liga": "Serie A Italia",
+    "dia_tag": "HOY · 12:00",
+    "mercado": "Menos de 10.5 Córners",
+    "cuota": 1.62,
+    "prob_real": 68.5,
+    "edge": 6.8,
+    "stake_pct": 3.54,
     "tier_label": "💎 TIER S (Fija Blindada)",
-    "timestamp": "2026-11-08 07:28"
-  },
-  "401879239": {
-    "partido": "Sunderland vs Chelsea",
-    "liga": "Premier League",
-    "dia_tag": "HOY · 09:00",
-    "mercado": "Ambos Equipos Anotan (Sí)",
-    "cuota": 1.54,
-    "prob_real": 67.1,
-    "edge": 2.2,
-    "stake_pct": 3.0,
-    "tier_label": "💎 TIER S (Fija Blindada)",
-    "timestamp": "2026-11-08 07:28"
-  },
-  "401879240": {
-    "partido": "Manchester United vs Aston Villa",
-    "liga": "Premier League",
-    "dia_tag": "HOY · 11:30",
-    "mercado": "Más de 9.5 Córners",
-    "cuota": 1.66,
-    "prob_real": 66.5,
-    "edge": 6.3,
-    "stake_pct": 3.15,
-    "tier_label": "💎 TIER S (Fija Blindada)",
-    "timestamp": "2026-11-08 07:28"
-  },
-  "401879244": {
-    "partido": "Brighton & Hove Albion vs Brentford",
-    "liga": "Premier League",
-    "dia_tag": "HOY · 09:00",
-    "mercado": "Más de 8.5 Tiros al Arco",
-    "cuota": 1.68,
-    "prob_real": 66.0,
-    "edge": 6.5,
-    "stake_pct": 3.2,
-    "tier_label": "💎 TIER S (Fija Blindada)",
-    "timestamp": "2026-11-08 07:28"
-  },
-  "401879243": {
-    "partido": "Crystal Palace vs Liverpool",
-    "liga": "Premier League",
-    "dia_tag": "HOY · 09:00",
-    "mercado": "Más de 8.5 Tiros al Arco",
-    "cuota": 1.68,
-    "prob_real": 66.0,
-    "edge": 6.5,
-    "stake_pct": 3.2,
-    "tier_label": "💎 TIER S (Fija Blindada)",
-    "timestamp": "2026-11-08 07:28"
+    "timestamp": "2026-11-08 09:28"
   }
 }
