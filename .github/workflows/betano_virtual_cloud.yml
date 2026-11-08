@@ -1,10 +1,7 @@
 name: IABET Betano Virtual Sniper v4.2
 
 on:
-  # Permite encender el radar manualmente desde el celular (GitHub Mobile / Web)
   workflow_dispatch:
-
-  # Se enciende cada hora en punto y escanea cada 15 seg durante 52 minutos seguidos
   schedule:
     - cron: '0 * * * *'
 
@@ -45,3 +42,4 @@ jobs:
           git add estado_auto_virtual.json || true
           git diff --staged --quiet || git commit -m "Auto-save: Estado Betano Virtuals v4.2"
           git push || true
+          
