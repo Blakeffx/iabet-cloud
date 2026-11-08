@@ -3,7 +3,7 @@
     "event_id": "401879244",
     "partido": "Brighton & Hove Albion vs Brentford",
     "liga": "Premier League",
-    "dia_tag": "MAÑANA · 09:00",
+    "dia_tag": "HOY · 09:00",
     "lam_l": 1.39,
     "lam_v": 1.14,
     "casa_ref": "Consenso B2B / ESPN",
@@ -11,29 +11,29 @@
       {
         "nombre": "Gana Local (1)",
         "cat": "1X2",
-        "prob": 42.7,
-        "justa": 2.34,
+        "prob": 42.6,
+        "justa": 2.35,
         "cuota_ref": 2.23
       },
       {
         "nombre": "Gana Visita (2)",
         "cat": "1X2",
-        "prob": 30.7,
-        "justa": 3.26,
-        "cuota_ref": 3.1
+        "prob": 30.9,
+        "justa": 3.24,
+        "cuota_ref": 3.08
       },
       {
         "nombre": "Local o Empate (1X)",
         "cat": "DOBLE OPORTUNIDAD",
-        "prob": 69.3,
-        "justa": 1.44,
+        "prob": 69.1,
+        "justa": 1.45,
         "cuota_ref": 1.37
       },
       {
         "nombre": "Visita o Empate (X2)",
         "cat": "DOBLE OPORTUNIDAD",
-        "prob": 57.3,
-        "justa": 1.75,
+        "prob": 57.4,
+        "justa": 1.74,
         "cuota_ref": 1.65
       },
       {
@@ -46,16 +46,16 @@
       {
         "nombre": "Más de 2.5 Goles (Over 2.5)",
         "cat": "GOLES",
-        "prob": 46.3,
-        "justa": 2.16,
-        "cuota_ref": 2.06
+        "prob": 46.4,
+        "justa": 2.15,
+        "cuota_ref": 2.05
       },
       {
         "nombre": "Menos de 2.5 Goles (Under 2.5)",
         "cat": "GOLES",
-        "prob": 53.7,
-        "justa": 1.86,
-        "cuota_ref": 1.77
+        "prob": 53.6,
+        "justa": 1.87,
+        "cuota_ref": 1.78
       },
       {
         "nombre": "Menos de 3.5 Goles (Under 3.5)",
@@ -67,7 +67,7 @@
       {
         "nombre": "Ambos Equipos Anotan (Sí)",
         "cat": "BTTS",
-        "prob": 51.0,
+        "prob": 51.1,
         "justa": 1.96,
         "cuota_ref": 2.02
       },
@@ -105,7 +105,7 @@
     "event_id": "401879243",
     "partido": "Crystal Palace vs Liverpool",
     "liga": "Premier League",
-    "dia_tag": "MAÑANA · 09:00",
+    "dia_tag": "HOY · 09:00",
     "lam_l": 1.26,
     "lam_v": 1.52,
     "casa_ref": "Consenso B2B / ESPN",
@@ -113,35 +113,35 @@
       {
         "nombre": "Gana Local (1)",
         "cat": "1X2",
-        "prob": 31.5,
-        "justa": 3.17,
-        "cuota_ref": 3.02
+        "prob": 31.4,
+        "justa": 3.18,
+        "cuota_ref": 3.03
       },
       {
         "nombre": "Gana Visita (2)",
         "cat": "1X2",
-        "prob": 43.3,
-        "justa": 2.31,
-        "cuota_ref": 2.2
+        "prob": 43.4,
+        "justa": 2.3,
+        "cuota_ref": 2.19
       },
       {
         "nombre": "Local o Empate (1X)",
         "cat": "DOBLE OPORTUNIDAD",
-        "prob": 56.7,
-        "justa": 1.76,
-        "cuota_ref": 1.67
+        "prob": 56.6,
+        "justa": 1.77,
+        "cuota_ref": 1.68
       },
       {
         "nombre": "Visita o Empate (X2)",
         "cat": "DOBLE OPORTUNIDAD",
-        "prob": 68.5,
+        "prob": 68.6,
         "justa": 1.46,
-        "cuota_ref": 1.39
+        "cuota_ref": 1.38
       },
       {
         "nombre": "Más de 1.5 Goles (Over 1.5)",
         "cat": "GOLES",
-        "prob": 76.5,
+        "prob": 76.6,
         "justa": 1.31,
         "cuota_ref": 1.26
       },
@@ -170,7 +170,7 @@
         "nombre": "Ambos Equipos Anotan (Sí)",
         "cat": "BTTS",
         "prob": 56.0,
-        "justa": 1.78,
+        "justa": 1.79,
         "cuota_ref": 1.84
       },
       {
@@ -207,7 +207,7 @@
     "event_id": "401878759",
     "partido": "Ipswich Town vs AFC Bournemouth",
     "liga": "Premier League",
-    "dia_tag": "MAÑANA · 09:00",
+    "dia_tag": "HOY · 09:00",
     "lam_l": 1.35,
     "lam_v": 1.3,
     "casa_ref": "Consenso B2B / ESPN",
@@ -215,50 +215,50 @@
       {
         "nombre": "Gana Local (1)",
         "cat": "1X2",
-        "prob": 38.3,
-        "justa": 2.61,
+        "prob": 38.2,
+        "justa": 2.62,
         "cuota_ref": 2.49
       },
       {
         "nombre": "Gana Visita (2)",
         "cat": "1X2",
-        "prob": 35.6,
-        "justa": 2.81,
+        "prob": 35.7,
+        "justa": 2.8,
         "cuota_ref": 2.67
       },
       {
         "nombre": "Local o Empate (1X)",
         "cat": "DOBLE OPORTUNIDAD",
-        "prob": 64.4,
-        "justa": 1.55,
+        "prob": 64.3,
+        "justa": 1.56,
         "cuota_ref": 1.48
       },
       {
         "nombre": "Visita o Empate (X2)",
         "cat": "DOBLE OPORTUNIDAD",
-        "prob": 61.7,
+        "prob": 61.8,
         "justa": 1.62,
         "cuota_ref": 1.54
       },
       {
         "nombre": "Más de 1.5 Goles (Over 1.5)",
         "cat": "GOLES",
-        "prob": 74.1,
+        "prob": 74.2,
         "justa": 1.35,
         "cuota_ref": 1.3
       },
       {
         "nombre": "Más de 2.5 Goles (Over 2.5)",
         "cat": "GOLES",
-        "prob": 49.3,
-        "justa": 2.03,
+        "prob": 49.4,
+        "justa": 2.02,
         "cuota_ref": 1.93
       },
       {
         "nombre": "Menos de 2.5 Goles (Under 2.5)",
         "cat": "GOLES",
-        "prob": 50.7,
-        "justa": 1.97,
+        "prob": 50.6,
+        "justa": 1.98,
         "cuota_ref": 1.88
       },
       {
@@ -271,9 +271,9 @@
       {
         "nombre": "Ambos Equipos Anotan (Sí)",
         "cat": "BTTS",
-        "prob": 53.7,
-        "justa": 1.86,
-        "cuota_ref": 1.92
+        "prob": 53.9,
+        "justa": 1.85,
+        "cuota_ref": 1.91
       }
     ]
   },
@@ -281,7 +281,7 @@
     "event_id": "401879239",
     "partido": "Sunderland vs Chelsea",
     "liga": "Premier League",
-    "dia_tag": "MAÑANA · 09:00",
+    "dia_tag": "HOY · 09:00",
     "lam_l": 1.47,
     "lam_v": 1.38,
     "casa_ref": "Consenso B2B / ESPN",
@@ -290,20 +290,20 @@
         "nombre": "Gana Local (1)",
         "cat": "1X2",
         "prob": 39.6,
-        "justa": 2.53,
-        "cuota_ref": 2.41
+        "justa": 2.52,
+        "cuota_ref": 2.4
       },
       {
         "nombre": "Gana Visita (2)",
         "cat": "1X2",
-        "prob": 35.3,
-        "justa": 2.83,
-        "cuota_ref": 2.7
+        "prob": 35.4,
+        "justa": 2.82,
+        "cuota_ref": 2.69
       },
       {
         "nombre": "Local o Empate (1X)",
         "cat": "DOBLE OPORTUNIDAD",
-        "prob": 64.7,
+        "prob": 64.6,
         "justa": 1.55,
         "cuota_ref": 1.47
       },
@@ -325,7 +325,7 @@
         "nombre": "Más de 2.5 Goles (Over 2.5)",
         "cat": "GOLES",
         "prob": 54.2,
-        "justa": 1.85,
+        "justa": 1.84,
         "cuota_ref": 1.76
       },
       {
@@ -383,7 +383,7 @@
     "event_id": "401879240",
     "partido": "Manchester United vs Aston Villa",
     "liga": "Premier League",
-    "dia_tag": "MAÑANA · 11:30",
+    "dia_tag": "HOY · 11:30",
     "lam_l": 1.79,
     "lam_v": 1.16,
     "casa_ref": "Consenso B2B / ESPN",
@@ -398,14 +398,14 @@
       {
         "nombre": "Gana Visita (2)",
         "cat": "1X2",
-        "prob": 24.7,
-        "justa": 4.06,
-        "cuota_ref": 3.86
+        "prob": 24.8,
+        "justa": 4.04,
+        "cuota_ref": 3.84
       },
       {
         "nombre": "Local o Empate (1X)",
         "cat": "DOBLE OPORTUNIDAD",
-        "prob": 75.3,
+        "prob": 75.2,
         "justa": 1.33,
         "cuota_ref": 1.26
       },
@@ -440,7 +440,7 @@
       {
         "nombre": "Menos de 3.5 Goles (Under 3.5)",
         "cat": "GOLES",
-        "prob": 65.7,
+        "prob": 65.8,
         "justa": 1.52,
         "cuota_ref": 1.46
       },
@@ -485,7 +485,7 @@
     "event_id": "401882814",
     "partido": "Elche vs Real Betis",
     "liga": "LaLiga España",
-    "dia_tag": "MAÑANA · 08:00",
+    "dia_tag": "HOY · 08:00",
     "lam_l": 1.31,
     "lam_v": 1.5,
     "casa_ref": "Consenso B2B / ESPN",
@@ -493,9 +493,9 @@
       {
         "nombre": "Gana Local (1)",
         "cat": "1X2",
-        "prob": 33.2,
+        "prob": 33.3,
         "justa": 3.01,
-        "cuota_ref": 2.87
+        "cuota_ref": 2.86
       },
       {
         "nombre": "Gana Visita (2)",
@@ -509,19 +509,19 @@
         "cat": "DOBLE OPORTUNIDAD",
         "prob": 58.4,
         "justa": 1.71,
-        "cuota_ref": 1.63
+        "cuota_ref": 1.62
       },
       {
         "nombre": "Visita o Empate (X2)",
         "cat": "DOBLE OPORTUNIDAD",
-        "prob": 66.8,
+        "prob": 66.7,
         "justa": 1.5,
         "cuota_ref": 1.42
       },
       {
         "nombre": "Más de 1.5 Goles (Over 1.5)",
         "cat": "GOLES",
-        "prob": 77.0,
+        "prob": 77.1,
         "justa": 1.3,
         "cuota_ref": 1.25
       },
@@ -542,7 +542,7 @@
       {
         "nombre": "Menos de 3.5 Goles (Under 3.5)",
         "cat": "GOLES",
-        "prob": 69.1,
+        "prob": 69.0,
         "justa": 1.45,
         "cuota_ref": 1.39
       },
@@ -587,7 +587,7 @@
     "event_id": "401882810",
     "partido": "Real Sociedad vs Rayo Vallecano",
     "liga": "LaLiga España",
-    "dia_tag": "MAÑANA · 10:15",
+    "dia_tag": "HOY · 10:15",
     "lam_l": 1.6,
     "lam_v": 1.47,
     "casa_ref": "Consenso B2B / ESPN",
@@ -597,7 +597,7 @@
         "cat": "1X2",
         "prob": 41.0,
         "justa": 2.44,
-        "cuota_ref": 2.33
+        "cuota_ref": 2.32
       },
       {
         "nombre": "Gana Visita (2)",
@@ -623,30 +623,30 @@
       {
         "nombre": "Más de 1.5 Goles (Over 1.5)",
         "cat": "GOLES",
-        "prob": 81.1,
+        "prob": 81.2,
         "justa": 1.23,
-        "cuota_ref": 1.19
+        "cuota_ref": 1.18
       },
       {
         "nombre": "Más de 2.5 Goles (Over 2.5)",
         "cat": "GOLES",
-        "prob": 59.3,
-        "justa": 1.69,
-        "cuota_ref": 1.61
+        "prob": 59.4,
+        "justa": 1.68,
+        "cuota_ref": 1.6
       },
       {
         "nombre": "Menos de 2.5 Goles (Under 2.5)",
         "cat": "GOLES",
-        "prob": 40.7,
+        "prob": 40.6,
         "justa": 2.46,
         "cuota_ref": 2.34
       },
       {
         "nombre": "Menos de 3.5 Goles (Under 3.5)",
         "cat": "GOLES",
-        "prob": 63.1,
+        "prob": 63.0,
         "justa": 1.59,
-        "cuota_ref": 1.52
+        "cuota_ref": 1.53
       },
       {
         "nombre": "Ambos Equipos Anotan (Sí)",
@@ -689,7 +689,7 @@
     "event_id": "401882815",
     "partido": "Celta Vigo vs Levante",
     "liga": "LaLiga España",
-    "dia_tag": "MAÑANA · 12:30",
+    "dia_tag": "HOY · 12:30",
     "lam_l": 1.6,
     "lam_v": 1.28,
     "casa_ref": "Consenso B2B / ESPN",
@@ -697,65 +697,65 @@
       {
         "nombre": "Gana Local (1)",
         "cat": "1X2",
-        "prob": 44.9,
-        "justa": 2.23,
-        "cuota_ref": 2.12
+        "prob": 45.0,
+        "justa": 2.22,
+        "cuota_ref": 2.11
       },
       {
         "nombre": "Gana Visita (2)",
         "cat": "1X2",
-        "prob": 30.6,
-        "justa": 3.27,
-        "cuota_ref": 3.11
+        "prob": 30.5,
+        "justa": 3.28,
+        "cuota_ref": 3.12
       },
       {
         "nombre": "Local o Empate (1X)",
         "cat": "DOBLE OPORTUNIDAD",
-        "prob": 69.4,
+        "prob": 69.5,
         "justa": 1.44,
-        "cuota_ref": 1.37
+        "cuota_ref": 1.36
       },
       {
         "nombre": "Visita o Empate (X2)",
         "cat": "DOBLE OPORTUNIDAD",
-        "prob": 55.1,
-        "justa": 1.81,
-        "cuota_ref": 1.72
+        "prob": 55.0,
+        "justa": 1.82,
+        "cuota_ref": 1.73
       },
       {
         "nombre": "Más de 1.5 Goles (Over 1.5)",
         "cat": "GOLES",
-        "prob": 78.3,
+        "prob": 78.4,
         "justa": 1.28,
         "cuota_ref": 1.23
       },
       {
         "nombre": "Más de 2.5 Goles (Over 2.5)",
         "cat": "GOLES",
-        "prob": 55.2,
-        "justa": 1.81,
+        "prob": 55.1,
+        "justa": 1.82,
         "cuota_ref": 1.73
       },
       {
         "nombre": "Menos de 2.5 Goles (Under 2.5)",
         "cat": "GOLES",
-        "prob": 44.8,
+        "prob": 44.9,
         "justa": 2.23,
         "cuota_ref": 2.12
       },
       {
         "nombre": "Menos de 3.5 Goles (Under 3.5)",
         "cat": "GOLES",
-        "prob": 67.2,
+        "prob": 67.3,
         "justa": 1.49,
         "cuota_ref": 1.43
       },
       {
         "nombre": "Ambos Equipos Anotan (Sí)",
         "cat": "BTTS",
-        "prob": 57.8,
+        "prob": 57.7,
         "justa": 1.73,
-        "cuota_ref": 1.78
+        "cuota_ref": 1.79
       },
       {
         "nombre": "Menos de 10.5 Córners (Media: 9.1)",
@@ -791,7 +791,7 @@
     "event_id": "401882807",
     "partido": "Villarreal vs Getafe",
     "liga": "LaLiga España",
-    "dia_tag": "MAÑANA · 12:30",
+    "dia_tag": "HOY · 12:30",
     "lam_l": 1.34,
     "lam_v": 1.12,
     "casa_ref": "Consenso B2B / ESPN",
@@ -806,14 +806,14 @@
       {
         "nombre": "Gana Visita (2)",
         "cat": "1X2",
-        "prob": 31.2,
-        "justa": 3.21,
+        "prob": 31.1,
+        "justa": 3.22,
         "cuota_ref": 3.06
       },
       {
         "nombre": "Local o Empate (1X)",
         "cat": "DOBLE OPORTUNIDAD",
-        "prob": 68.8,
+        "prob": 68.9,
         "justa": 1.45,
         "cuota_ref": 1.38
       },
@@ -827,7 +827,7 @@
       {
         "nombre": "Más de 1.5 Goles (Over 1.5)",
         "cat": "GOLES",
-        "prob": 70.3,
+        "prob": 70.4,
         "justa": 1.42,
         "cuota_ref": 1.37
       },
@@ -855,7 +855,7 @@
       {
         "nombre": "Ambos Equipos Anotan (Sí)",
         "cat": "BTTS",
-        "prob": 49.6,
+        "prob": 49.7,
         "justa": 2.01,
         "cuota_ref": 2.08
       },
@@ -893,7 +893,7 @@
     "event_id": "401882816",
     "partido": "Atlético Madrid vs Barcelona",
     "liga": "LaLiga España",
-    "dia_tag": "MAÑANA · 15:00",
+    "dia_tag": "HOY · 15:00",
     "lam_l": 1.2,
     "lam_v": 1.71,
     "casa_ref": "Consenso B2B / ESPN",
@@ -901,35 +901,35 @@
       {
         "nombre": "Gana Local (1)",
         "cat": "1X2",
-        "prob": 26.9,
-        "justa": 3.72,
-        "cuota_ref": 3.54
+        "prob": 27.0,
+        "justa": 3.71,
+        "cuota_ref": 3.53
       },
       {
         "nombre": "Gana Visita (2)",
         "cat": "1X2",
-        "prob": 49.3,
+        "prob": 49.2,
         "justa": 2.03,
-        "cuota_ref": 1.93
+        "cuota_ref": 1.94
       },
       {
         "nombre": "Local o Empate (1X)",
         "cat": "DOBLE OPORTUNIDAD",
-        "prob": 50.7,
+        "prob": 50.8,
         "justa": 1.97,
         "cuota_ref": 1.87
       },
       {
         "nombre": "Visita o Empate (X2)",
         "cat": "DOBLE OPORTUNIDAD",
-        "prob": 73.1,
+        "prob": 73.0,
         "justa": 1.37,
         "cuota_ref": 1.3
       },
       {
         "nombre": "Más de 1.5 Goles (Over 1.5)",
         "cat": "GOLES",
-        "prob": 78.7,
+        "prob": 78.8,
         "justa": 1.27,
         "cuota_ref": 1.22
       },
@@ -937,7 +937,7 @@
         "nombre": "Más de 2.5 Goles (Over 2.5)",
         "cat": "GOLES",
         "prob": 55.7,
-        "justa": 1.8,
+        "justa": 1.79,
         "cuota_ref": 1.71
       },
       {
@@ -950,15 +950,15 @@
       {
         "nombre": "Menos de 3.5 Goles (Under 3.5)",
         "cat": "GOLES",
-        "prob": 66.8,
+        "prob": 66.7,
         "justa": 1.5,
         "cuota_ref": 1.44
       },
       {
         "nombre": "Ambos Equipos Anotan (Sí)",
         "cat": "BTTS",
-        "prob": 57.2,
-        "justa": 1.75,
+        "prob": 57.4,
+        "justa": 1.74,
         "cuota_ref": 1.8
       },
       {
@@ -995,7 +995,7 @@
     "event_id": "401874810",
     "partido": "Napoli vs Lazio",
     "liga": "Serie A Italia",
-    "dia_tag": "MAÑANA · 06:30",
+    "dia_tag": "HOY · 06:30",
     "lam_l": 1.5,
     "lam_v": 1.04,
     "casa_ref": "Consenso B2B / ESPN",
@@ -1003,58 +1003,58 @@
       {
         "nombre": "Gana Local (1)",
         "cat": "1X2",
-        "prob": 47.6,
+        "prob": 47.7,
         "justa": 2.1,
         "cuota_ref": 2.0
       },
       {
         "nombre": "Gana Visita (2)",
         "cat": "1X2",
-        "prob": 26.5,
-        "justa": 3.78,
-        "cuota_ref": 3.6
+        "prob": 26.4,
+        "justa": 3.79,
+        "cuota_ref": 3.61
       },
       {
         "nombre": "Local o Empate (1X)",
         "cat": "DOBLE OPORTUNIDAD",
-        "prob": 73.5,
+        "prob": 73.6,
         "justa": 1.36,
         "cuota_ref": 1.29
       },
       {
         "nombre": "Visita o Empate (X2)",
         "cat": "DOBLE OPORTUNIDAD",
-        "prob": 52.4,
+        "prob": 52.3,
         "justa": 1.91,
         "cuota_ref": 1.81
       },
       {
         "nombre": "Más de 1.5 Goles (Over 1.5)",
         "cat": "GOLES",
-        "prob": 72.1,
+        "prob": 72.2,
         "justa": 1.39,
         "cuota_ref": 1.33
       },
       {
         "nombre": "Más de 2.5 Goles (Over 2.5)",
         "cat": "GOLES",
-        "prob": 46.6,
-        "justa": 2.15,
+        "prob": 46.7,
+        "justa": 2.14,
         "cuota_ref": 2.04
       },
       {
         "nombre": "Menos de 2.5 Goles (Under 2.5)",
         "cat": "GOLES",
-        "prob": 53.4,
-        "justa": 1.87,
-        "cuota_ref": 1.78
+        "prob": 53.3,
+        "justa": 1.88,
+        "cuota_ref": 1.79
       },
       {
         "nombre": "Menos de 3.5 Goles (Under 3.5)",
         "cat": "GOLES",
-        "prob": 74.9,
-        "justa": 1.33,
-        "cuota_ref": 1.28
+        "prob": 74.8,
+        "justa": 1.34,
+        "cuota_ref": 1.29
       },
       {
         "nombre": "Ambos Equipos Anotan (Sí)",
@@ -1097,7 +1097,7 @@
     "event_id": "401875018",
     "partido": "Genoa vs AC Milan",
     "liga": "Serie A Italia",
-    "dia_tag": "MAÑANA · 09:00",
+    "dia_tag": "HOY · 09:00",
     "lam_l": 1.18,
     "lam_v": 1.12,
     "casa_ref": "Consenso B2B / ESPN",
@@ -1105,29 +1105,29 @@
       {
         "nombre": "Gana Local (1)",
         "cat": "1X2",
-        "prob": 37.3,
+        "prob": 37.4,
         "justa": 2.68,
-        "cuota_ref": 2.56
+        "cuota_ref": 2.55
       },
       {
         "nombre": "Gana Visita (2)",
         "cat": "1X2",
-        "prob": 34.3,
+        "prob": 34.2,
         "justa": 2.92,
         "cuota_ref": 2.78
       },
       {
         "nombre": "Local o Empate (1X)",
         "cat": "DOBLE OPORTUNIDAD",
-        "prob": 65.7,
+        "prob": 65.8,
         "justa": 1.52,
-        "cuota_ref": 1.45
+        "cuota_ref": 1.44
       },
       {
         "nombre": "Visita o Empate (X2)",
         "cat": "DOBLE OPORTUNIDAD",
-        "prob": 62.7,
-        "justa": 1.59,
+        "prob": 62.6,
+        "justa": 1.6,
         "cuota_ref": 1.51
       },
       {
@@ -1154,16 +1154,16 @@
       {
         "nombre": "Menos de 3.5 Goles (Under 3.5)",
         "cat": "GOLES",
-        "prob": 80.1,
+        "prob": 80.0,
         "justa": 1.25,
         "cuota_ref": 1.2
       },
       {
         "nombre": "Ambos Equipos Anotan (Sí)",
         "cat": "BTTS",
-        "prob": 46.6,
+        "prob": 46.5,
         "justa": 2.15,
-        "cuota_ref": 2.21
+        "cuota_ref": 2.22
       },
       {
         "nombre": "Menos de 10.5 Córners (Media: 8.2)",
@@ -1199,7 +1199,7 @@
     "event_id": "401874800",
     "partido": "Monza vs Atalanta",
     "liga": "Serie A Italia",
-    "dia_tag": "MAÑANA · 09:00",
+    "dia_tag": "HOY · 09:00",
     "lam_l": 1.25,
     "lam_v": 1.27,
     "casa_ref": "Consenso B2B / ESPN",
@@ -1207,8 +1207,8 @@
       {
         "nombre": "Gana Local (1)",
         "cat": "1X2",
-        "prob": 35.9,
-        "justa": 2.79,
+        "prob": 36.0,
+        "justa": 2.78,
         "cuota_ref": 2.65
       },
       {
@@ -1228,30 +1228,30 @@
       {
         "nombre": "Visita o Empate (X2)",
         "cat": "DOBLE OPORTUNIDAD",
-        "prob": 64.1,
+        "prob": 64.0,
         "justa": 1.56,
         "cuota_ref": 1.48
       },
       {
         "nombre": "Más de 1.5 Goles (Over 1.5)",
         "cat": "GOLES",
-        "prob": 71.6,
+        "prob": 71.7,
         "justa": 1.4,
         "cuota_ref": 1.34
       },
       {
         "nombre": "Más de 2.5 Goles (Over 2.5)",
         "cat": "GOLES",
-        "prob": 46.0,
+        "prob": 46.2,
         "justa": 2.17,
-        "cuota_ref": 2.07
+        "cuota_ref": 2.06
       },
       {
         "nombre": "Menos de 2.5 Goles (Under 2.5)",
         "cat": "GOLES",
-        "prob": 54.0,
-        "justa": 1.85,
-        "cuota_ref": 1.76
+        "prob": 53.8,
+        "justa": 1.86,
+        "cuota_ref": 1.77
       },
       {
         "nombre": "Menos de 3.5 Goles (Under 3.5)",
@@ -1273,7 +1273,7 @@
     "event_id": "401874808",
     "partido": "Internazionale vs Como",
     "liga": "Serie A Italia",
-    "dia_tag": "MAÑANA · 12:00",
+    "dia_tag": "HOY · 12:00",
     "lam_l": 1.77,
     "lam_v": 1.4,
     "casa_ref": "Consenso B2B / ESPN",
@@ -1281,29 +1281,29 @@
       {
         "nombre": "Gana Local (1)",
         "cat": "1X2",
-        "prob": 46.2,
-        "justa": 2.16,
-        "cuota_ref": 2.06
+        "prob": 46.1,
+        "justa": 2.17,
+        "cuota_ref": 2.07
       },
       {
         "nombre": "Gana Visita (2)",
         "cat": "1X2",
-        "prob": 30.6,
+        "prob": 30.7,
         "justa": 3.26,
-        "cuota_ref": 3.11
+        "cuota_ref": 3.1
       },
       {
         "nombre": "Local o Empate (1X)",
         "cat": "DOBLE OPORTUNIDAD",
-        "prob": 69.4,
+        "prob": 69.3,
         "justa": 1.44,
         "cuota_ref": 1.37
       },
       {
         "nombre": "Visita o Empate (X2)",
         "cat": "DOBLE OPORTUNIDAD",
-        "prob": 53.8,
-        "justa": 1.86,
+        "prob": 53.9,
+        "justa": 1.85,
         "cuota_ref": 1.76
       },
       {
@@ -1316,21 +1316,21 @@
       {
         "nombre": "Más de 2.5 Goles (Over 2.5)",
         "cat": "GOLES",
-        "prob": 61.4,
+        "prob": 61.3,
         "justa": 1.63,
         "cuota_ref": 1.55
       },
       {
         "nombre": "Menos de 2.5 Goles (Under 2.5)",
         "cat": "GOLES",
-        "prob": 38.6,
-        "justa": 2.59,
+        "prob": 38.7,
+        "justa": 2.58,
         "cuota_ref": 2.46
       },
       {
         "nombre": "Menos de 3.5 Goles (Under 3.5)",
         "cat": "GOLES",
-        "prob": 60.9,
+        "prob": 61.0,
         "justa": 1.64,
         "cuota_ref": 1.58
       },
@@ -1375,7 +1375,7 @@
     "event_id": "401875003",
     "partido": "Fiorentina vs Juventus",
     "liga": "Serie A Italia",
-    "dia_tag": "MAÑANA · 14:45",
+    "dia_tag": "HOY · 14:45",
     "lam_l": 1.1,
     "lam_v": 1.4,
     "casa_ref": "Consenso B2B / ESPN",
@@ -1385,19 +1385,19 @@
         "cat": "1X2",
         "prob": 29.5,
         "justa": 3.39,
-        "cuota_ref": 3.23
+        "cuota_ref": 3.22
       },
       {
         "nombre": "Gana Visita (2)",
         "cat": "1X2",
-        "prob": 44.0,
-        "justa": 2.27,
+        "prob": 43.9,
+        "justa": 2.28,
         "cuota_ref": 2.17
       },
       {
         "nombre": "Local o Empate (1X)",
         "cat": "DOBLE OPORTUNIDAD",
-        "prob": 56.0,
+        "prob": 56.1,
         "justa": 1.78,
         "cuota_ref": 1.69
       },
@@ -1411,7 +1411,7 @@
       {
         "nombre": "Más de 1.5 Goles (Over 1.5)",
         "cat": "GOLES",
-        "prob": 71.3,
+        "prob": 71.2,
         "justa": 1.4,
         "cuota_ref": 1.35
       },
@@ -1441,7 +1441,7 @@
         "cat": "BTTS",
         "prob": 50.2,
         "justa": 1.99,
-        "cuota_ref": 2.05
+        "cuota_ref": 2.06
       },
       {
         "nombre": "Menos de 10.5 Córners (Media: 9.1)",
@@ -1477,7 +1477,7 @@
     "event_id": "401884738",
     "partido": "FC Cologne vs Bayer Leverkusen",
     "liga": "Bundesliga",
-    "dia_tag": "MAÑANA · 09:30",
+    "dia_tag": "HOY · 09:30",
     "lam_l": 1.54,
     "lam_v": 1.46,
     "casa_ref": "Consenso B2B / ESPN",
@@ -1492,14 +1492,14 @@
       {
         "nombre": "Gana Visita (2)",
         "cat": "1X2",
-        "prob": 36.1,
+        "prob": 36.2,
         "justa": 2.77,
-        "cuota_ref": 2.64
+        "cuota_ref": 2.63
       },
       {
         "nombre": "Local o Empate (1X)",
         "cat": "DOBLE OPORTUNIDAD",
-        "prob": 63.9,
+        "prob": 63.8,
         "justa": 1.57,
         "cuota_ref": 1.49
       },
@@ -1507,7 +1507,7 @@
         "nombre": "Visita o Empate (X2)",
         "cat": "DOBLE OPORTUNIDAD",
         "prob": 60.4,
-        "justa": 1.65,
+        "justa": 1.66,
         "cuota_ref": 1.57
       },
       {
@@ -1520,21 +1520,21 @@
       {
         "nombre": "Más de 2.5 Goles (Over 2.5)",
         "cat": "GOLES",
-        "prob": 57.7,
+        "prob": 57.9,
         "justa": 1.73,
         "cuota_ref": 1.65
       },
       {
         "nombre": "Menos de 2.5 Goles (Under 2.5)",
         "cat": "GOLES",
-        "prob": 42.3,
-        "justa": 2.36,
-        "cuota_ref": 2.25
+        "prob": 42.1,
+        "justa": 2.37,
+        "cuota_ref": 2.26
       },
       {
         "nombre": "Menos de 3.5 Goles (Under 3.5)",
         "cat": "GOLES",
-        "prob": 64.7,
+        "prob": 64.6,
         "justa": 1.55,
         "cuota_ref": 1.49
       },
@@ -1551,7 +1551,7 @@
     "event_id": "401884741",
     "partido": "SC Freiburg vs 1. FC Union Berlin",
     "liga": "Bundesliga",
-    "dia_tag": "MAÑANA · 11:30",
+    "dia_tag": "HOY · 11:30",
     "lam_l": 1.74,
     "lam_v": 1.4,
     "casa_ref": "Consenso B2B / ESPN",
@@ -1559,29 +1559,29 @@
       {
         "nombre": "Gana Local (1)",
         "cat": "1X2",
-        "prob": 45.4,
+        "prob": 45.5,
         "justa": 2.2,
-        "cuota_ref": 2.1
+        "cuota_ref": 2.09
       },
       {
         "nombre": "Gana Visita (2)",
         "cat": "1X2",
-        "prob": 31.2,
-        "justa": 3.21,
-        "cuota_ref": 3.05
+        "prob": 31.1,
+        "justa": 3.22,
+        "cuota_ref": 3.06
       },
       {
         "nombre": "Local o Empate (1X)",
         "cat": "DOBLE OPORTUNIDAD",
-        "prob": 68.8,
+        "prob": 68.9,
         "justa": 1.45,
         "cuota_ref": 1.38
       },
       {
         "nombre": "Visita o Empate (X2)",
         "cat": "DOBLE OPORTUNIDAD",
-        "prob": 54.6,
-        "justa": 1.83,
+        "prob": 54.5,
+        "justa": 1.84,
         "cuota_ref": 1.74
       },
       {
@@ -1594,28 +1594,28 @@
       {
         "nombre": "Más de 2.5 Goles (Over 2.5)",
         "cat": "GOLES",
-        "prob": 60.7,
-        "justa": 1.65,
+        "prob": 60.8,
+        "justa": 1.64,
         "cuota_ref": 1.57
       },
       {
         "nombre": "Menos de 2.5 Goles (Under 2.5)",
         "cat": "GOLES",
-        "prob": 39.3,
-        "justa": 2.54,
-        "cuota_ref": 2.42
+        "prob": 39.2,
+        "justa": 2.55,
+        "cuota_ref": 2.43
       },
       {
         "nombre": "Menos de 3.5 Goles (Under 3.5)",
         "cat": "GOLES",
-        "prob": 61.6,
-        "justa": 1.62,
+        "prob": 61.5,
+        "justa": 1.63,
         "cuota_ref": 1.56
       },
       {
         "nombre": "Ambos Equipos Anotan (Sí)",
         "cat": "BTTS",
-        "prob": 62.1,
+        "prob": 62.2,
         "justa": 1.61,
         "cuota_ref": 1.66
       },
@@ -1653,7 +1653,7 @@
     "event_id": "401884742",
     "partido": "TSG Hoffenheim vs Schalke 04",
     "liga": "Bundesliga",
-    "dia_tag": "MAÑANA · 13:30",
+    "dia_tag": "HOY · 13:30",
     "lam_l": 1.7,
     "lam_v": 1.35,
     "casa_ref": "Consenso B2B / ESPN",
@@ -1689,35 +1689,35 @@
       {
         "nombre": "Más de 1.5 Goles (Over 1.5)",
         "cat": "GOLES",
-        "prob": 80.9,
+        "prob": 80.8,
         "justa": 1.24,
         "cuota_ref": 1.19
       },
       {
         "nombre": "Más de 2.5 Goles (Over 2.5)",
         "cat": "GOLES",
-        "prob": 59.0,
+        "prob": 58.8,
         "justa": 1.7,
         "cuota_ref": 1.62
       },
       {
         "nombre": "Menos de 2.5 Goles (Under 2.5)",
         "cat": "GOLES",
-        "prob": 41.0,
-        "justa": 2.44,
-        "cuota_ref": 2.32
+        "prob": 41.2,
+        "justa": 2.43,
+        "cuota_ref": 2.31
       },
       {
         "nombre": "Menos de 3.5 Goles (Under 3.5)",
         "cat": "GOLES",
-        "prob": 63.4,
+        "prob": 63.5,
         "justa": 1.58,
-        "cuota_ref": 1.52
+        "cuota_ref": 1.51
       },
       {
         "nombre": "Ambos Equipos Anotan (Sí)",
         "cat": "BTTS",
-        "prob": 60.7,
+        "prob": 60.6,
         "justa": 1.65,
         "cuota_ref": 1.7
       }
@@ -1727,7 +1727,7 @@
     "event_id": "401876406",
     "partido": "Stade Rennais vs Lille",
     "liga": "Ligue 1 Francia",
-    "dia_tag": "MAÑANA · 09:00",
+    "dia_tag": "HOY · 09:00",
     "lam_l": 1.33,
     "lam_v": 1.13,
     "casa_ref": "Consenso B2B / ESPN",
@@ -1735,49 +1735,49 @@
       {
         "nombre": "Gana Local (1)",
         "cat": "1X2",
-        "prob": 41.1,
+        "prob": 41.2,
         "justa": 2.43,
         "cuota_ref": 2.31
       },
       {
         "nombre": "Gana Visita (2)",
         "cat": "1X2",
-        "prob": 31.8,
-        "justa": 3.15,
-        "cuota_ref": 3.0
+        "prob": 31.7,
+        "justa": 3.16,
+        "cuota_ref": 3.01
       },
       {
         "nombre": "Local o Empate (1X)",
         "cat": "DOBLE OPORTUNIDAD",
-        "prob": 68.2,
-        "justa": 1.47,
+        "prob": 68.3,
+        "justa": 1.46,
         "cuota_ref": 1.39
       },
       {
         "nombre": "Visita o Empate (X2)",
         "cat": "DOBLE OPORTUNIDAD",
-        "prob": 58.9,
+        "prob": 58.8,
         "justa": 1.7,
         "cuota_ref": 1.61
       },
       {
         "nombre": "Más de 1.5 Goles (Over 1.5)",
         "cat": "GOLES",
-        "prob": 70.5,
+        "prob": 70.4,
         "justa": 1.42,
-        "cuota_ref": 1.36
+        "cuota_ref": 1.37
       },
       {
         "nombre": "Más de 2.5 Goles (Over 2.5)",
         "cat": "GOLES",
-        "prob": 44.6,
-        "justa": 2.24,
+        "prob": 44.5,
+        "justa": 2.25,
         "cuota_ref": 2.14
       },
       {
         "nombre": "Menos de 2.5 Goles (Under 2.5)",
         "cat": "GOLES",
-        "prob": 55.4,
+        "prob": 55.5,
         "justa": 1.8,
         "cuota_ref": 1.72
       },
@@ -1785,8 +1785,8 @@
         "nombre": "Menos de 3.5 Goles (Under 3.5)",
         "cat": "GOLES",
         "prob": 76.6,
-        "justa": 1.31,
-        "cuota_ref": 1.26
+        "justa": 1.3,
+        "cuota_ref": 1.25
       },
       {
         "nombre": "Ambos Equipos Anotan (Sí)",
@@ -1801,7 +1801,7 @@
     "event_id": "401876412",
     "partido": "Angers vs Nice",
     "liga": "Ligue 1 Francia",
-    "dia_tag": "MAÑANA · 11:15",
+    "dia_tag": "HOY · 11:15",
     "lam_l": 1.36,
     "lam_v": 1.16,
     "casa_ref": "Consenso B2B / ESPN",
@@ -1816,14 +1816,14 @@
       {
         "nombre": "Gana Visita (2)",
         "cat": "1X2",
-        "prob": 32.0,
+        "prob": 31.9,
         "justa": 3.13,
         "cuota_ref": 2.98
       },
       {
         "nombre": "Local o Empate (1X)",
         "cat": "DOBLE OPORTUNIDAD",
-        "prob": 68.0,
+        "prob": 68.1,
         "justa": 1.47,
         "cuota_ref": 1.39
       },
@@ -1844,16 +1844,16 @@
       {
         "nombre": "Más de 2.5 Goles (Over 2.5)",
         "cat": "GOLES",
-        "prob": 46.4,
+        "prob": 46.3,
         "justa": 2.16,
-        "cuota_ref": 2.05
+        "cuota_ref": 2.06
       },
       {
         "nombre": "Menos de 2.5 Goles (Under 2.5)",
         "cat": "GOLES",
-        "prob": 53.6,
+        "prob": 53.7,
         "justa": 1.86,
-        "cuota_ref": 1.78
+        "cuota_ref": 1.77
       },
       {
         "nombre": "Menos de 3.5 Goles (Under 3.5)",
@@ -1867,7 +1867,7 @@
         "cat": "BTTS",
         "prob": 51.2,
         "justa": 1.95,
-        "cuota_ref": 2.02
+        "cuota_ref": 2.01
       },
       {
         "nombre": "Menos de 10.5 Córners (Media: 9.3)",
@@ -1903,7 +1903,7 @@
     "event_id": "401876410",
     "partido": "Brest vs Lyon",
     "liga": "Ligue 1 Francia",
-    "dia_tag": "MAÑANA · 11:15",
+    "dia_tag": "HOY · 11:15",
     "lam_l": 1.31,
     "lam_v": 1.5,
     "casa_ref": "Consenso B2B / ESPN",
@@ -1946,28 +1946,28 @@
       {
         "nombre": "Más de 2.5 Goles (Over 2.5)",
         "cat": "GOLES",
-        "prob": 53.3,
-        "justa": 1.88,
-        "cuota_ref": 1.79
+        "prob": 53.4,
+        "justa": 1.87,
+        "cuota_ref": 1.78
       },
       {
         "nombre": "Menos de 2.5 Goles (Under 2.5)",
         "cat": "GOLES",
-        "prob": 46.7,
+        "prob": 46.6,
         "justa": 2.14,
         "cuota_ref": 2.04
       },
       {
         "nombre": "Menos de 3.5 Goles (Under 3.5)",
         "cat": "GOLES",
-        "prob": 69.0,
+        "prob": 68.9,
         "justa": 1.45,
         "cuota_ref": 1.39
       },
       {
         "nombre": "Ambos Equipos Anotan (Sí)",
         "cat": "BTTS",
-        "prob": 56.7,
+        "prob": 56.8,
         "justa": 1.76,
         "cuota_ref": 1.82
       },
@@ -2005,7 +2005,7 @@
     "event_id": "401876409",
     "partido": "Le Havre AC vs Lorient",
     "liga": "Ligue 1 Francia",
-    "dia_tag": "MAÑANA · 11:15",
+    "dia_tag": "HOY · 11:15",
     "lam_l": 1.12,
     "lam_v": 1.26,
     "casa_ref": "Consenso B2B / ESPN",
@@ -2041,37 +2041,37 @@
       {
         "nombre": "Más de 1.5 Goles (Over 1.5)",
         "cat": "GOLES",
-        "prob": 68.8,
-        "justa": 1.45,
+        "prob": 68.7,
+        "justa": 1.46,
         "cuota_ref": 1.4
       },
       {
         "nombre": "Más de 2.5 Goles (Over 2.5)",
         "cat": "GOLES",
-        "prob": 42.6,
+        "prob": 42.5,
         "justa": 2.35,
         "cuota_ref": 2.24
       },
       {
         "nombre": "Menos de 2.5 Goles (Under 2.5)",
         "cat": "GOLES",
-        "prob": 57.4,
+        "prob": 57.5,
         "justa": 1.74,
         "cuota_ref": 1.66
       },
       {
         "nombre": "Menos de 3.5 Goles (Under 3.5)",
         "cat": "GOLES",
-        "prob": 78.2,
+        "prob": 78.3,
         "justa": 1.28,
         "cuota_ref": 1.23
       },
       {
         "nombre": "Ambos Equipos Anotan (Sí)",
         "cat": "BTTS",
-        "prob": 48.3,
+        "prob": 48.2,
         "justa": 2.07,
-        "cuota_ref": 2.13
+        "cuota_ref": 2.14
       },
       {
         "nombre": "Menos de 10.5 Córners (Media: 9.5)",
@@ -2107,7 +2107,7 @@
     "event_id": "401876408",
     "partido": "Le Mans vs AS Monaco",
     "liga": "Ligue 1 Francia",
-    "dia_tag": "MAÑANA · 11:15",
+    "dia_tag": "HOY · 11:15",
     "lam_l": 1.57,
     "lam_v": 1.37,
     "casa_ref": "Consenso B2B / ESPN",
@@ -2123,7 +2123,7 @@
         "nombre": "Gana Visita (2)",
         "cat": "1X2",
         "prob": 33.4,
-        "justa": 3.0,
+        "justa": 2.99,
         "cuota_ref": 2.85
       },
       {
@@ -2143,36 +2143,36 @@
       {
         "nombre": "Más de 1.5 Goles (Over 1.5)",
         "cat": "GOLES",
-        "prob": 79.2,
-        "justa": 1.26,
-        "cuota_ref": 1.21
+        "prob": 79.0,
+        "justa": 1.27,
+        "cuota_ref": 1.22
       },
       {
         "nombre": "Más de 2.5 Goles (Over 2.5)",
         "cat": "GOLES",
-        "prob": 56.3,
-        "justa": 1.77,
+        "prob": 56.2,
+        "justa": 1.78,
         "cuota_ref": 1.69
       },
       {
         "nombre": "Menos de 2.5 Goles (Under 2.5)",
         "cat": "GOLES",
-        "prob": 43.7,
+        "prob": 43.8,
         "justa": 2.29,
         "cuota_ref": 2.18
       },
       {
         "nombre": "Menos de 3.5 Goles (Under 3.5)",
         "cat": "GOLES",
-        "prob": 66.0,
+        "prob": 66.2,
         "justa": 1.51,
-        "cuota_ref": 1.46
+        "cuota_ref": 1.45
       },
       {
         "nombre": "Ambos Equipos Anotan (Sí)",
         "cat": "BTTS",
-        "prob": 59.1,
-        "justa": 1.69,
+        "prob": 59.0,
+        "justa": 1.7,
         "cuota_ref": 1.75
       }
     ]
@@ -2181,7 +2181,7 @@
     "event_id": "401876404",
     "partido": "Lens vs Marseille",
     "liga": "Ligue 1 Francia",
-    "dia_tag": "MAÑANA · 14:45",
+    "dia_tag": "HOY · 14:45",
     "lam_l": 1.95,
     "lam_v": 1.21,
     "casa_ref": "Consenso B2B / ESPN",
@@ -2232,15 +2232,15 @@
         "nombre": "Menos de 2.5 Goles (Under 2.5)",
         "cat": "GOLES",
         "prob": 38.7,
-        "justa": 2.59,
+        "justa": 2.58,
         "cuota_ref": 2.46
       },
       {
         "nombre": "Menos de 3.5 Goles (Under 3.5)",
         "cat": "GOLES",
-        "prob": 61.0,
+        "prob": 61.1,
         "justa": 1.64,
-        "cuota_ref": 1.58
+        "cuota_ref": 1.57
       },
       {
         "nombre": "Ambos Equipos Anotan (Sí)",
@@ -2283,7 +2283,7 @@
     "event_id": "401886122",
     "partido": "Los Chankas vs Alianza Lima",
     "liga": "Liga 1 Perú",
-    "dia_tag": "MAÑANA · 13:00",
+    "dia_tag": "HOY · 13:00",
     "lam_l": 1.53,
     "lam_v": 1.15,
     "casa_ref": "Consenso B2B / ESPN",
@@ -2291,102 +2291,28 @@
       {
         "nombre": "Gana Local (1)",
         "cat": "1X2",
-        "prob": 45.9,
+        "prob": 46.0,
         "justa": 2.18,
         "cuota_ref": 2.07
       },
       {
         "nombre": "Gana Visita (2)",
         "cat": "1X2",
-        "prob": 28.7,
-        "justa": 3.49,
-        "cuota_ref": 3.32
+        "prob": 28.6,
+        "justa": 3.5,
+        "cuota_ref": 3.33
       },
       {
         "nombre": "Local o Empate (1X)",
         "cat": "DOBLE OPORTUNIDAD",
-        "prob": 71.3,
+        "prob": 71.4,
         "justa": 1.4,
         "cuota_ref": 1.33
       },
       {
         "nombre": "Visita o Empate (X2)",
         "cat": "DOBLE OPORTUNIDAD",
-        "prob": 54.1,
-        "justa": 1.85,
-        "cuota_ref": 1.75
-      },
-      {
-        "nombre": "Más de 1.5 Goles (Over 1.5)",
-        "cat": "GOLES",
-        "prob": 74.9,
-        "justa": 1.34,
-        "cuota_ref": 1.28
-      },
-      {
-        "nombre": "Más de 2.5 Goles (Over 2.5)",
-        "cat": "GOLES",
-        "prob": 50.3,
-        "justa": 1.99,
-        "cuota_ref": 1.89
-      },
-      {
-        "nombre": "Menos de 2.5 Goles (Under 2.5)",
-        "cat": "GOLES",
-        "prob": 49.7,
-        "justa": 2.01,
-        "cuota_ref": 1.92
-      },
-      {
-        "nombre": "Menos de 3.5 Goles (Under 3.5)",
-        "cat": "GOLES",
-        "prob": 71.8,
-        "justa": 1.39,
-        "cuota_ref": 1.34
-      },
-      {
-        "nombre": "Ambos Equipos Anotan (Sí)",
-        "cat": "BTTS",
-        "prob": 53.7,
-        "justa": 1.86,
-        "cuota_ref": 1.92
-      }
-    ]
-  },
-  {
-    "event_id": "401886123",
-    "partido": "Sport Boys vs UTC",
-    "liga": "Liga 1 Perú",
-    "dia_tag": "MAÑANA · 15:30",
-    "lam_l": 1.53,
-    "lam_v": 1.15,
-    "casa_ref": "Consenso B2B / ESPN",
-    "mercados": [
-      {
-        "nombre": "Gana Local (1)",
-        "cat": "1X2",
-        "prob": 45.9,
-        "justa": 2.18,
-        "cuota_ref": 2.08
-      },
-      {
-        "nombre": "Gana Visita (2)",
-        "cat": "1X2",
-        "prob": 28.7,
-        "justa": 3.49,
-        "cuota_ref": 3.32
-      },
-      {
-        "nombre": "Local o Empate (1X)",
-        "cat": "DOBLE OPORTUNIDAD",
-        "prob": 71.3,
-        "justa": 1.4,
-        "cuota_ref": 1.33
-      },
-      {
-        "nombre": "Visita o Empate (X2)",
-        "cat": "DOBLE OPORTUNIDAD",
-        "prob": 54.1,
+        "prob": 54.0,
         "justa": 1.85,
         "cuota_ref": 1.75
       },
@@ -2428,10 +2354,10 @@
     ]
   },
   {
-    "event_id": "401886139",
-    "partido": "Deportivo Garcilaso vs Comerciantes Unidos",
+    "event_id": "401886123",
+    "partido": "Sport Boys vs UTC",
     "liga": "Liga 1 Perú",
-    "dia_tag": "MAÑANA · 18:00",
+    "dia_tag": "HOY · 15:30",
     "lam_l": 1.53,
     "lam_v": 1.15,
     "casa_ref": "Consenso B2B / ESPN",
@@ -2439,8 +2365,82 @@
       {
         "nombre": "Gana Local (1)",
         "cat": "1X2",
-        "prob": 46.1,
+        "prob": 46.0,
         "justa": 2.17,
+        "cuota_ref": 2.07
+      },
+      {
+        "nombre": "Gana Visita (2)",
+        "cat": "1X2",
+        "prob": 28.7,
+        "justa": 3.49,
+        "cuota_ref": 3.32
+      },
+      {
+        "nombre": "Local o Empate (1X)",
+        "cat": "DOBLE OPORTUNIDAD",
+        "prob": 71.3,
+        "justa": 1.4,
+        "cuota_ref": 1.33
+      },
+      {
+        "nombre": "Visita o Empate (X2)",
+        "cat": "DOBLE OPORTUNIDAD",
+        "prob": 54.0,
+        "justa": 1.85,
+        "cuota_ref": 1.75
+      },
+      {
+        "nombre": "Más de 1.5 Goles (Over 1.5)",
+        "cat": "GOLES",
+        "prob": 74.8,
+        "justa": 1.34,
+        "cuota_ref": 1.29
+      },
+      {
+        "nombre": "Más de 2.5 Goles (Over 2.5)",
+        "cat": "GOLES",
+        "prob": 50.2,
+        "justa": 1.99,
+        "cuota_ref": 1.9
+      },
+      {
+        "nombre": "Menos de 2.5 Goles (Under 2.5)",
+        "cat": "GOLES",
+        "prob": 49.8,
+        "justa": 2.01,
+        "cuota_ref": 1.91
+      },
+      {
+        "nombre": "Menos de 3.5 Goles (Under 3.5)",
+        "cat": "GOLES",
+        "prob": 71.8,
+        "justa": 1.39,
+        "cuota_ref": 1.34
+      },
+      {
+        "nombre": "Ambos Equipos Anotan (Sí)",
+        "cat": "BTTS",
+        "prob": 53.5,
+        "justa": 1.87,
+        "cuota_ref": 1.93
+      }
+    ]
+  },
+  {
+    "event_id": "401886139",
+    "partido": "Deportivo Garcilaso vs Comerciantes Unidos",
+    "liga": "Liga 1 Perú",
+    "dia_tag": "HOY · 18:00",
+    "lam_l": 1.53,
+    "lam_v": 1.15,
+    "casa_ref": "Consenso B2B / ESPN",
+    "mercados": [
+      {
+        "nombre": "Gana Local (1)",
+        "cat": "1X2",
+        "prob": 45.9,
+        "justa": 2.18,
         "cuota_ref": 2.07
       },
       {
@@ -2460,9 +2460,9 @@
       {
         "nombre": "Visita o Empate (X2)",
         "cat": "DOBLE OPORTUNIDAD",
-        "prob": 53.9,
+        "prob": 54.1,
         "justa": 1.85,
-        "cuota_ref": 1.76
+        "cuota_ref": 1.75
       },
       {
         "nombre": "Más de 1.5 Goles (Over 1.5)",
@@ -2483,13 +2483,13 @@
         "cat": "GOLES",
         "prob": 49.7,
         "justa": 2.01,
-        "cuota_ref": 1.92
+        "cuota_ref": 1.91
       },
       {
         "nombre": "Menos de 3.5 Goles (Under 3.5)",
         "cat": "GOLES",
         "prob": 71.7,
-        "justa": 1.4,
+        "justa": 1.39,
         "cuota_ref": 1.34
       },
       {
@@ -2505,7 +2505,7 @@
     "event_id": "401886140",
     "partido": "Universitario vs Deportivo Moquegua",
     "liga": "Liga 1 Perú",
-    "dia_tag": "MAÑANA · 20:30",
+    "dia_tag": "HOY · 20:30",
     "lam_l": 1.53,
     "lam_v": 1.15,
     "casa_ref": "Consenso B2B / ESPN",
@@ -2513,16 +2513,16 @@
       {
         "nombre": "Gana Local (1)",
         "cat": "1X2",
-        "prob": 45.9,
-        "justa": 2.18,
+        "prob": 46.0,
+        "justa": 2.17,
         "cuota_ref": 2.07
       },
       {
         "nombre": "Gana Visita (2)",
         "cat": "1X2",
         "prob": 28.6,
-        "justa": 3.49,
-        "cuota_ref": 3.32
+        "justa": 3.5,
+        "cuota_ref": 3.33
       },
       {
         "nombre": "Local o Empate (1X)",
@@ -2534,7 +2534,7 @@
       {
         "nombre": "Visita o Empate (X2)",
         "cat": "DOBLE OPORTUNIDAD",
-        "prob": 54.1,
+        "prob": 54.0,
         "justa": 1.85,
         "cuota_ref": 1.75
       },
@@ -2548,14 +2548,14 @@
       {
         "nombre": "Más de 2.5 Goles (Over 2.5)",
         "cat": "GOLES",
-        "prob": 50.2,
+        "prob": 50.3,
         "justa": 1.99,
-        "cuota_ref": 1.9
+        "cuota_ref": 1.89
       },
       {
         "nombre": "Menos de 2.5 Goles (Under 2.5)",
         "cat": "GOLES",
-        "prob": 49.8,
+        "prob": 49.7,
         "justa": 2.01,
         "cuota_ref": 1.91
       },
@@ -2576,10 +2576,10 @@
     ]
   },
   {
-    "event_id": "401876904",
-    "partido": "Pumas UNAM vs América",
+    "event_id": "401876903",
+    "partido": "Querétaro vs Puebla",
     "liga": "Liga MX",
-    "dia_tag": "HOY · 22:10",
+    "dia_tag": "HOY · 19:00",
     "lam_l": 1.53,
     "lam_v": 1.15,
     "casa_ref": "Consenso B2B / ESPN",
@@ -2587,7 +2587,7 @@
       {
         "nombre": "Gana Local (1)",
         "cat": "1X2",
-        "prob": 46.0,
+        "prob": 45.9,
         "justa": 2.18,
         "cuota_ref": 2.07
       },
@@ -2608,81 +2608,7 @@
       {
         "nombre": "Visita o Empate (X2)",
         "cat": "DOBLE OPORTUNIDAD",
-        "prob": 54.0,
-        "justa": 1.85,
-        "cuota_ref": 1.76
-      },
-      {
-        "nombre": "Más de 1.5 Goles (Over 1.5)",
-        "cat": "GOLES",
-        "prob": 74.8,
-        "justa": 1.34,
-        "cuota_ref": 1.29
-      },
-      {
-        "nombre": "Más de 2.5 Goles (Over 2.5)",
-        "cat": "GOLES",
-        "prob": 50.2,
-        "justa": 1.99,
-        "cuota_ref": 1.9
-      },
-      {
-        "nombre": "Menos de 2.5 Goles (Under 2.5)",
-        "cat": "GOLES",
-        "prob": 49.8,
-        "justa": 2.01,
-        "cuota_ref": 1.91
-      },
-      {
-        "nombre": "Menos de 3.5 Goles (Under 3.5)",
-        "cat": "GOLES",
-        "prob": 71.7,
-        "justa": 1.39,
-        "cuota_ref": 1.34
-      },
-      {
-        "nombre": "Ambos Equipos Anotan (Sí)",
-        "cat": "BTTS",
-        "prob": 53.5,
-        "justa": 1.87,
-        "cuota_ref": 1.93
-      }
-    ]
-  },
-  {
-    "event_id": "401876903",
-    "partido": "Querétaro vs Puebla",
-    "liga": "Liga MX",
-    "dia_tag": "MAÑANA · 19:00",
-    "lam_l": 1.53,
-    "lam_v": 1.15,
-    "casa_ref": "Consenso B2B / ESPN",
-    "mercados": [
-      {
-        "nombre": "Gana Local (1)",
-        "cat": "1X2",
-        "prob": 45.8,
-        "justa": 2.18,
-        "cuota_ref": 2.08
-      },
-      {
-        "nombre": "Gana Visita (2)",
-        "cat": "1X2",
-        "prob": 28.8,
-        "justa": 3.48,
-        "cuota_ref": 3.31
-      },
-      {
-        "nombre": "Local o Empate (1X)",
-        "cat": "DOBLE OPORTUNIDAD",
-        "prob": 71.2,
-        "justa": 1.4,
-        "cuota_ref": 1.33
-      },
-      {
-        "nombre": "Visita o Empate (X2)",
-        "cat": "DOBLE OPORTUNIDAD",
-        "prob": 54.2,
+        "prob": 54.1,
         "justa": 1.85,
         "cuota_ref": 1.75
       },
@@ -2705,20 +2631,20 @@
         "cat": "GOLES",
         "prob": 49.7,
         "justa": 2.01,
-        "cuota_ref": 1.91
+        "cuota_ref": 1.92
       },
       {
         "nombre": "Menos de 3.5 Goles (Under 3.5)",
         "cat": "GOLES",
-        "prob": 71.8,
+        "prob": 71.7,
         "justa": 1.39,
         "cuota_ref": 1.34
       },
       {
         "nombre": "Ambos Equipos Anotan (Sí)",
         "cat": "BTTS",
-        "prob": 53.6,
-        "justa": 1.87,
+        "prob": 53.7,
+        "justa": 1.86,
         "cuota_ref": 1.92
       }
     ]
@@ -2727,7 +2653,7 @@
     "event_id": "401876902",
     "partido": "León vs Guadalajara",
     "liga": "Liga MX",
-    "dia_tag": "MAÑANA · 21:10",
+    "dia_tag": "HOY · 21:10",
     "lam_l": 1.53,
     "lam_v": 1.15,
     "casa_ref": "Consenso B2B / ESPN",
@@ -2763,9 +2689,9 @@
       {
         "nombre": "Más de 1.5 Goles (Over 1.5)",
         "cat": "GOLES",
-        "prob": 74.9,
+        "prob": 74.8,
         "justa": 1.34,
-        "cuota_ref": 1.28
+        "cuota_ref": 1.29
       },
       {
         "nombre": "Más de 2.5 Goles (Over 2.5)",
@@ -2779,7 +2705,7 @@
         "cat": "GOLES",
         "prob": 49.7,
         "justa": 2.01,
-        "cuota_ref": 1.92
+        "cuota_ref": 1.91
       },
       {
         "nombre": "Menos de 3.5 Goles (Under 3.5)",
@@ -2791,7 +2717,7 @@
       {
         "nombre": "Ambos Equipos Anotan (Sí)",
         "cat": "BTTS",
-        "prob": 53.8,
+        "prob": 53.7,
         "justa": 1.86,
         "cuota_ref": 1.92
       }
