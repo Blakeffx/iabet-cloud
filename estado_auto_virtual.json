@@ -1,0 +1,9 @@
+{
+  "banca_actual": 100.0,
+  "ganadas": 0,
+  "perdidas": 0,
+  "pausado": false,
+  "last_update_id": 0,
+  "alertados_ids": [],
+  "ultimo_pick": null
+}
