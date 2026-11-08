@@ -1,0 +1,48 @@
+name: IABET Betano Virtual Sniper v4.2
+
+on:
+  # Permite encender el radar manualmente desde el celular (GitHub Mobile / Web)
+  workflow_dispatch:
+
+  # Se enciende cada hora en punto y escanea cada 15 seg durante 52 minutos seguidos
+  schedule:
+    - cron: '0 * * * *'
+
+permissions:
+  contents: write
+
+jobs:
+  sniper-virtuales:
+    runs-on: ubuntu-latest
+    timeout-minutes: 58
+    steps:
+      - name: 1. Descargar repositorio
+        uses: actions/checkout@v4
+
+      - name: 2. Instalar Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: 3. Instalar Motor Numba y Scrapling Furtivo
+        run: |
+          pip install --upgrade pip
+          pip install numba numpy requests "scrapling[fetchers]"
+          scrapling install || true
+
+      - name: 4. Limpiar sintaxis y Ejecutar Sniper v4.2 en Tiempo Real (52 min)
+        env:
+          GITHUB_ACTIONS: "true"
+        run: |
+          python -c "p=open('iabet_betano_auto.py','rb').read().replace(b'\xc2\xa0',b' ').replace(b'\r\n',b'\n'); open('iabet_betano_auto.py','wb').write(p)"
+          python iabet_betano_auto.py
+
+      - name: 5. Auto-Guardar Banca y Estado de Sesion en GitHub
+        if: always()
+        run: |
+          git config --global user.name "IABET Virtual Bot"
+          git config --global user.email "bot@iabet.cloud"
+          git add estado_auto_virtual.json || true
+          git diff --staged --quiet || git commit -m "Auto-save: Estado Betano Virtuals v4.2"
+          git push || true
