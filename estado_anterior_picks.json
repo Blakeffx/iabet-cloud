@@ -9,7 +9,7 @@
     "edge": 6.8,
     "stake_pct": 3.54,
     "tier_label": "💎 TIER S (Fija Blindada)",
-    "timestamp": "2026-11-20 13:45"
+    "timestamp": "2026-11-20 15:37"
   },
   "401875067": {
     "partido": "Napoli vs Torino",
@@ -21,7 +21,7 @@
     "edge": 6.8,
     "stake_pct": 3.54,
     "tier_label": "💎 TIER S (Fija Blindada)",
-    "timestamp": "2026-11-20 13:45"
+    "timestamp": "2026-11-20 15:37"
   },
   "401884731": {
     "partido": "Borussia Mönchengladbach vs Borussia Dortmund",
@@ -33,7 +33,7 @@
     "edge": 6.8,
     "stake_pct": 3.54,
     "tier_label": "💎 TIER S (Fija Blindada)",
-    "timestamp": "2026-11-20 13:45"
+    "timestamp": "2026-11-20 15:37"
   },
   "401874967": {
     "partido": "Parma vs AS Roma",
@@ -45,18 +45,18 @@
     "edge": 6.5,
     "stake_pct": 3.34,
     "tier_label": "💎 TIER S (Fija Blindada)",
-    "timestamp": "2026-11-20 13:45"
+    "timestamp": "2026-11-20 15:37"
   },
   "401884734": {
     "partido": "Eintracht Frankfurt vs TSG Hoffenheim",
     "liga": "Bundesliga",
     "dia_tag": "MAÑANA · 09:30",
-    "mercado": "Más de 8.5 Tiros al Arco",
-    "cuota": 1.68,
-    "prob_real": 66.0,
-    "edge": 6.5,
-    "stake_pct": 3.2,
+    "mercado": "Ambos Equipos Anotan (Sí)",
+    "cuota": 1.54,
+    "prob_real": 67.1,
+    "edge": 2.2,
+    "stake_pct": 3.0,
     "tier_label": "💎 TIER S (Fija Blindada)",
-    "timestamp": "2026-11-20 13:45"
+    "timestamp": "2026-11-20 15:37"
   }
 }
