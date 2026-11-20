@@ -8,6 +8,66 @@
   "racha": "1W 🔥",
   "historial": [
     {
+      "event_id": "401884734",
+      "fecha": "2026-11-20",
+      "partido": "Eintracht Frankfurt vs TSG Hoffenheim",
+      "liga": "Bundesliga",
+      "mercado": "Más de 8.5 Tiros al Arco",
+      "cuota": 1.68,
+      "stake": 3.2,
+      "estado": "PENDIENTE",
+      "resultado_final": "-",
+      "profit": 0.0
+    },
+    {
+      "event_id": "401874967",
+      "fecha": "2026-11-20",
+      "partido": "Parma vs AS Roma",
+      "liga": "Serie A Italia",
+      "mercado": "Menos de 9.5 Tiros al Arco",
+      "cuota": 1.64,
+      "stake": 3.34,
+      "estado": "PENDIENTE",
+      "resultado_final": "-",
+      "profit": 0.0
+    },
+    {
+      "event_id": "401884731",
+      "fecha": "2026-11-20",
+      "partido": "Borussia Mönchengladbach vs Borussia Dortmund",
+      "liga": "Bundesliga",
+      "mercado": "Menos de 10.5 Córners",
+      "cuota": 1.62,
+      "stake": 3.54,
+      "estado": "PENDIENTE",
+      "resultado_final": "-",
+      "profit": 0.0
+    },
+    {
+      "event_id": "401875067",
+      "fecha": "2026-11-20",
+      "partido": "Napoli vs Torino",
+      "liga": "Serie A Italia",
+      "mercado": "Menos de 10.5 Córners",
+      "cuota": 1.62,
+      "stake": 3.54,
+      "estado": "PENDIENTE",
+      "resultado_final": "-",
+      "profit": 0.0
+    },
+    {
+      "event_id": "401875056",
+      "fecha": "2026-11-20",
+      "partido": "Como vs Cagliari",
+      "liga": "Serie A Italia",
+      "mercado": "Menos de 10.5 Córners",
+      "cuota": 1.62,
+      "stake": 3.54,
+      "estado": "PENDIENTE",
+      "resultado_final": "-",
+      "profit": 0.0
+    },
+    {
       "event_id": "401879243",
       "fecha": "2026-11-08",
       "partido": "Crystal Palace vs Liverpool",
@@ -1101,76 +1161,6 @@
       "profit": -2.5,
       "version": "Pro2.6-Audited",
       "resultado_final": "2-1"
-    },
-    {
-      "event_id": "401915308",
-      "clave_partido": "man un_roma",
-      "liga": "Champions League",
-      "partido": "Manchester United vs AS Roma",
-      "mercado": "Empate no Válido (Visita) - AS Roma",
-      "cuota": 1.66,
-      "stake": 4.5,
-      "tier": "TIER S",
-      "estado": "PERDIDO",
-      "marcador_final": "3-2 (Final)",
-      "profit": -4.5,
-      "version": "Pro2.6-Audited"
-    },
-    {
-      "event_id": "401915537",
-      "clave_partido": "socied_lyon",
-      "liga": "Europa League",
-      "partido": "Real Sociedad vs Lyon",
-      "mercado": "Empate no Válido (Local) - Real Sociedad",
-      "cuota": 1.62,
-      "stake": 4.5,
-      "tier": "TIER S",
-      "estado": "PENDIENTE",
-      "marcador_final": "05/11 · 12:45",
-      "profit": 0.0,
-      "version": "Pro2.6-Audited"
-    },
-    {
-      "event_id": "401841303",
-      "clave_partido": "cruzei_bahia",
-      "liga": "Brasileirao",
-      "partido": "Cruzeiro vs Bahia",
-      "mercado": "Empate no Válido (Local) - Cruzeiro",
-      "cuota": 1.5,
-      "stake": 2.5,
-      "tier": "TIER S",
-      "estado": "PENDIENTE",
-      "marcador_final": "05/11 · 19:30",
-      "profit": 0.0,
-      "version": "Pro2.6-Audited"
-    },
-    {
-      "event_id": "401915526",
-      "clave_partido": "crysta_tsg ho",
-      "liga": "Europa League",
-      "partido": "Crystal Palace vs TSG Hoffenheim",
-      "mercado": "Empate no Válido (Local) - Crystal Palace",
-      "cuota": 1.69,
-      "stake": 4.0,
-      "tier": "TIER S",
-      "estado": "PENDIENTE",
-      "marcador_final": "05/11 · 12:45",
-      "profit": 0.0,
-      "version": "Pro2.6-Audited"
-    },
-    {
-      "event_id": "401915536",
-      "clave_partido": "levski_jagiel",
-      "liga": "Europa League",
-      "partido": "Levski Sofia vs Jagiellonia Bialystok",
-      "mercado": "Empate no Válido (Local) - Levski Sofia",
-      "cuota": 1.68,
-      "stake": 3.5,
-      "tier": "TIER S",
-      "estado": "PENDIENTE",
-      "marcador_final": "05/11 · 12:45",
-      "profit": 0.0,
-      "version": "Pro2.6-Audited"
     }
   ]
 }
