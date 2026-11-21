@@ -1,10 +1,10 @@
 {
   "bankroll_inicial": 100.0,
-  "bankroll_actual": 152.63,
+  "bankroll_actual": 149.09,
   "ganados": 51,
-  "perdidos": 15,
-  "win_rate": 77.3,
-  "roi": 19.9,
+  "perdidos": 16,
+  "win_rate": 76.1,
+  "roi": 18.3,
   "racha": "1W 🔥",
   "historial": [
     {
@@ -75,9 +75,9 @@
       "mercado": "Menos de 10.5 Córners",
       "cuota": 1.62,
       "stake": 3.54,
-      "estado": "PENDIENTE",
-      "resultado_final": "-",
-      "profit": 0.0
+      "estado": "PERDIDO",
+      "resultado_final": "1-0",
+      "profit": -3.54
     },
     {
       "event_id": "401875056",
