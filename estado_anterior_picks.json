@@ -2,53 +2,77 @@
   "401875056": {
     "partido": "Como vs Cagliari",
     "liga": "Serie A Italia",
-    "dia_tag": "MAÑANA · 09:00",
+    "dia_tag": "HOY · 09:00",
     "mercado": "Menos de 10.5 Córners",
     "cuota": 1.62,
     "prob_real": 68.5,
     "edge": 6.8,
     "stake_pct": 3.54,
     "tier_label": "💎 TIER S (Fija Blindada)",
-    "timestamp": "2026-11-20 23:44"
+    "timestamp": "2026-11-21 01:49"
   },
   "401875067": {
     "partido": "Napoli vs Torino",
     "liga": "Serie A Italia",
-    "dia_tag": "MAÑANA · 14:45",
+    "dia_tag": "HOY · 14:45",
     "mercado": "Menos de 10.5 Córners",
     "cuota": 1.62,
     "prob_real": 68.5,
     "edge": 6.8,
     "stake_pct": 3.54,
     "tier_label": "💎 TIER S (Fija Blindada)",
-    "timestamp": "2026-11-20 23:44"
+    "timestamp": "2026-11-21 01:49"
   },
   "401884731": {
     "partido": "Borussia Mönchengladbach vs Borussia Dortmund",
     "liga": "Bundesliga",
-    "dia_tag": "MAÑANA · 09:30",
+    "dia_tag": "HOY · 09:30",
     "mercado": "Menos de 10.5 Córners",
     "cuota": 1.62,
     "prob_real": 68.5,
     "edge": 6.8,
     "stake_pct": 3.54,
     "tier_label": "💎 TIER S (Fija Blindada)",
-    "timestamp": "2026-11-20 23:44"
+    "timestamp": "2026-11-21 01:49"
   },
   "401874967": {
     "partido": "Parma vs AS Roma",
     "liga": "Serie A Italia",
-    "dia_tag": "MAÑANA · 12:00",
+    "dia_tag": "HOY · 12:00",
     "mercado": "Menos de 9.5 Tiros al Arco",
     "cuota": 1.64,
     "prob_real": 67.5,
     "edge": 6.5,
     "stake_pct": 3.34,
     "tier_label": "💎 TIER S (Fija Blindada)",
-    "timestamp": "2026-11-20 23:44"
+    "timestamp": "2026-11-21 01:49"
+  },
+  "401875047": {
+    "partido": "Bologna vs Udinese",
+    "liga": "Serie A Italia",
+    "dia_tag": "MAÑANA · 09:00",
+    "mercado": "Menos de 9.5 Tiros al Arco",
+    "cuota": 1.64,
+    "prob_real": 67.5,
+    "edge": 6.5,
+    "stake_pct": 3.34,
+    "tier_label": "💎 TIER S (Fija Blindada)",
+    "timestamp": "2026-11-21 01:49"
   },
   "401884734": {
     "partido": "Eintracht Frankfurt vs TSG Hoffenheim",
+    "liga": "Bundesliga",
+    "dia_tag": "HOY · 09:30",
+    "mercado": "Más de 8.5 Tiros al Arco",
+    "cuota": 1.68,
+    "prob_real": 66.0,
+    "edge": 6.5,
+    "stake_pct": 3.2,
+    "tier_label": "💎 TIER S (Fija Blindada)",
+    "timestamp": "2026-11-21 01:49"
+  },
+  "401884733": {
+    "partido": "FC Augsburg vs Mainz",
     "liga": "Bundesliga",
     "dia_tag": "MAÑANA · 09:30",
     "mercado": "Más de 8.5 Tiros al Arco",
@@ -57,6 +81,6 @@
     "edge": 6.5,
     "stake_pct": 3.2,
     "tier_label": "💎 TIER S (Fija Blindada)",
-    "timestamp": "2026-11-20 23:44"
+    "timestamp": "2026-11-21 01:49"
   }
 }

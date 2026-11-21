@@ -8,6 +8,30 @@
   "racha": "1W 🔥",
   "historial": [
     {
+      "event_id": "401884733",
+      "fecha": "2026-11-21",
+      "partido": "FC Augsburg vs Mainz",
+      "liga": "Bundesliga",
+      "mercado": "Más de 8.5 Tiros al Arco",
+      "cuota": 1.68,
+      "stake": 3.2,
+      "estado": "PENDIENTE",
+      "resultado_final": "-",
+      "profit": 0.0
+    },
+    {
+      "event_id": "401875047",
+      "fecha": "2026-11-21",
+      "partido": "Bologna vs Udinese",
+      "liga": "Serie A Italia",
+      "mercado": "Menos de 9.5 Tiros al Arco",
+      "cuota": 1.64,
+      "stake": 3.34,
+      "estado": "PENDIENTE",
+      "resultado_final": "-",
+      "profit": 0.0
+    },
+    {
       "event_id": "401884734",
       "fecha": "2026-11-20",
       "partido": "Eintracht Frankfurt vs TSG Hoffenheim",
@@ -1132,35 +1156,6 @@
       "marcador_final": "05/11 · 15:00",
       "profit": 0.0,
       "version": "Pro2.6-Audited"
-    },
-    {
-      "event_id": "401915535",
-      "clave_partido": "nec ni_omonia",
-      "liga": "Europa League",
-      "partido": "NEC Nijmegen vs Omonia Nicosia",
-      "mercado": "Empate no Válido (Local) - NEC Nijmegen",
-      "cuota": 1.57,
-      "stake": 4.5,
-      "tier": "TIER S",
-      "estado": "PENDIENTE",
-      "marcador_final": "05/11 · 12:45",
-      "profit": 0.0,
-      "version": "Pro2.6-Audited"
-    },
-    {
-      "event_id": "401841667",
-      "clave_partido": "gimnas_belgra",
-      "liga": "Liga Argentina",
-      "partido": "Gimnasia La Plata vs Belgrano (Córdoba)",
-      "mercado": "Menos de 2.5 Goles (Under 2.5)",
-      "cuota": 1.81,
-      "stake": 2.5,
-      "tier": "TIER A",
-      "estado": "PERDIDO",
-      "marcador_final": "05/11 · 17:15",
-      "profit": -2.5,
-      "version": "Pro2.6-Audited",
-      "resultado_final": "2-1"
     }
   ]
 }
