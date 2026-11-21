@@ -1,16 +1,4 @@
 {
-  "401875056": {
-    "partido": "Como vs Cagliari",
-    "liga": "Serie A Italia",
-    "dia_tag": "HOY · 09:00",
-    "mercado": "Menos de 10.5 Córners",
-    "cuota": 1.62,
-    "prob_real": 68.5,
-    "edge": 6.8,
-    "stake_pct": 3.54,
-    "tier_label": "💎 TIER S (Fija Blindada)",
-    "timestamp": "2026-11-21 09:38"
-  },
   "401875067": {
     "partido": "Napoli vs Torino",
     "liga": "Serie A Italia",
@@ -21,19 +9,7 @@
     "edge": 6.8,
     "stake_pct": 3.54,
     "tier_label": "💎 TIER S (Fija Blindada)",
-    "timestamp": "2026-11-21 09:38"
-  },
-  "401884731": {
-    "partido": "Borussia Mönchengladbach vs Borussia Dortmund",
-    "liga": "Bundesliga",
-    "dia_tag": "HOY · 09:30",
-    "mercado": "Menos de 10.5 Córners",
-    "cuota": 1.62,
-    "prob_real": 68.5,
-    "edge": 6.8,
-    "stake_pct": 3.54,
-    "tier_label": "💎 TIER S (Fija Blindada)",
-    "timestamp": "2026-11-21 09:38"
+    "timestamp": "2026-11-21 11:32"
   },
   "401874967": {
     "partido": "Parma vs AS Roma",
@@ -45,7 +21,7 @@
     "edge": 6.5,
     "stake_pct": 3.34,
     "tier_label": "💎 TIER S (Fija Blindada)",
-    "timestamp": "2026-11-21 09:38"
+    "timestamp": "2026-11-21 11:32"
   },
   "401875047": {
     "partido": "Bologna vs Udinese",
@@ -57,19 +33,7 @@
     "edge": 6.5,
     "stake_pct": 3.34,
     "tier_label": "💎 TIER S (Fija Blindada)",
-    "timestamp": "2026-11-21 09:38"
-  },
-  "401884734": {
-    "partido": "Eintracht Frankfurt vs TSG Hoffenheim",
-    "liga": "Bundesliga",
-    "dia_tag": "HOY · 09:30",
-    "mercado": "Más de 8.5 Tiros al Arco",
-    "cuota": 1.68,
-    "prob_real": 66.0,
-    "edge": 6.5,
-    "stake_pct": 3.2,
-    "tier_label": "💎 TIER S (Fija Blindada)",
-    "timestamp": "2026-11-21 09:38"
+    "timestamp": "2026-11-21 11:32"
   },
   "401884733": {
     "partido": "FC Augsburg vs Mainz",
@@ -81,6 +45,6 @@
     "edge": 6.5,
     "stake_pct": 3.2,
     "tier_label": "💎 TIER S (Fija Blindada)",
-    "timestamp": "2026-11-21 09:38"
+    "timestamp": "2026-11-21 11:32"
   }
 }
