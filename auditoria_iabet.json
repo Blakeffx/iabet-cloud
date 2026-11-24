@@ -8,6 +8,30 @@
   "racha": "3W 🔥",
   "historial": [
     {
+      "event_id": "401915377",
+      "fecha": "2026-11-24",
+      "partido": "Lille vs Bayern Munich",
+      "liga": "Champions League",
+      "mercado": "Más de 8.5 Tiros al Arco",
+      "cuota": 1.68,
+      "stake": 3.2,
+      "estado": "PENDIENTE",
+      "resultado_final": "-",
+      "profit": 0.0
+    },
+    {
+      "event_id": "401915376",
+      "fecha": "2026-11-24",
+      "partido": "Internazionale vs VfB Stuttgart",
+      "liga": "Champions League",
+      "mercado": "Más de 8.5 Tiros al Arco",
+      "cuota": 1.68,
+      "stake": 3.2,
+      "estado": "PENDIENTE",
+      "resultado_final": "-",
+      "profit": 0.0
+    },
+    {
       "event_id": "401915299",
       "fecha": "2026-11-23",
       "partido": "RB Leipzig vs Lens",
@@ -1124,34 +1148,6 @@
       "tier": "TIER S",
       "estado": "PENDIENTE",
       "marcador_final": "EN VIVO 1-2 (87')",
-      "profit": 0.0,
-      "version": "Pro2.6-Audited"
-    },
-    {
-      "event_id": "401915310",
-      "clave_partido": "shakht_sp lis",
-      "liga": "Champions League",
-      "partido": "Shakhtar Donetsk vs Sporting CP",
-      "mercado": "Empate no Válido (Visita) - Sporting CP",
-      "cuota": 1.73,
-      "stake": 4.0,
-      "tier": "TIER S",
-      "estado": "GANADO",
-      "marcador_final": "0-1 (Final)",
-      "profit": 2.92,
-      "version": "Pro2.6-Audited"
-    },
-    {
-      "event_id": "401841657",
-      "clave_partido": "defens_indepe",
-      "liga": "Liga Argentina",
-      "partido": "Defensa y Justicia vs Independiente",
-      "mercado": "Empate no Válido (Local) - Defensa y Justicia",
-      "cuota": 1.81,
-      "stake": 3.0,
-      "tier": "TIER A",
-      "estado": "REEMBOLSO",
-      "marcador_final": "1-1 (Reembolso)",
       "profit": 0.0,
       "version": "Pro2.6-Audited"
     }
