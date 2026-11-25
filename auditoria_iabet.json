@@ -1,11 +1,11 @@
 {
   "bankroll_inicial": 100.0,
-  "bankroll_actual": 150.49,
-  "ganados": 52,
+  "bankroll_actual": 152.67,
+  "ganados": 53,
   "perdidos": 16,
-  "win_rate": 76.5,
-  "roi": 18.6,
-  "racha": "3W 🔥",
+  "win_rate": 76.8,
+  "roi": 19.2,
+  "racha": "4W 🔥",
   "historial": [
     {
       "event_id": "401915377",
@@ -39,9 +39,9 @@
       "mercado": "Más de 8.5 Tiros al Arco",
       "cuota": 1.68,
       "stake": 3.2,
-      "estado": "PENDIENTE",
-      "resultado_final": "-",
-      "profit": 0.0
+      "estado": "GANADO",
+      "resultado_final": "3-1",
+      "profit": 2.18
     },
     {
       "event_id": "401884733",
