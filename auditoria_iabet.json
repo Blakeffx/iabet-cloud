@@ -8,6 +8,18 @@
   "racha": "1W 🔥",
   "historial": [
     {
+      "event_id": "401884720",
+      "fecha": "2026-11-26",
+      "partido": "Werder Bremen vs Borussia Mönchengladbach",
+      "liga": "Bundesliga",
+      "mercado": "Menos de 10.5 Córners",
+      "cuota": 1.62,
+      "stake": 3.54,
+      "estado": "PENDIENTE",
+      "resultado_final": "-",
+      "profit": 0.0
+    },
+    {
       "event_id": "401915377",
       "fecha": "2026-11-24",
       "partido": "Lille vs Bayern Munich",
@@ -1134,20 +1146,6 @@
       "tier": "TIER S",
       "estado": "PENDIENTE",
       "marcador_final": "04/11 · 15:00",
-      "profit": 0.0,
-      "version": "Pro2.6-Audited"
-    },
-    {
-      "event_id": "401841304",
-      "clave_partido": "chapec_mirass",
-      "liga": "Brasileirao",
-      "partido": "Chapecoense vs Mirassol",
-      "mercado": "Empate no Válido (Visita) - Mirassol",
-      "cuota": 1.74,
-      "stake": 4.5,
-      "tier": "TIER S",
-      "estado": "PENDIENTE",
-      "marcador_final": "EN VIVO 1-2 (87')",
       "profit": 0.0,
       "version": "Pro2.6-Audited"
     }
