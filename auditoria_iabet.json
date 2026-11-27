@@ -8,6 +8,54 @@
   "racha": "1W 🔥",
   "historial": [
     {
+      "event_id": "401884726",
+      "fecha": "2026-11-27",
+      "partido": "VfB Stuttgart vs Eintracht Frankfurt",
+      "liga": "Bundesliga",
+      "mercado": "Más de 8.5 Tiros al Arco",
+      "cuota": 1.68,
+      "stake": 3.2,
+      "estado": "PENDIENTE",
+      "resultado_final": "-",
+      "profit": 0.0
+    },
+    {
+      "event_id": "401884722",
+      "fecha": "2026-11-27",
+      "partido": "Hamburg SV vs Bayern Munich",
+      "liga": "Bundesliga",
+      "mercado": "Más de 8.5 Tiros al Arco",
+      "cuota": 1.68,
+      "stake": 3.2,
+      "estado": "PENDIENTE",
+      "resultado_final": "-",
+      "profit": 0.0
+    },
+    {
+      "event_id": "401874977",
+      "fecha": "2026-11-27",
+      "partido": "Internazionale vs Genoa",
+      "liga": "Serie A Italia",
+      "mercado": "Menos de 10.5 Córners",
+      "cuota": 1.62,
+      "stake": 3.54,
+      "estado": "PENDIENTE",
+      "resultado_final": "-",
+      "profit": 0.0
+    },
+    {
+      "event_id": "401874826",
+      "fecha": "2026-11-27",
+      "partido": "Torino vs Lazio",
+      "liga": "Serie A Italia",
+      "mercado": "Menos de 10.5 Córners",
+      "cuota": 1.62,
+      "stake": 3.54,
+      "estado": "PENDIENTE",
+      "resultado_final": "-",
+      "profit": 0.0
+    },
+    {
       "event_id": "401884720",
       "fecha": "2026-11-26",
       "partido": "Werder Bremen vs Borussia Mönchengladbach",
@@ -1091,62 +1139,6 @@
       "estado": "GANADO",
       "marcador_final": "0-2 (Final · 10 Córners)",
       "profit": 2.34,
-      "version": "Pro2.6-Audited"
-    },
-    {
-      "event_id": "401874971",
-      "clave_partido": "atalan_parma",
-      "liga": "Serie A",
-      "partido": "Atalanta vs Parma",
-      "mercado": "Menos de 11.5 Córners Totales",
-      "cuota": 1.52,
-      "stake": 4.5,
-      "tier": "TIER S",
-      "estado": "PERDIDO",
-      "marcador_final": "0-3 (Final · 13 Córners)",
-      "profit": -4.5,
-      "version": "Pro2.6-Audited"
-    },
-    {
-      "event_id": "401915304",
-      "clave_partido": "dortmu_betis",
-      "liga": "Champions League",
-      "partido": "Borussia Dortmund vs Real Betis",
-      "mercado": "Empate no Válido (Local) - Borussia Dortmund",
-      "cuota": 1.55,
-      "stake": 4.5,
-      "tier": "TIER S",
-      "estado": "PENDIENTE",
-      "marcador_final": "04/11 · 15:00",
-      "profit": 0.0,
-      "version": "Pro2.6-Audited"
-    },
-    {
-      "event_id": "401915307",
-      "clave_partido": "feyeno_inter",
-      "liga": "Champions League",
-      "partido": "Feyenoord Rotterdam vs Internazionale",
-      "mercado": "Empate no Válido (Visita) - Internazionale",
-      "cuota": 1.62,
-      "stake": 4.5,
-      "tier": "TIER S",
-      "estado": "GANADO",
-      "marcador_final": "0-3 (Final)",
-      "profit": 2.79,
-      "version": "Pro2.6-Audited"
-    },
-    {
-      "event_id": "401915301",
-      "clave_partido": "porto_napoli",
-      "liga": "Champions League",
-      "partido": "FC Porto vs Napoli",
-      "mercado": "Empate no Válido (Local) - FC Porto",
-      "cuota": 1.72,
-      "stake": 4.5,
-      "tier": "TIER S",
-      "estado": "PENDIENTE",
-      "marcador_final": "04/11 · 15:00",
-      "profit": 0.0,
       "version": "Pro2.6-Audited"
     }
   ]

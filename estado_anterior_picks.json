@@ -1,14 +1,62 @@
 {
-  "401884720": {
-    "partido": "Werder Bremen vs Borussia Mönchengladbach",
-    "liga": "Bundesliga",
-    "dia_tag": "MAÑANA · 14:30",
+  "401874826": {
+    "partido": "Torino vs Lazio",
+    "liga": "Serie A Italia",
+    "dia_tag": "MAÑANA · 12:00",
     "mercado": "Menos de 10.5 Córners",
     "cuota": 1.62,
     "prob_real": 68.5,
     "edge": 6.8,
     "stake_pct": 3.54,
     "tier_label": "💎 TIER S (Fija Blindada)",
-    "timestamp": "2026-11-26 17:40"
+    "timestamp": "2026-11-27 00:41"
+  },
+  "401874977": {
+    "partido": "Internazionale vs Genoa",
+    "liga": "Serie A Italia",
+    "dia_tag": "MAÑANA · 14:45",
+    "mercado": "Menos de 10.5 Córners",
+    "cuota": 1.62,
+    "prob_real": 68.5,
+    "edge": 6.8,
+    "stake_pct": 3.54,
+    "tier_label": "💎 TIER S (Fija Blindada)",
+    "timestamp": "2026-11-27 00:41"
+  },
+  "401884720": {
+    "partido": "Werder Bremen vs Borussia Mönchengladbach",
+    "liga": "Bundesliga",
+    "dia_tag": "HOY · 14:30",
+    "mercado": "Menos de 10.5 Córners",
+    "cuota": 1.62,
+    "prob_real": 68.5,
+    "edge": 6.8,
+    "stake_pct": 3.54,
+    "tier_label": "💎 TIER S (Fija Blindada)",
+    "timestamp": "2026-11-27 00:41"
+  },
+  "401884722": {
+    "partido": "Hamburg SV vs Bayern Munich",
+    "liga": "Bundesliga",
+    "dia_tag": "MAÑANA · 09:30",
+    "mercado": "Más de 8.5 Tiros al Arco",
+    "cuota": 1.68,
+    "prob_real": 66.0,
+    "edge": 6.5,
+    "stake_pct": 3.2,
+    "tier_label": "💎 TIER S (Fija Blindada)",
+    "timestamp": "2026-11-27 00:41"
+  },
+  "401884726": {
+    "partido": "VfB Stuttgart vs Eintracht Frankfurt",
+    "liga": "Bundesliga",
+    "dia_tag": "MAÑANA · 12:30",
+    "mercado": "Más de 8.5 Tiros al Arco",
+    "cuota": 1.68,
+    "prob_real": 66.0,
+    "edge": 6.5,
+    "stake_pct": 3.2,
+    "tier_label": "💎 TIER S (Fija Blindada)",
+    "timestamp": "2026-11-27 00:41"
   }
 }
