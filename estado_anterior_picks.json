@@ -9,7 +9,7 @@
     "edge": 6.8,
     "stake_pct": 3.54,
     "tier_label": "💎 TIER S (Fija Blindada)",
-    "timestamp": "2026-11-27 10:45"
+    "timestamp": "2026-11-27 18:48"
   },
   "401874977": {
     "partido": "Internazionale vs Genoa",
@@ -21,19 +21,7 @@
     "edge": 6.8,
     "stake_pct": 3.54,
     "tier_label": "💎 TIER S (Fija Blindada)",
-    "timestamp": "2026-11-27 10:45"
-  },
-  "401884720": {
-    "partido": "Werder Bremen vs Borussia Mönchengladbach",
-    "liga": "Bundesliga",
-    "dia_tag": "HOY · 14:30",
-    "mercado": "Menos de 10.5 Córners",
-    "cuota": 1.62,
-    "prob_real": 68.5,
-    "edge": 6.8,
-    "stake_pct": 3.54,
-    "tier_label": "💎 TIER S (Fija Blindada)",
-    "timestamp": "2026-11-27 10:45"
+    "timestamp": "2026-11-27 18:48"
   },
   "401884722": {
     "partido": "Hamburg SV vs Bayern Munich",
@@ -45,7 +33,7 @@
     "edge": 6.5,
     "stake_pct": 3.2,
     "tier_label": "💎 TIER S (Fija Blindada)",
-    "timestamp": "2026-11-27 10:45"
+    "timestamp": "2026-11-27 18:48"
   },
   "401884726": {
     "partido": "VfB Stuttgart vs Eintracht Frankfurt",
@@ -57,6 +45,6 @@
     "edge": 6.5,
     "stake_pct": 3.2,
     "tier_label": "💎 TIER S (Fija Blindada)",
-    "timestamp": "2026-11-27 10:45"
+    "timestamp": "2026-11-27 18:48"
   }
 }
