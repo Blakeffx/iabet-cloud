@@ -8,6 +8,54 @@
   "racha": "Activa",
   "historial": [
     {
+      "event_id": "401884725",
+      "fecha": "2026-11-28",
+      "partido": "TSG Hoffenheim vs FC Augsburg",
+      "liga": "Bundesliga",
+      "mercado": "Más de 8.5 Tiros al Arco",
+      "cuota": 1.68,
+      "stake": 3.2,
+      "estado": "PENDIENTE",
+      "resultado_final": "-",
+      "profit": 0.0
+    },
+    {
+      "event_id": "401884724",
+      "fecha": "2026-11-28",
+      "partido": "SC Freiburg vs RB Leipzig",
+      "liga": "Bundesliga",
+      "mercado": "Más de 8.5 Tiros al Arco",
+      "cuota": 1.68,
+      "stake": 3.2,
+      "estado": "PENDIENTE",
+      "resultado_final": "-",
+      "profit": 0.0
+    },
+    {
+      "event_id": "401879228",
+      "fecha": "2026-11-28",
+      "partido": "Fulham vs AFC Bournemouth",
+      "liga": "Premier League",
+      "mercado": "Más de 9.5 Córners",
+      "cuota": 1.66,
+      "stake": 3.15,
+      "estado": "PENDIENTE",
+      "resultado_final": "-",
+      "profit": 0.0
+    },
+    {
+      "event_id": "401874994",
+      "fecha": "2026-11-28",
+      "partido": "Como vs Juventus",
+      "liga": "Serie A Italia",
+      "mercado": "Menos de 10.5 Córners",
+      "cuota": 1.62,
+      "stake": 3.54,
+      "estado": "PENDIENTE",
+      "resultado_final": "-",
+      "profit": 0.0
+    },
+    {
       "event_id": "401884726",
       "fecha": "2026-11-27",
       "partido": "VfB Stuttgart vs Eintracht Frankfurt",
@@ -1083,62 +1131,6 @@
       "estado": "GANADO",
       "marcador_final": "0-6 (Final)",
       "profit": 2.07,
-      "version": "Pro2.6-Audited"
-    },
-    {
-      "event_id": "401841301",
-      "clave_partido": "intern_coriti",
-      "liga": "Brasileirao",
-      "partido": "Internacional vs Coritiba",
-      "mercado": "Empate no Válido (Local) - Internacional",
-      "cuota": 1.47,
-      "stake": 4.5,
-      "tier": "TIER S",
-      "estado": "PENDIENTE",
-      "marcador_final": "MAÑANA · 19:30",
-      "profit": 0.0,
-      "version": "Pro2.6-Audited"
-    },
-    {
-      "event_id": "401885403",
-      "clave_partido": "benfic_alverc",
-      "liga": "Primeira Liga",
-      "partido": "Benfica vs Alverca",
-      "mercado": "Menos de 12.5 Córners Totales",
-      "cuota": 1.52,
-      "stake": 4.5,
-      "tier": "TIER S",
-      "estado": "PERDIDO",
-      "marcador_final": "1-0 (Final · 13 Córners)",
-      "profit": -4.5,
-      "version": "Pro2.6-Audited"
-    },
-    {
-      "event_id": "401878762",
-      "clave_partido": "newcas_everto",
-      "liga": "Premier League",
-      "partido": "Newcastle United vs Everton",
-      "mercado": "Menos de 11.5 Tiros al Arco",
-      "cuota": 1.54,
-      "stake": 4.5,
-      "tier": "TIER S",
-      "estado": "GANADO",
-      "marcador_final": "0-1 (Final · 7 SOT)",
-      "profit": 2.43,
-      "version": "Pro2.6-Audited"
-    },
-    {
-      "event_id": "401876419",
-      "clave_partido": "lorien_brest",
-      "liga": "Ligue 1",
-      "partido": "Lorient vs Brest",
-      "mercado": "Menos de 12.5 Córners Totales",
-      "cuota": 1.52,
-      "stake": 4.5,
-      "tier": "TIER S",
-      "estado": "GANADO",
-      "marcador_final": "0-2 (Final · 10 Córners)",
-      "profit": 2.34,
       "version": "Pro2.6-Audited"
     }
   ]

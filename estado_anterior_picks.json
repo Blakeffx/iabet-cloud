@@ -2,17 +2,29 @@
   "401874826": {
     "partido": "Torino vs Lazio",
     "liga": "Serie A Italia",
-    "dia_tag": "MAÑANA · 12:00",
+    "dia_tag": "HOY · 12:00",
     "mercado": "Menos de 10.5 Córners",
     "cuota": 1.62,
     "prob_real": 68.5,
     "edge": 6.8,
     "stake_pct": 3.54,
     "tier_label": "💎 TIER S (Fija Blindada)",
-    "timestamp": "2026-11-27 18:48"
+    "timestamp": "2026-11-28 00:20"
   },
   "401874977": {
     "partido": "Internazionale vs Genoa",
+    "liga": "Serie A Italia",
+    "dia_tag": "HOY · 14:45",
+    "mercado": "Menos de 10.5 Córners",
+    "cuota": 1.62,
+    "prob_real": 68.5,
+    "edge": 6.8,
+    "stake_pct": 3.54,
+    "tier_label": "💎 TIER S (Fija Blindada)",
+    "timestamp": "2026-11-28 00:20"
+  },
+  "401874994": {
+    "partido": "Como vs Juventus",
     "liga": "Serie A Italia",
     "dia_tag": "MAÑANA · 14:45",
     "mercado": "Menos de 10.5 Córners",
@@ -21,10 +33,46 @@
     "edge": 6.8,
     "stake_pct": 3.54,
     "tier_label": "💎 TIER S (Fija Blindada)",
-    "timestamp": "2026-11-27 18:48"
+    "timestamp": "2026-11-28 00:20"
+  },
+  "401879228": {
+    "partido": "Fulham vs AFC Bournemouth",
+    "liga": "Premier League",
+    "dia_tag": "MAÑANA · 09:05",
+    "mercado": "Más de 9.5 Córners",
+    "cuota": 1.66,
+    "prob_real": 66.5,
+    "edge": 6.3,
+    "stake_pct": 3.15,
+    "tier_label": "💎 TIER S (Fija Blindada)",
+    "timestamp": "2026-11-28 00:20"
   },
   "401884722": {
     "partido": "Hamburg SV vs Bayern Munich",
+    "liga": "Bundesliga",
+    "dia_tag": "HOY · 09:30",
+    "mercado": "Más de 8.5 Tiros al Arco",
+    "cuota": 1.68,
+    "prob_real": 66.0,
+    "edge": 6.5,
+    "stake_pct": 3.2,
+    "tier_label": "💎 TIER S (Fija Blindada)",
+    "timestamp": "2026-11-28 00:20"
+  },
+  "401884726": {
+    "partido": "VfB Stuttgart vs Eintracht Frankfurt",
+    "liga": "Bundesliga",
+    "dia_tag": "HOY · 12:30",
+    "mercado": "Más de 8.5 Tiros al Arco",
+    "cuota": 1.68,
+    "prob_real": 66.0,
+    "edge": 6.5,
+    "stake_pct": 3.2,
+    "tier_label": "💎 TIER S (Fija Blindada)",
+    "timestamp": "2026-11-28 00:20"
+  },
+  "401884724": {
+    "partido": "SC Freiburg vs RB Leipzig",
     "liga": "Bundesliga",
     "dia_tag": "MAÑANA · 09:30",
     "mercado": "Más de 8.5 Tiros al Arco",
@@ -33,18 +81,18 @@
     "edge": 6.5,
     "stake_pct": 3.2,
     "tier_label": "💎 TIER S (Fija Blindada)",
-    "timestamp": "2026-11-27 18:48"
+    "timestamp": "2026-11-28 00:20"
   },
-  "401884726": {
-    "partido": "VfB Stuttgart vs Eintracht Frankfurt",
+  "401884725": {
+    "partido": "TSG Hoffenheim vs FC Augsburg",
     "liga": "Bundesliga",
-    "dia_tag": "MAÑANA · 12:30",
+    "dia_tag": "MAÑANA · 11:30",
     "mercado": "Más de 8.5 Tiros al Arco",
     "cuota": 1.68,
     "prob_real": 66.0,
     "edge": 6.5,
     "stake_pct": 3.2,
     "tier_label": "💎 TIER S (Fija Blindada)",
-    "timestamp": "2026-11-27 18:48"
+    "timestamp": "2026-11-28 00:20"
   }
 }
