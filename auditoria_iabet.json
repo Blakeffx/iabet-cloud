@@ -1,10 +1,10 @@
 {
   "bankroll_inicial": 100.0,
-  "bankroll_actual": 149.82,
-  "ganados": 53,
-  "perdidos": 17,
-  "win_rate": 75.7,
-  "roi": 18.1,
+  "bankroll_actual": 149.55,
+  "ganados": 51,
+  "perdidos": 16,
+  "win_rate": 76.1,
+  "roi": 19.0,
   "racha": "Activa",
   "historial": [
     {
